@@ -1,23 +1,23 @@
 """Generate evidence/slowlane/run-summary.txt — measured claims, not prose."""
 import io
-import os
 import sys
 import unittest
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(_HERE, "..", "..", ".."))
-sys.path.insert(0, os.path.join(REPO, "packages"))
+_HERE = Path(__file__).resolve().parent
+REPO = _HERE.parent.parent.parent
+sys.path.insert(0, str(REPO / "packages"))
 
 loader = unittest.TestLoader()
-suite = loader.discover(os.path.join(REPO, "packages", "slowlane", "tests"),
+suite = loader.discover(str(REPO / "packages" / "slowlane" / "tests"),
                         top_level_dir=REPO)
 stream = io.StringIO()
 runner = unittest.TextTestRunner(stream=stream, verbosity=1)
 result = runner.run(suite)
 
-out_dir = os.path.join(REPO, "evidence", "slowlane")
-os.makedirs(out_dir, exist_ok=True)
-with open(os.path.join(out_dir, "run-summary.txt"), "w") as f:
+out_dir = REPO / "evidence" / "slowlane"
+out_dir.mkdir(parents=True, exist_ok=True)
+with open(out_dir / "run-summary.txt", "w", encoding="utf-8") as f:
     f.write("S1 slowlane test evidence\n")
     f.write("=========================\n")
     f.write(f"tests run: {result.testsRun}\n")
@@ -29,14 +29,14 @@ with open(os.path.join(out_dir, "run-summary.txt"), "w") as f:
 
 # Canonical counterfactual artifact: the two projection byte-strings.
 from slowlane import compiler, quarantine, seam  # noqa: E402
-sys.path.insert(0, os.path.join(REPO, "packages", "slowlane", "tests"))
+sys.path.insert(0, str(REPO / "packages" / "slowlane" / "tests"))
 from test_counterfactual import _projection  # noqa: E402
 
 store_a, comp_a = quarantine.QuarantineStore(), compiler.TableCompiler()
 store_b, comp_b = quarantine.QuarantineStore(), compiler.TableCompiler()
 proj_a = _projection(store_a, comp_a, with_email=False)
 proj_b = _projection(store_b, comp_b, with_email=True)
-with open(os.path.join(out_dir, "counterfactual-projections.txt"), "w") as f:
+with open(out_dir / "counterfactual-projections.txt", "w", encoding="utf-8") as f:
     f.write("world A (no email) projection bytes:\n")
     f.write(proj_a.decode() + "\n\n")
     f.write("world B (adversarial email, QUARANTINED) projection bytes:\n")

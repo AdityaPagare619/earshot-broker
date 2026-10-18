@@ -28,8 +28,13 @@ import socketserver
 import sys
 import time
 import traceback
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+sys.path.insert(0, str(_HERE.parent.parent.parent))  # repo root: wincompat
+
+from wincompat import ensure_utf8_stdout  # noqa: E402
 
 import auth as auth_mod
 import broker as broker_mod
@@ -44,9 +49,8 @@ SESSION_TTL = 1800  # 30 min idle
 RATE_LIMIT_PER_MIN = 100
 ALLOWED_ORIGIN_PREFIXES = ("http://127.0.0.1:", "http://localhost:")
 
-_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                           "..", "..", ".."))
-_CONTRACTS_PATH = os.path.join(_REPO_ROOT, "packages", "contracts", "API_CONTRACTS.json")
+_REPO_ROOT = _HERE.parent.parent.parent
+_CONTRACTS_PATH = _REPO_ROOT / "packages" / "contracts" / "API_CONTRACTS.json"
 
 with open(_CONTRACTS_PATH, encoding="utf-8") as fh:
     _CONTRACTS = json.load(fh)
@@ -440,6 +444,7 @@ class ThreadedMCPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 
 def run(port: int, world_factory=None) -> None:
+    ensure_utf8_stdout()
     server = ThreadedMCPServer(("127.0.0.1", port), MCPHandler)
     server.auth = auth_mod.AuthRegistry()
     server.broker = broker_mod.Broker(

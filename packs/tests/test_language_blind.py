@@ -10,20 +10,22 @@ Three claims, all machine-checked:
      packs/*.py or integration/.
 """
 
-import sys
 import os
+import sys
 import re
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "demo"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
+sys.path.insert(0, str(_HERE.parent.parent / "demo"))
 
 import five_beats as demo
 from integration.pipeline import SealedSpeechPipeline
 from packs.loader import load_pack
 
-ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
-PACKS = os.path.join(ROOT, "packs")
+ROOT = _HERE.parent.parent
+PACKS = ROOT / "packs"
 
 
 def _plan_signature(pack_name, signals=()):
@@ -76,12 +78,12 @@ class TestLanguageBlind(unittest.TestCase):
         language it is fails this test."""
         hot = []
         for base in ("packs", "integration"):
-            for dirpath, _, filenames in os.walk(os.path.join(ROOT, base)):
+            for dirpath, _, filenames in os.walk(ROOT / base):
                 if "tests" in dirpath:
                     continue
                 for fn in filenames:
                     if fn.endswith(".py"):
-                        hot.append(os.path.join(dirpath, fn))
+                        hot.append(Path(dirpath) / fn)
         # demo/ is narration, not the hot path — but it must not leak
         # language logic into the pipeline either (checked separately).
         problems = []
@@ -91,10 +93,16 @@ class TestLanguageBlind(unittest.TestCase):
                 s = line.strip()
                 if s.startswith("#"):
                     continue
-                # `if lang ==`, `lang !=`, ternaries on lang, per-lang literals
+                # `if lang ==`, `lang !=`, ternaries on lang, per-lang literals.
+                # NOTE: `lang` must be a standalone word — field names like
+                # `lang_detected` (data routing, never branched on) are not
+                # conditionals. (This scan goes over real normalized paths;
+                # an un-normalized ROOT would make the "tests" filter below
+                # skip every directory and the test vacuous.)
                 if re.search(r"\blang\s*(==|!=)\s*['\"]", s):
                     problems.append(f"{path}:{i}: {s}")
-                if re.search(r"['\"](en|hi)['\"]\s*(==|!=)\s*.*lang|lang.*['\"](en|hi)['\"]",
+                if re.search(r"['\"](en|hi)['\"]\s*(==|!=)\s*.*\blang\b"
+                             r"|\blang\b.*['\"](en|hi)['\"]",
                              s) and "pack" not in s.lower():
                     problems.append(f"{path}:{i}: {s}")
                 if re.search(r"\bif\s+.*\blang\b.*:", s) and "language" in s:

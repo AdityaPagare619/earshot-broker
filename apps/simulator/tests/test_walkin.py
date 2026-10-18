@@ -1,10 +1,11 @@
 """End-to-end walk-in scenario through the real Host path."""
 import sys
-import os
 import time
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
 import host as host_module
 
 PRIVATE_MARKERS = ("prenatal", "3:30", "clinic", "checkup")

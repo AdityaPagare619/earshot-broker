@@ -5,8 +5,8 @@ by default (safe guided defaults); --interactive prompts at every step.
 Profile schema is versioned; v1 is frozen.
 """
 import json
-import os
 import time
+from pathlib import Path
 
 PROFILE_VERSION = 1
 PROFILE_FILENAME = ".earshot-profile.json"
@@ -30,7 +30,7 @@ SAFE_DEFAULTS = {
 
 
 def profile_path(directory: str = ".") -> str:
-    return os.path.join(directory, PROFILE_FILENAME)
+    return str(Path(directory) / PROFILE_FILENAME)
 
 
 def _ask(prompt: str, default: str) -> str:
@@ -118,7 +118,7 @@ def run_onboarding(directory: str = ".", interactive: bool = False,
 
 def load_profile(directory: str = ".") -> dict:
     path = profile_path(directory)
-    if not os.path.exists(path):
+    if not Path(path).exists():
         raise FileNotFoundError(
             f"No profile at {path}. Run onboarding first: python3 quickstart.py")
     with open(path, encoding="utf-8") as fh:

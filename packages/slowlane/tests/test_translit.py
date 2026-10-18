@@ -3,12 +3,12 @@
 The bar: identical normalization on both sides of every verifier check.
 These tests pin the map's behavior on security-relevant inputs.
 """
-import os
 import sys
 import unittest
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
 
 from slowlane.translit import normalize, tokens, transliterate  # noqa: E402
 

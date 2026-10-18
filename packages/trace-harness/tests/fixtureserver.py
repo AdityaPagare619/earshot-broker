@@ -18,8 +18,9 @@ import secrets
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "kernel"))
 from kernel import Kernel, Fact, Label  # noqa: E402
 
 PUBLIC = "*"

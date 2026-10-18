@@ -6,12 +6,12 @@ a meter that cannot fail is theater.
 Path handling is robust (no hardcoded worktree paths): the package is
 resolved relative to this file.
 """
-import os
 import sys
 import unittest
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, ".."))  # packages/trace-harness
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))  # packages/trace-harness
 
 from trace_harness.slo import lexicon as L
 from trace_harness.slo.counterfactuals import run_all as run_counterfactuals

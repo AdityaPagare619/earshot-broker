@@ -1,13 +1,13 @@
 """Arbiter ordering tests — the epoch race must close, not just pass once."""
 import sys
-import os
 import threading
 import time
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                "packages", "kernel"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE.parent.parent.parent / "packages" / "kernel"))
 from arbiter import Arbiter, AudienceEvent
 from kernel import Fact, Kernel, Label
 

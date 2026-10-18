@@ -16,17 +16,18 @@ from __future__ import annotations
 import os
 import sys
 import time
+from pathlib import Path
 
 # Kernel lives in packages/kernel (imported as top-level `kernel` there);
 # the broker lives in services/gateway/mcp (imports as top-level `broker`,
 # `fixtures`, `shape` there).
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                          "..", ".."))
-for _p in (os.path.join(_REPO_ROOT, "packages", "kernel"),
-           os.path.join(_REPO_ROOT, "services", "gateway", "mcp"),
-           os.path.dirname(__file__)):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+for _p in (_REPO_ROOT / "packages" / "kernel",
+           _REPO_ROOT / "services" / "gateway" / "mcp",
+           Path(__file__).resolve().parent):
+    _s = str(_p)
+    if _s not in sys.path:
+        sys.path.insert(0, _s)
 
 from mcp_client import McpClient, McpError  # noqa: E402
 from kernel import Kernel  # noqa: E402  (arbiter seal mechanics)

@@ -1,10 +1,10 @@
 """Tests: confirm queue — it can only make you quieter."""
-import os
 import sys
 import unittest
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
 
 from slowlane.confirm import ConfirmError, ConfirmQueue  # noqa: E402
 from slowlane.models import SecrecyEdge  # noqa: E402

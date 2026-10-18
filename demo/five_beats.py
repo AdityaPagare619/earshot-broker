@@ -17,15 +17,20 @@ Exit code is non-zero if any beat assertion fails.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT))
 
-from integration.pipeline import SealedSpeechPipeline
-from packs.loader import load_pack
+from wincompat import ensure_utf8_stdout  # noqa: E402
 
-PACKS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "packs")
+ensure_utf8_stdout()
+
+from integration.pipeline import SealedSpeechPipeline  # noqa: E402
+from packs.loader import load_pack  # noqa: E402
+
+PACKS_ROOT = _REPO_ROOT / "packs"
 
 # ---------------------------------------------------------------- scenario
 STRINGS = {

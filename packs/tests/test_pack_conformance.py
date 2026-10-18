@@ -4,19 +4,21 @@ A pack that fails silently is a privacy hole wearing a config file. These tests
 pin the loudness: each mutation below MUST raise PackError.
 """
 
-import os
 import shutil
 import tempfile
 import unittest
 
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
 
 from packs.loader import load_pack
 from packs.schema import validate_pack
 from packs.yaml_subset import PackError, parse
 
-PACKS_ROOT = os.path.join(os.path.dirname(__file__), "..")
+PACKS_ROOT = _HERE.parent
 
 
 class ParserTest(unittest.TestCase):
@@ -73,15 +75,15 @@ class ParserTest(unittest.TestCase):
 
 class ShippedPacksValidateTest(unittest.TestCase):
     def test_base_validates(self):
-        manifest = validate_pack(os.path.join(PACKS_ROOT, "base"))
+        manifest = validate_pack(PACKS_ROOT / "base")
         self.assertEqual(manifest["name"], "base")
 
     def test_en_validates(self):
-        manifest = validate_pack(os.path.join(PACKS_ROOT, "en"))
+        manifest = validate_pack(PACKS_ROOT / "en")
         self.assertEqual(manifest["name"], "en")
 
     def test_hi_validates(self):
-        manifest = validate_pack(os.path.join(PACKS_ROOT, "hi"))
+        manifest = validate_pack(PACKS_ROOT / "hi")
         self.assertEqual(manifest["name"], "hi")
 
     def test_en_loads(self):
@@ -112,21 +114,20 @@ class BrokenPackFailsLoudlyTest(unittest.TestCase):
     """Each mutation must raise PackError. A silent pass here is a test failure."""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="packtest-")
+        self.tmp = Path(tempfile.mkdtemp(prefix="packtest-"))
         self.addCleanup(shutil.rmtree, self.tmp, True)
         # A packs root with the REAL base, so load_pack() exercises the full
         # merge + content-validation path for broken language packs.
-        shutil.copytree(os.path.join(PACKS_ROOT, "base"),
-                        os.path.join(self.tmp, "base"))
+        shutil.copytree(PACKS_ROOT / "base", self.tmp / "base")
 
     def _write_pack(self, name, files, manifest_extra=""):
-        d = os.path.join(self.tmp, name)
-        os.makedirs(d)
+        d = self.tmp / name
+        d.mkdir(parents=True)
         manifest = f"name: {name}\nversion: 1\ninherits: base\ndescription: test\n{manifest_extra}"
-        with open(os.path.join(d, "pack.yaml"), "w") as fh:
+        with open(d / "pack.yaml", "w", encoding="utf-8") as fh:
             fh.write(manifest)
         for fname, content in files.items():
-            with open(os.path.join(d, fname), "w") as fh:
+            with open(d / fname, "w", encoding="utf-8") as fh:
                 fh.write(content)
         # lang packs need the real base for load_pack; validate_pack is enough here.
         return d
@@ -148,9 +149,9 @@ class BrokenPackFailsLoudlyTest(unittest.TestCase):
             validate_pack(d)
 
     def test_manifest_name_mismatch_fails(self):
-        d = os.path.join(self.tmp, "xx")
-        os.makedirs(d)
-        with open(os.path.join(d, "pack.yaml"), "w") as fh:
+        d = self.tmp / "xx"
+        d.mkdir()
+        with open(d / "pack.yaml", "w", encoding="utf-8") as fh:
             fh.write("name: yy\nversion: 1\ninherits: base\ndescription: test\n")
         with self.assertRaises(PackError):
             validate_pack(d)
@@ -166,8 +167,8 @@ class BrokenPackFailsLoudlyTest(unittest.TestCase):
         pack = load_pack(PACKS_ROOT, "en")
         self.assertEqual(pack.roles["partner"]["default_clearance"], 4)
         # Mutate a temp copy of base roles: clearance 9 is outside 0..4.
-        base = os.path.join(self.tmp, "base")
-        with open(os.path.join(base, "roles.yaml"), "w") as fh:
+        base = self.tmp / "base"
+        with open(base / "roles.yaml", "w", encoding="utf-8") as fh:
             fh.write("roles:\n  child:\n    default_clearance: 9\n  guest:\n"
                      "    default_clearance: 1\n  elder:\n    default_clearance: 2\n"
                      "  partner:\n    default_clearance: 4\n  unknown:\n"
@@ -197,8 +198,8 @@ class BrokenPackFailsLoudlyTest(unittest.TestCase):
             load_pack(self.tmp, "xx")
 
     def test_unknown_role_fails(self):
-        base = os.path.join(self.tmp, "base")
-        with open(os.path.join(base, "roles.yaml"), "w") as fh:
+        base = self.tmp / "base"
+        with open(base / "roles.yaml", "w", encoding="utf-8") as fh:
             fh.write("roles:\n  child:\n    default_clearance: 1\n  guest:\n"
                      "    default_clearance: 1\n  elder:\n    default_clearance: 2\n"
                      "  partner:\n    default_clearance: 4\n  unknown:\n"
@@ -207,8 +208,8 @@ class BrokenPackFailsLoudlyTest(unittest.TestCase):
             validate_pack(base)
 
     def test_sensitivity_out_of_range_fails(self):
-        base = os.path.join(self.tmp, "base")
-        with open(os.path.join(base, "taxonomy.yaml"), "w") as fh:
+        base = self.tmp / "base"
+        with open(base / "taxonomy.yaml", "w", encoding="utf-8") as fh:
             fh.write("topics:\n  health:\n    sensitivity: 1.5\n")
         with self.assertRaises(PackError):
             validate_pack(base)

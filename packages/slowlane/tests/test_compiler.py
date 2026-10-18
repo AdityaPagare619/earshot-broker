@@ -3,12 +3,12 @@
 The compiler APPLIES edges; it never invents them. Unknown persons default
 to depth 0. Unverified chains and version replays are refused.
 """
-import os
 import sys
 import unittest
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
 
 from slowlane.compiler import CompilerError, TableCompiler  # noqa: E402
 from slowlane.models import (  # noqa: E402

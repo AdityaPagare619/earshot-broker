@@ -6,7 +6,6 @@ and answers everything else with the generic 'Unavailable'.
 """
 import hashlib
 import json
-import os
 import time
 
 from kernel import Context, Fact, Kernel, Label
@@ -14,6 +13,7 @@ from kernel import Context, Fact, Kernel, Label
 from . import auth
 from . import planner
 from .fixture_calendar import FixtureCalendar
+from pathlib import Path
 
 SERVER_FILENAME = ".earshot-server.json"
 PUBLIC_WEATHER = Fact("weather", "Rain is forecast after 17:00.", Label(frozenset({"*"})))
@@ -35,14 +35,14 @@ class ServerStore:
     enforces the owner session before touching private material."""
 
     def __init__(self, directory: str = "."):
-        self.path = os.path.join(directory, SERVER_FILENAME)
+        self.path = str(Path(directory) / SERVER_FILENAME)
         self.kernel = Kernel()
         self._plans: dict[str, dict] = {}
         self._approvals: dict[str, dict] = {}
         self._load()
 
     def _load(self) -> None:
-        if not os.path.exists(self.path):
+        if not Path(self.path).exists():
             return
         with open(self.path, encoding="utf-8") as fh:
             data = json.load(fh)

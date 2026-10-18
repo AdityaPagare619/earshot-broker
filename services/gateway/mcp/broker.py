@@ -9,9 +9,10 @@ secrecy graph (packages/secrecy) — choke-point edge store, monotone gate,
 declaration log with asymmetric trust at ingest."""
 from __future__ import annotations
 
+from pathlib import Path
+
 import importlib.util
 import json
-import os
 import secrets
 import sys
 import time
@@ -23,11 +24,11 @@ import fixtures
 from fixtures import FixtureWorld
 
 # --- kernel loading (single source of truth: packages/kernel/kernel.py) ---
-_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-_KERNEL_PATH = os.path.join(_REPO_ROOT, "packages", "kernel", "kernel.py")
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_KERNEL_PATH = _REPO_ROOT / "packages" / "kernel" / "kernel.py"
 
 # --- secrecy package (S4): graph + monotone gate + declarations ------------
-sys.path.insert(0, os.path.join(_REPO_ROOT, "packages", "secrecy"))
+sys.path.insert(0, str(_REPO_ROOT / "packages" / "secrecy"))
 from store import EdgeStore
 from declarations import DeclarationLog, parse_declaration
 from parse import parse_keep_secret
@@ -35,7 +36,7 @@ from overrides import GLOBAL_SCOPE, effective_clearance
 
 # --- hotlane package (S2): belief fusion, credible sets, minimax planner ---
 # (the PARENT dir goes on sys.path: `hotlane` is a package, not a module)
-sys.path.insert(0, os.path.join(_REPO_ROOT, "packages"))
+sys.path.insert(0, str(_REPO_ROOT / "packages"))
 from hotlane import (
     ALONE,
     DECLARE_ABSENT,

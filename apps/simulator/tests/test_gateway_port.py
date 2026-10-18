@@ -2,10 +2,11 @@
 import sys
 import os
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                "packages", "kernel"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE.parent.parent.parent / "packages" / "kernel"))
 from gateway_port import GatewayPort
 from protocol_conformance_harness import run_harness
 

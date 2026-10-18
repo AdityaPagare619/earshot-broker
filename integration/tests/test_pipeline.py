@@ -8,15 +8,16 @@ comes from the secrecy edge, not from the code path.
 """
 
 import sys
-import os
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
 
 from integration.pipeline import SealedSpeechPipeline
 from packs.loader import load_pack
 
-PACKS = os.path.join(os.path.dirname(__file__), "..", "..", "packs")
+PACKS = _HERE.parent.parent / "packs"
 
 
 def _obgyn_day(pipe):

@@ -13,10 +13,14 @@ MCPHttpAdapter yourself. The harness never silently invents server state.
 """
 import argparse
 import json
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "kernel"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent / "kernel"))
+sys.path.insert(0, str(_HERE.parent.parent.parent))  # repo root: wincompat
+
+from wincompat import ensure_utf8_stdout  # noqa: E402
 
 from trace_harness import (  # noqa: E402
     builtin_pairs, MCPHttpAdapter, KernelDirectAdapter, run_sequence,
@@ -75,13 +79,13 @@ def _run_all(make_adapter, setup_world=None, teardown=None):
 
 
 def _to_fact(d):
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "kernel"))
-    from kernel import Fact, Label
+    from kernel import Fact, Label  # kernel dir on sys.path at module top
     return Fact(d["key"], d["value"],
                 Label(frozenset(d["readers"]), frozenset(d.get("topics", ()))))
 
 
 def main(argv=None):
+    ensure_utf8_stdout()
     ap = argparse.ArgumentParser(description="Public-trace privacy harness")
     ap.add_argument("command", choices=["run", "slo"],
                     help="run: paired-world wire harness; slo: privacy SLO lab")
@@ -119,7 +123,7 @@ def main(argv=None):
         report = _run_all(make_adapter)
         report["mode"] = "selftest (in-process kernel; NOT server evidence)"
     else:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tests"))
+        sys.path.insert(0, str(_HERE.parent / "tests"))
         import fixtureserver
 
         server = fixtureserver.start(args.fixture_port)
@@ -138,9 +142,10 @@ def main(argv=None):
                           f"({base}); fixture, not the product server")
         server.shutdown()
 
-    os.makedirs(args.out, exist_ok=True)
-    _write_markdown(report, os.path.join(args.out, "trace-harness-report.md"))
-    with open(os.path.join(args.out, "trace-harness-report.json"), "w") as f:
+    outdir = Path(args.out)
+    outdir.mkdir(parents=True, exist_ok=True)
+    _write_markdown(report, str(outdir / "trace-harness-report.md"))
+    with open(outdir / "trace-harness-report.json", "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
     npass = sum(1 for p in report["pairs"] if p["verdict"] == "PASS")
@@ -185,7 +190,7 @@ def _write_markdown(report, path):
     lines.append("No production security, no timing-channel absence, no real "
                  "listener detection. A PASS is a necessary condition, not a "
                  "certificate. See the package README.")
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
 

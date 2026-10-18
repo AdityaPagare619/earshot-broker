@@ -9,9 +9,10 @@ import threading
 import time
 import urllib.request
 import urllib.error
-import os
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
 
 import server as S  # noqa: E402
 

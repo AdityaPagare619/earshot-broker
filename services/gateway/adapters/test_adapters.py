@@ -4,15 +4,15 @@ Run: python3 test_adapters.py  (stdlib unittest; run from this directory)
 """
 import json
 import sys
-import os
 import unittest
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = Path(__file__).resolve().parent
 # kernel package + this package's parent (services/gateway) for `adapters` imports.
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "packages", "kernel"))
-sys.path.insert(0, os.path.join(_HERE, ".."))
+sys.path.insert(0, str(_HERE.parent.parent.parent / "packages" / "kernel"))
+sys.path.insert(0, str(_HERE.parent))
 
 from kernel import Fact, Label  # noqa: E402
 from adapters.contract import (AdapterRegistry, ContractViolation,  # noqa: E402

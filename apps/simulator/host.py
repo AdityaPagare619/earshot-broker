@@ -14,17 +14,20 @@ Honest labels are UI elements, not footnotes: the banner always reads
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "..", "..", "services", "gateway", "mcp"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+sys.path.insert(0, str(_HERE.parent.parent / "services" / "gateway" / "mcp"))
+sys.path.insert(0, str(_HERE.parent.parent))  # repo root: wincompat
+
+from wincompat import ensure_utf8_stdout  # noqa: E402
 from gateway_port import GatewayPort  # noqa: E402  (sets kernel sys.path)
 from arbiter import Arbiter  # noqa: E402
 from audience import AudienceSource, SensorScript  # noqa: E402
@@ -32,7 +35,7 @@ from kernel import Fact, Label  # noqa: E402
 import shape as shape_mod  # noqa: E402  (constant-shape assembly)
 
 PUBLIC = "*"
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = _HERE
 
 # Demo fixtures (dossier §4.3). The briefing LINES are gone: the UI now speaks
 # the sealed-speech contract (res["speak"]) verbatim — the fixture never
@@ -379,11 +382,11 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/":
             self._serve_file("ui/index.html", "text/html")
         elif path.startswith("/ui/"):
-            name = os.path.basename(path)
+            name = Path(path).name
             ctype = {"html": "text/html", "css": "text/css",
                      "js": "application/javascript"}.get(
                          name.rsplit(".", 1)[-1], "application/octet-stream")
-            self._serve_file(os.path.join("ui", name), ctype)
+            self._serve_file(str(Path("ui") / name), ctype)
         elif path == "/api/status":
             self._json(HOST.get_status())
         elif path == "/api/output":
@@ -436,8 +439,8 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "not found"}, 404)
 
     def _serve_file(self, rel: str, ctype: str):
-        full = os.path.join(HERE, rel)
-        if not os.path.isfile(full):
+        full = HERE / rel
+        if not full.is_file():
             self._json({"error": "not found"}, 404)
             return
         with open(full, "rb") as f:
@@ -453,6 +456,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+    ensure_utf8_stdout()
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8734)

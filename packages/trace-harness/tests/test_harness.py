@@ -9,9 +9,11 @@ Adversarial: reference replay and double-withdraw behave identically.
 """
 import sys
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/trace-harness")
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent / "kernel"))
+sys.path.insert(0, str(_HERE.parent))
 
 import fixtureserver
 from fixtureserver import to_fact

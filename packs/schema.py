@@ -24,6 +24,7 @@ Frozen value domains:
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import re
 
 from .yaml_subset import PackError, load_file
@@ -201,42 +202,43 @@ LANG_FILES = ("pack.yaml", "lexicon.yaml", "renditions.yaml", "ui.yaml")
 
 def validate_pack(pack_dir):
     """Validate a pack directory. Returns the manifest dict. Raises PackError."""
-    name = os.path.basename(pack_dir.rstrip(os.sep))
-    manifest_path = os.path.join(pack_dir, "pack.yaml")
-    if not os.path.isfile(manifest_path):
-        raise PackError(manifest_path, 0, "missing pack.yaml")
+    pack_dir = Path(pack_dir)
+    name = pack_dir.name
+    manifest_path = pack_dir / "pack.yaml"
+    if not manifest_path.is_file():
+        raise PackError(str(manifest_path), 0, "missing pack.yaml")
     manifest = load_file(manifest_path)
-    validate_manifest(manifest, manifest_path)
+    validate_manifest(manifest, str(manifest_path))
     if manifest["name"] != name:
-        raise PackError(manifest_path, 0,
+        raise PackError(str(manifest_path), 0,
                         f"manifest name {manifest['name']!r} != directory name {name!r}")
 
     is_base = manifest["inherits"] is None
     required = BASE_FILES if is_base else LANG_FILES
     for fname in required:
-        fpath = os.path.join(pack_dir, fname)
-        if not os.path.isfile(fpath):
-            raise PackError(fpath, 0, f"missing required file for pack {name!r}")
+        fpath = pack_dir / fname
+        if not fpath.is_file():
+            raise PackError(str(fpath), 0, f"missing required file for pack {name!r}")
     # A base pack must not carry language-specific files; a lang pack must not
     # carry base files. The split is structural, not conventional.
     if is_base:
         for fname in LANG_FILES[1:]:
-            if os.path.isfile(os.path.join(pack_dir, fname)):
-                raise PackError(os.path.join(pack_dir, fname), 0,
+            if (pack_dir / fname).is_file():
+                raise PackError(str(pack_dir / fname), 0,
                                 "base pack must not contain language-specific files")
     else:
         for fname in BASE_FILES[1:]:
-            if os.path.isfile(os.path.join(pack_dir, fname)):
-                raise PackError(os.path.join(pack_dir, fname), 0,
+            if (pack_dir / fname).is_file():
+                raise PackError(str(pack_dir / fname), 0,
                                 "language pack must not redefine base files")
 
     topic_paths = set()
     if is_base:
         topic_paths = validate_taxonomy(
-            load_file(os.path.join(pack_dir, "taxonomy.yaml")),
-            os.path.join(pack_dir, "taxonomy.yaml"))
-        validate_roles(load_file(os.path.join(pack_dir, "roles.yaml")),
-                       os.path.join(pack_dir, "roles.yaml"))
-        validate_templates(load_file(os.path.join(pack_dir, "templates.yaml")),
-                           os.path.join(pack_dir, "templates.yaml"))
+            load_file(pack_dir / "taxonomy.yaml"),
+            str(pack_dir / "taxonomy.yaml"))
+        validate_roles(load_file(pack_dir / "roles.yaml"),
+                       str(pack_dir / "roles.yaml"))
+        validate_templates(load_file(pack_dir / "templates.yaml"),
+                           str(pack_dir / "templates.yaml"))
     return manifest

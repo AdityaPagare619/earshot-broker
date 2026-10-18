@@ -5,17 +5,18 @@ can't be asserted, it gets cut (K2), not faked.
 """
 
 import sys
-import os
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "demo"))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent))
+sys.path.insert(0, str(_HERE.parent.parent / "demo"))
 
 import five_beats as demo
 from integration.pipeline import SealedSpeechPipeline
 from packs.loader import load_pack
 
-PACKS = os.path.join(os.path.dirname(__file__), "..", "..", "packs")
+PACKS = _HERE.parent.parent / "packs"
 
 
 class TestDemoBeats(unittest.TestCase):

@@ -1,9 +1,10 @@
 """MCP client conformance tests (stdlib unittest; no pytest needed)."""
 import sys
-import os
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
 from mcp_client import McpClient, McpError, PROTOCOL_VERSION
 from protocol_conformance_harness import run_harness
 
