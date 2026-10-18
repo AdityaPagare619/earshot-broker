@@ -8,9 +8,9 @@ audience_changed ordering with lease invalidation).
 ## Run it (one command, zero install)
 
 ```bash
-cd apps/simulator
-python3 host.py --port 8734
+earshot-sim --port 8734
 # open http://127.0.0.1:8734/
+# (or: python3 host.py --port 8734 from this directory)
 ```
 
 Stdlib only. No dependencies, no build step.
@@ -52,7 +52,7 @@ python3 test_walkin.py       # 7: end-to-end walk-in on the real path
 python3 test_gateway_port.py # 4: both backends, auth on personal surface
 ```
 
-33/33 green. Evidence (test runs, measured latencies, walk-in trace):
+35/35 green. Evidence (test runs, measured latencies, walk-in trace):
 `evidence/simulator-j02/`.
 
 Measured locally: `tools/call` p50 1.1ms / p95 1.3ms (loopback; network not
