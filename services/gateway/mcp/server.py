@@ -37,7 +37,7 @@ from . import fixtures as fixtures_mod
 
 PROTOCOL_VERSION = "2025-11-25"
 SERVER_NAME = "earshot-broker"
-SERVER_VERSION = "0.1.0"
+SERVER_VERSION = "1.0.0"
 MCP_PATH = "/mcp"
 MAX_BODY = 1 << 20  # 1 MB
 SESSION_TTL = 1800  # 30 min idle
@@ -149,7 +149,7 @@ def rpc_error(req_id, code: int, message: str, data=None) -> bytes:
 # HTTP handler
 
 class MCPHandler(http.server.BaseHTTPRequestHandler):
-    server_version = "EarshotBroker/0.1.0"
+    server_version = "EarshotBroker/" + SERVER_VERSION
 
     # -- small helpers -----------------------------------------------------
 

@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-18T15:49:08.701655+00:00",
+  "generated_utc": "2026-10-18T16:12:06.520643+00:00",
   "kernel_sha": "729921459edbb5f0fee84e85e2017c8911acbd25",
   "n_records": 14,
   "records": [
@@ -7,16 +7,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 1382229,
+          "max_ns": 1568279,
           "median_ns": 721,
           "n": 300,
-          "p95_ns": 961
+          "p95_ns": 901
         },
         "timing_b": {
-          "max_ns": 16564,
-          "median_ns": 721,
+          "max_ns": 21292,
+          "median_ns": 731,
           "n": 300,
-          "p95_ns": 842
+          "p95_ns": 901
         }
       },
       "dossier_ref": "\u00a714.3 location variation",
@@ -29,16 +29,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 32279,
-          "median_ns": 711,
+          "max_ns": 36045,
+          "median_ns": 741,
           "n": 300,
-          "p95_ns": 861
+          "p95_ns": 872
         },
         "timing_b": {
-          "max_ns": 5498,
-          "median_ns": 691,
+          "max_ns": 18978,
+          "median_ns": 722,
           "n": 300,
-          "p95_ns": 791
+          "p95_ns": 851
         }
       },
       "dossier_ref": "\u00a75 G5 existence invariance",
@@ -51,16 +51,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 10486,
-          "median_ns": 701,
+          "max_ns": 211138,
+          "median_ns": 731,
           "n": 300,
-          "p95_ns": 821
+          "p95_ns": 871
         },
         "timing_b": {
-          "max_ns": 32539,
-          "median_ns": 711,
+          "max_ns": 37416,
+          "median_ns": 721,
           "n": 300,
-          "p95_ns": 841
+          "p95_ns": 831
         }
       },
       "dossier_ref": "\u00a76 label granularity",
@@ -73,16 +73,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 19520,
-          "median_ns": 682,
+          "max_ns": 16305,
+          "median_ns": 701,
           "n": 300,
-          "p95_ns": 1112
+          "p95_ns": 791
         },
         "timing_b": {
-          "max_ns": 1131,
-          "median_ns": 721,
+          "max_ns": 1101,
+          "median_ns": 761,
           "n": 300,
-          "p95_ns": 801
+          "p95_ns": 841
         }
       },
       "dossier_ref": "\u00a714.3 no-event-vs-event",
@@ -95,16 +95,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 25508,
-          "median_ns": 711,
+          "max_ns": 24927,
+          "median_ns": 722,
           "n": 300,
-          "p95_ns": 781
+          "p95_ns": 822
         },
         "timing_b": {
-          "max_ns": 1152,
-          "median_ns": 771,
+          "max_ns": 1603,
+          "median_ns": 791,
           "n": 300,
-          "p95_ns": 842
+          "p95_ns": 862
         }
       },
       "dossier_ref": "\u00a714.3 count variation",
@@ -117,16 +117,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 1472,
-          "median_ns": 701,
+          "max_ns": 20781,
+          "median_ns": 721,
           "n": 300,
-          "p95_ns": 771
+          "p95_ns": 821
         },
         "timing_b": {
-          "max_ns": 25418,
-          "median_ns": 661,
+          "max_ns": 2704,
+          "median_ns": 691,
           "n": 300,
-          "p95_ns": 752
+          "p95_ns": 761
         }
       },
       "dossier_ref": "\u00a714.3 error-vs-nomatch",
@@ -163,16 +163,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 26340,
-          "median_ns": 741,
-          "n": 300,
-          "p95_ns": 821
-        },
-        "timing_b": {
-          "max_ns": 12249,
+          "max_ns": 1783,
           "median_ns": 761,
           "n": 300,
           "p95_ns": 851
+        },
+        "timing_b": {
+          "max_ns": 22724,
+          "median_ns": 761,
+          "n": 300,
+          "p95_ns": 832
         }
       },
       "dossier_ref": "\u00a714.3 reorder",
@@ -203,16 +203,16 @@
       "detail": {
         "n_bytes": 34,
         "timing_a": {
-          "max_ns": 1652,
-          "median_ns": 711,
+          "max_ns": 86570,
+          "median_ns": 731,
           "n": 300,
-          "p95_ns": 782
+          "p95_ns": 812
         },
         "timing_b": {
-          "max_ns": 1031,
-          "median_ns": 711,
+          "max_ns": 63786,
+          "median_ns": 731,
           "n": 300,
-          "p95_ns": 801
+          "p95_ns": 821
         }
       },
       "dossier_ref": "\u00a714.3 title counterfactual",

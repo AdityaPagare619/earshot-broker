@@ -1,204 +1,204 @@
 {
-  "generated_utc": "2026-10-18T15:49:08.715400+00:00",
-  "global_max_ns": 1382229,
-  "global_median_ns": 711,
+  "generated_utc": "2026-10-18T16:12:06.690110+00:00",
+  "global_max_ns": 1568279,
+  "global_median_ns": 731,
   "kernel_sha": "729921459edbb5f0fee84e85e2017c8911acbd25",
   "n_worlds": 24,
   "note": "Descriptive only. The reference kernel is NOT constant-time; see docs/threat-model.md R4.",
   "suite": "timing",
   "worlds": [
     {
-      "max_ns": 1382229,
+      "max_ns": 1568279,
       "median_ns": 721,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 961,
+      "p95_ns": 901,
       "world": "clinic-a"
     },
     {
-      "max_ns": 16564,
-      "median_ns": 721,
+      "max_ns": 21292,
+      "median_ns": 731,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 842,
+      "p95_ns": 901,
       "world": "clinic-b"
     },
     {
-      "max_ns": 32279,
-      "median_ns": 711,
+      "max_ns": 36045,
+      "median_ns": 741,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 861,
+      "p95_ns": 872,
       "world": "exists"
     },
     {
-      "max_ns": 5498,
-      "median_ns": 691,
+      "max_ns": 18978,
+      "median_ns": 722,
       "n": 300,
       "n_private_facts": 0,
-      "p95_ns": 791,
+      "p95_ns": 851,
       "world": "absent"
     },
     {
-      "max_ns": 10486,
-      "median_ns": 701,
+      "max_ns": 211138,
+      "median_ns": 731,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 821,
+      "p95_ns": 871,
       "world": "family"
     },
     {
-      "max_ns": 32539,
-      "median_ns": 711,
+      "max_ns": 37416,
+      "median_ns": 721,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 841,
+      "p95_ns": 831,
       "world": "private"
     },
     {
-      "max_ns": 19520,
-      "median_ns": 682,
+      "max_ns": 16305,
+      "median_ns": 701,
       "n": 300,
       "n_private_facts": 0,
-      "p95_ns": 1112,
+      "p95_ns": 791,
       "world": "no-event"
     },
     {
-      "max_ns": 1131,
+      "max_ns": 1101,
+      "median_ns": 761,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 841,
+      "world": "one-event"
+    },
+    {
+      "max_ns": 24927,
+      "median_ns": 722,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 822,
+      "world": "one"
+    },
+    {
+      "max_ns": 1603,
+      "median_ns": 791,
+      "n": 300,
+      "n_private_facts": 3,
+      "p95_ns": 862,
+      "world": "three"
+    },
+    {
+      "max_ns": 20781,
+      "median_ns": 721,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 821,
+      "world": "private-error"
+    },
+    {
+      "max_ns": 2704,
+      "median_ns": 691,
+      "n": 300,
+      "n_private_facts": 0,
+      "p95_ns": 761,
+      "world": "private-no-match"
+    },
+    {
+      "max_ns": 16275,
       "median_ns": 721,
       "n": 300,
       "n_private_facts": 1,
       "p95_ns": 801,
-      "world": "one-event"
-    },
-    {
-      "max_ns": 25508,
-      "median_ns": 711,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 781,
-      "world": "one"
-    },
-    {
-      "max_ns": 1152,
-      "median_ns": 771,
-      "n": 300,
-      "n_private_facts": 3,
-      "p95_ns": 842,
-      "world": "three"
-    },
-    {
-      "max_ns": 1472,
-      "median_ns": 701,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 771,
-      "world": "private-error"
-    },
-    {
-      "max_ns": 25418,
-      "median_ns": 661,
-      "n": 300,
-      "n_private_facts": 0,
-      "p95_ns": 752,
-      "world": "private-no-match"
-    },
-    {
-      "max_ns": 1452,
-      "median_ns": 691,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 761,
       "world": "sanity"
     },
     {
-      "max_ns": 26340,
-      "median_ns": 741,
-      "n": 300,
-      "n_private_facts": 2,
-      "p95_ns": 821,
-      "world": "order-ab"
-    },
-    {
-      "max_ns": 12249,
+      "max_ns": 1783,
       "median_ns": 761,
       "n": 300,
       "n_private_facts": 2,
       "p95_ns": 851,
+      "world": "order-ab"
+    },
+    {
+      "max_ns": 22724,
+      "median_ns": 761,
+      "n": 300,
+      "n_private_facts": 2,
+      "p95_ns": 832,
       "world": "order-ba"
     },
     {
-      "max_ns": 1372,
-      "median_ns": 651,
+      "max_ns": 76074,
+      "median_ns": 681,
       "n": 300,
       "n_private_facts": 0,
-      "p95_ns": 721,
+      "p95_ns": 761,
       "world": "rep-0"
     },
     {
-      "max_ns": 1202,
-      "median_ns": 691,
+      "max_ns": 83025,
+      "median_ns": 711,
       "n": 300,
       "n_private_facts": 1,
       "p95_ns": 771,
       "world": "rep-1"
     },
     {
-      "max_ns": 982,
-      "median_ns": 711,
+      "max_ns": 13080,
+      "median_ns": 751,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 791,
+      "p95_ns": 841,
       "world": "rep-2"
     },
     {
-      "max_ns": 1152,
-      "median_ns": 741,
+      "max_ns": 1072,
+      "median_ns": 781,
       "n": 300,
       "n_private_facts": 2,
-      "p95_ns": 831,
+      "p95_ns": 871,
       "world": "rep-3"
     },
     {
-      "max_ns": 1652,
-      "median_ns": 711,
+      "max_ns": 86570,
+      "median_ns": 731,
       "n": 300,
       "n_private_facts": 1,
-      "p95_ns": 782,
+      "p95_ns": 812,
       "world": "prenatal"
     },
     {
-      "max_ns": 1031,
-      "median_ns": 711,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 801,
-      "world": "therapy"
-    },
-    {
-      "max_ns": 59970,
-      "median_ns": 711,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 1182,
-      "world": "prenatal"
-    },
-    {
-      "max_ns": 1032,
-      "median_ns": 702,
-      "n": 300,
-      "n_private_facts": 1,
-      "p95_ns": 791,
-      "world": "oncology"
-    },
-    {
-      "max_ns": 1001,
-      "median_ns": 751,
+      "max_ns": 63786,
+      "median_ns": 731,
       "n": 300,
       "n_private_facts": 1,
       "p95_ns": 821,
       "world": "therapy"
+    },
+    {
+      "max_ns": 84287,
+      "median_ns": 721,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 801,
+      "world": "prenatal"
+    },
+    {
+      "max_ns": 58468,
+      "median_ns": 721,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 802,
+      "world": "oncology"
+    },
+    {
+      "max_ns": 55814,
+      "median_ns": 731,
+      "n": 300,
+      "n_private_facts": 1,
+      "p95_ns": 831,
+      "world": "therapy"
     }
   ],
-  "worst_median_ratio_vs_fastest": 1.1843317972350231
+  "worst_median_ratio_vs_fastest": 1.1615271659324522
 }
