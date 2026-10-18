@@ -1,0 +1,8 @@
+world A (no email) projection bytes:
+evt_1|COMPILED|v1|s0.800|maya=0,mom=2,priya=4,rahul=4,role:child=1,role:guest=0|an appointment at 3:40 PM|an appointment at 3:40 PM|an appointment at 3:40 PM|something this afternoon
+
+world B (adversarial email, QUARANTINED) projection bytes:
+evt_1|COMPILED|v1|s0.800|maya=0,mom=2,priya=4,rahul=4,role:child=1,role:guest=0|an appointment at 3:40 PM|an appointment at 3:40 PM|an appointment at 3:40 PM|something this afternoon
+
+byte-identical: True
+projection non-empty (not vacuous): True
