@@ -1,0 +1,22 @@
+kernel latency (local, ms):
+operation                  p50       p95       p99       n
+accept                  0.0038    0.0084    0.0194   10000
+open_private            0.0007    0.0008    0.0011   10000
+public_projection       0.0007    0.0008    0.0012   10000
+room_projection         0.0012    0.0013    0.0020   10000
+derive                  0.0020    0.0023    0.0036   10000
+prepare                 0.0020    0.0030    0.0091   10000
+redeem                  0.0009    0.0010    0.0013   10000
+
+500ms-budget composition (measured vs assumed):
+stage                                             ms  basis
+kernel.accept (p99)                           0.0194  MEASURED — 10000 local iterations
+kernel.public_projection (p99)                0.0012  MEASURED — 10000 local iterations
+Network and edge overhead                      120.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Token validation / request validation           25.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Snapshot and compiled-policy lookup             35.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Durable receipt + queue write                   30.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Headroom                                       120.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+TOTAL (illustrative only)                     330.02  MIXED — measured kernel + assumed system; NOT a claim
+
+NOTE: the 500ms MCP round-trip budget can only be verified by J3's real-server measurement over a network. Kernel time is necessary but not sufficient evidence.

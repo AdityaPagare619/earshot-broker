@@ -1,0 +1,50 @@
+test_base_breakdown (services.gateway.config.tests.test_analysis.TestCostModel.test_base_breakdown) ... ok
+test_break_even_positive (services.gateway.config.tests.test_analysis.TestCostModel.test_break_even_positive) ... ok
+test_scenarios_ordered (services.gateway.config.tests.test_analysis.TestCostModel.test_scenarios_ordered) ... ok
+test_sensitivity_ranks_planner_inputs_first (services.gateway.config.tests.test_analysis.TestCostModel.test_sensitivity_ranks_planner_inputs_first) ... ok
+test_zero_planner_fraction_kills_model_cost (services.gateway.config.tests.test_analysis.TestCostModel.test_zero_planner_fraction_kills_model_cost) ... ok
+test_all_kernel_ops_measured (services.gateway.config.tests.test_analysis.TestLatency.test_all_kernel_ops_measured) ... ok
+test_budget_table_labels_basis (services.gateway.config.tests.test_analysis.TestLatency.test_budget_table_labels_basis) ... ok
+test_percentiles_sane (services.gateway.config.tests.test_analysis.TestLatency.test_percentiles_sane) ... ok
+test_accept_private_task_allowed (services.gateway.config.tests.test_gate.TestProfileGateA.test_accept_private_task_allowed) ... ok
+test_allowed_probe_matches_check (services.gateway.config.tests.test_gate.TestProfileGateA.test_allowed_probe_matches_check) ... ok
+test_denied_attempt_emits_security_event (services.gateway.config.tests.test_gate.TestProfileGateA.test_denied_attempt_emits_security_event) ... ok
+test_lease_issuance_denied_in_profile_a (services.gateway.config.tests.test_gate.TestProfileGateA.test_lease_issuance_denied_in_profile_a) ... ok
+test_private_reveal_denied_everywhere (services.gateway.config.tests.test_gate.TestProfileGateA.test_private_reveal_denied_everywhere) ... ok
+test_public_projection_allowed (services.gateway.config.tests.test_gate.TestProfileGateA.test_public_projection_allowed) ... ok
+test_security_event_is_content_free (services.gateway.config.tests.test_gate.TestProfileGateA.test_security_event_is_content_free) ... ok
+test_unknown_operation_denied_fail_closed (services.gateway.config.tests.test_gate.TestProfileGateA.test_unknown_operation_denied_fail_closed) ... ok
+test_audience_scoped_release_allowed_in_profile_b (services.gateway.config.tests.test_gate.TestProfileGateB.test_audience_scoped_release_allowed_in_profile_b) ... ok
+test_lease_issuance_allowed_in_profile_b (services.gateway.config.tests.test_gate.TestProfileGateB.test_lease_issuance_allowed_in_profile_b) ... ok
+test_private_reveal_still_denied_in_profile_b (services.gateway.config.tests.test_gate.TestProfileGateB.test_private_reveal_still_denied_in_profile_b) ... ok
+test_unauthenticated_personal_api_denied (services.gateway.config.tests.test_gate.TestProfileGateB.test_unauthenticated_personal_api_denied) ... ok
+test_audience_scoped_release_refused_in_profile_a (services.gateway.config.tests.test_integration.TestIntegrationProfileA.test_audience_scoped_release_refused_in_profile_a) ... ok
+test_public_release_empty_facts_still_receipted (services.gateway.config.tests.test_integration.TestIntegrationProfileA.test_public_release_empty_facts_still_receipted) ... ok
+test_public_release_returns_only_public_facts (services.gateway.config.tests.test_integration.TestIntegrationProfileA.test_public_release_returns_only_public_facts) ... ok
+test_dead_heartbeat_denies_release (services.gateway.config.tests.test_integration.TestIntegrationProfileB.test_dead_heartbeat_denies_release) ... ok
+test_epoch_change_invalidates_lease (services.gateway.config.tests.test_integration.TestIntegrationProfileB.test_epoch_change_invalidates_lease) ... ok
+test_lease_release_works_with_live_heartbeat (services.gateway.config.tests.test_integration.TestIntegrationProfileB.test_lease_release_works_with_live_heartbeat) ... ok
+test_stale_heartbeat_denies_release (services.gateway.config.tests.test_integration.TestIntegrationProfileB.test_stale_heartbeat_denies_release) ... ok
+test_config_is_frozen (services.gateway.config.tests.test_profiles.TestProfileLoading.test_config_is_frozen) ... ok
+test_describe_is_content_free (services.gateway.config.tests.test_profiles.TestProfileLoading.test_describe_is_content_free) ... ok
+test_empty_env_fails_closed (services.gateway.config.tests.test_profiles.TestProfileLoading.test_empty_env_fails_closed) ... ok
+test_known_profiles_load (services.gateway.config.tests.test_profiles.TestProfileLoading.test_known_profiles_load) ... ok
+test_missing_env_fails_closed (services.gateway.config.tests.test_profiles.TestProfileLoading.test_missing_env_fails_closed) ... ok
+test_profile_a_matches_blueprint_section_10 (services.gateway.config.tests.test_profiles.TestProfileLoading.test_profile_a_matches_blueprint_section_10) ... ok
+test_profile_b_matches_blueprint_section_10 (services.gateway.config.tests.test_profiles.TestProfileLoading.test_profile_b_matches_blueprint_section_10) ... ok
+test_toml_capability_override_rejected (services.gateway.config.tests.test_profiles.TestProfileLoading.test_toml_capability_override_rejected) ... ok
+test_toml_garbage_rejected (services.gateway.config.tests.test_profiles.TestProfileLoading.test_toml_garbage_rejected) ... ok
+test_toml_negative_tunable_rejected (services.gateway.config.tests.test_profiles.TestProfileLoading.test_toml_negative_tunable_rejected) ... ok
+test_toml_tunable_override (services.gateway.config.tests.test_profiles.TestProfileLoading.test_toml_tunable_override) ... ok
+test_unknown_profile_fails_closed (services.gateway.config.tests.test_profiles.TestProfileLoading.test_unknown_profile_fails_closed) ... ok
+test_all_eleven_blueprint_gates_present (services.gateway.config.tests.test_readiness.TestReadiness.test_all_eleven_blueprint_gates_present) ... ok
+test_automated_gates_pass_against_real_kernel (services.gateway.config.tests.test_readiness.TestReadiness.test_automated_gates_pass_against_real_kernel) ... ok
+test_gate_result_evidence_is_nonempty (services.gateway.config.tests.test_readiness.TestReadiness.test_gate_result_evidence_is_nonempty) ... ok
+test_incomplete_signoff_still_blocks (services.gateway.config.tests.test_readiness.TestReadiness.test_incomplete_signoff_still_blocks) ... ok
+test_manual_gates_block_without_signoff (services.gateway.config.tests.test_readiness.TestReadiness.test_manual_gates_block_without_signoff) ... ok
+test_signed_manual_gate_does_not_block (services.gateway.config.tests.test_readiness.TestReadiness.test_signed_manual_gate_does_not_block) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.415s
+
+OK
