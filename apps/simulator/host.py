@@ -458,10 +458,11 @@ def main(argv=None):
     global HOST
     HOST = Host()
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"Earshot controlled host on http://127.0.0.1:{args.port}/")
+    print(f"Earshot controlled host on http://127.0.0.1:{args.port}/", flush=True)
     print(f"backend={HOST.port.backend}  "
-          f"(set EARSHOT_GATEWAY_URL for the real MCP path)")
-    print("Independent simulator — not a live Alexa+ device (Profile B).")
+          f"(set EARSHOT_GATEWAY_URL for the real MCP path)", flush=True)
+    print("Independent simulator — not a live Alexa+ device (Profile B).", flush=True)
+    print("Open the URL above in your browser, then press \u25b6 Replay the night.", flush=True)
     server.serve_forever()
 
 

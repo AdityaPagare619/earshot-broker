@@ -1,0 +1,14 @@
+{
+  "methodology": "client-measured HTTP POST->response round trip, loopback 127.0.0.1, warm ThreadingHTTPServer, sequential, includes TLS-free localhost stack only",
+  "tool": "prepare_day_brief",
+  "n": 200,
+  "budget_ms": 500.0,
+  "p50_ms": 14.089,
+  "p95_ms": 40.585,
+  "p99_ms": 49.644,
+  "max_ms": 90.569,
+  "mean_ms": 17.079,
+  "server_side_p99_ms": 31.284,
+  "date": "2026-10-18T16:38:55",
+  "verdict": "PASS"
+}

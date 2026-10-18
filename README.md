@@ -24,11 +24,16 @@ continues on the owner's phone — not from scratch, from where it left off.
 
 ## Try it in 2 minutes
 
+The fastest path is the one-command quickstart (venv → install → demo →
+server handshake → shutdown, ~45s; fails loudly on any problem):
+
 ```bash
 git clone https://github.com/AdityaPagare619/earshot-broker.git
 cd earshot-broker
-pip install -e ".[test]"
+./quickstart.sh            # Windows: .\quickstart.ps1
 ```
+
+Or step by step:
 
 ```bash
 earshot-demo --lang en        # the 5-beat sealed-speech story (also --lang hi)
