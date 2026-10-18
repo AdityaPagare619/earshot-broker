@@ -5,7 +5,7 @@ first-hand. No SDK, no mocks: real HTTP against the real server.
 """
 import unittest
 
-from harness import Client, start_server
+from earshot.gateway.mcp.tests.harness import Client, start_server, stop_server
 
 PORT = 8891
 
@@ -18,7 +18,7 @@ class ProtocolTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     # -- lifecycle ------------------------------------------------------
 

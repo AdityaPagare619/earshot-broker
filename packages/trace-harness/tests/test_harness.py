@@ -7,20 +7,17 @@ a TEXT-channel difference — proving the harness detects real leaks instead
 of vacuously passing.
 Adversarial: reference replay and double-withdraw behave identically.
 """
-import sys
 import unittest
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/trace-harness")
 
 import fixtureserver
 from fixtureserver import to_fact
-from trace_harness import (
+from earshot.trace_harness import (
     builtin_pairs, MCPHttpAdapter, KernelDirectAdapter, run_sequence,
     normalize_trace, diff_traces, adversarial_suite,
 )
-from trace_harness.normalize import assert_randomness_independent
-from kernel import Kernel
+from earshot.trace_harness.normalize import assert_randomness_independent
+from earshot.kernel import Kernel
 
 PORT = 8899
 BASE = f"http://127.0.0.1:{PORT}/mcp"

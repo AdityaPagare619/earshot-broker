@@ -2,7 +2,7 @@
 import unittest
 from datetime import date as date_cls
 
-from parse import CONSERVATIVE_DEFAULT, parse_keep_secret
+from earshot.secrecy.parse import CONSERVATIVE_DEFAULT, parse_keep_secret
 
 
 TODAY = date_cls(2026, 10, 18)  # a Sunday; deterministic tests

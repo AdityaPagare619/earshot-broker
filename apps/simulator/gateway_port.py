@@ -14,22 +14,10 @@ fallback (dossier: no silent failures).
 from __future__ import annotations
 
 import os
-import sys
 import time
 
-# Kernel lives in packages/kernel (imported as top-level `kernel` there);
-# the broker lives in services/gateway/mcp (imports as top-level `broker`,
-# `fixtures`, `shape` there).
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                          "..", ".."))
-for _p in (os.path.join(_REPO_ROOT, "packages", "kernel"),
-           os.path.join(_REPO_ROOT, "services", "gateway", "mcp"),
-           os.path.dirname(__file__)):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
-
-from mcp_client import McpClient, McpError  # noqa: E402
-from kernel import Kernel  # noqa: E402  (arbiter seal mechanics)
+from .mcp_client import McpClient, McpError
+from earshot.kernel import Kernel  # arbiter seal mechanics
 
 PUBLIC = "*"
 
@@ -59,7 +47,7 @@ class GatewayPort:
         """The REAL broker — same class the MCP server runs. Lazy so the
         mcp backend never pays for it."""
         if self._broker is None:
-            from broker import Broker  # noqa: E402
+            from earshot.gateway.mcp.broker import Broker  # noqa: E402
             self._broker = Broker()
         return self._broker
 

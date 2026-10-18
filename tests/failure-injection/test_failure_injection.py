@@ -7,13 +7,11 @@ import unittest
 from dataclasses import replace
 
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               '..', '..', 'packages', 'kernel'))
-from kernel import Context, Fact, Kernel, Label  # noqa: E402
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               '..', 'races'))
+# `faults` lives in this hyphenated dir, which can never be a dotted package;
+# make it importable for `python -m unittest discover -s tests` (pytest adds it anyway).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from arbiter import Arbiter  # noqa: E402
+from earshot.kernel import Context, Fact, Kernel, Label  # noqa: E402
+from tests.races.arbiter import Arbiter  # noqa: E402
 from faults import (Clock, SkewedClock, kill_sensor, forge_observed_at,
                     tenant_confusion, timeout_after_accept,
                     incomplete_derive)  # noqa: E402

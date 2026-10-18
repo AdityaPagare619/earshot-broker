@@ -3,13 +3,13 @@
 import math
 import unittest
 
-from hotlane import (
+from earshot.hotlane import (
     BudgetConfig,
     Exposure,
     ExposureLedger,
     initial_ledger,
 )
-from hotlane.budgets import DEFAULT_BUDGET_CONFIG
+from earshot.hotlane.budgets import DEFAULT_BUDGET_CONFIG
 
 CFG = DEFAULT_BUDGET_CONFIG
 DAY = 86400.0

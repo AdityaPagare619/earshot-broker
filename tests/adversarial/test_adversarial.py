@@ -6,7 +6,7 @@ Evidence recorded per test via the J6 reporter.
 import unittest
 from dataclasses import replace
 
-from kernel import Context, Fact, Kernel, Label, PUBLIC
+from earshot.kernel import Context, Fact, Kernel, Label, PUBLIC
 from tests.adversarial.actors import (
     PUB, PRIYA, PUBLIC_FACT, SECRET, CrossTenant, Impersonator, Injector,
     MomAlone, fresh_kernel_with_secret)

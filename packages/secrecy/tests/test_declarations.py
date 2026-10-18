@@ -1,7 +1,7 @@
 """Declarations: asymmetric trust at ingest; deterministic parsing (S4)."""
 import unittest
 
-from declarations import (DeclarationLog, classify, parse_declaration)
+from earshot.secrecy.declarations import (DeclarationLog, classify, parse_declaration)
 
 
 class TrustTableTest(unittest.TestCase):

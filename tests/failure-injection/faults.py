@@ -18,9 +18,7 @@ Faults are honest about what they model:
 from dataclasses import replace
 
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               '..', '..', 'packages', 'kernel'))
-from kernel import Context, Fact, Kernel, Label  # noqa: E402
+from earshot.kernel import Context, Fact, Kernel, Label  # noqa: E402
 
 
 class Clock:

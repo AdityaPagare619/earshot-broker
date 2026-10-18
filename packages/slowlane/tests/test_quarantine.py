@@ -1,13 +1,11 @@
 """Tests: quarantine store — the operational face of Seam 1."""
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane.models import COMPILED, IllegalTransition, QUARANTINED  # noqa: E402
-from slowlane.quarantine import QuarantineError, QuarantineStore  # noqa: E402
+from earshot.slowlane.models import COMPILED, IllegalTransition, QUARANTINED  # noqa: E402
+from earshot.slowlane.quarantine import QuarantineError, QuarantineStore  # noqa: E402
 
 
 class StoreTest(unittest.TestCase):

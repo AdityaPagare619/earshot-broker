@@ -7,18 +7,16 @@ Path handling is robust (no hardcoded worktree paths): the package is
 resolved relative to this file.
 """
 import os
-import sys
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, ".."))  # packages/trace-harness
 
-from trace_harness.slo import lexicon as L
-from trace_harness.slo.counterfactuals import run_all as run_counterfactuals
-from trace_harness.slo.households import Episode, generate_households
-from trace_harness.slo.listener import AdversarialListener
-from trace_harness.slo.pareto import run_pareto
-from trace_harness.slo.policies import (
+from earshot.trace_harness.slo import lexicon as L
+from earshot.trace_harness.slo.counterfactuals import run_all as run_counterfactuals
+from earshot.trace_harness.slo.households import Episode, generate_households
+from earshot.trace_harness.slo.listener import AdversarialListener
+from earshot.trace_harness.slo.pareto import run_pareto
+from earshot.trace_harness.slo.policies import (
     POLICIES, Spoken, _text, sealed_speech, v1_lattice,
 )
 

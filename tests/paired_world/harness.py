@@ -6,10 +6,11 @@ adversary at the public surface can observe: projected text, receipt public
 shape, key sets, byte length, timing samples. Invariance is asserted over the
 whole view, never just the string.
 """
+import os
 import re
 import time
 
-from kernel import Fact, Kernel, Label, PUBLIC
+from earshot.kernel import Fact, Kernel, Label, PUBLIC
 
 PUB = Label(frozenset({PUBLIC}))
 PRIYA = Label(frozenset({'priya'}), frozenset({'health'}))

@@ -1,11 +1,8 @@
 """MCP client conformance tests (stdlib unittest; no pytest needed)."""
-import sys
-import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from mcp_client import McpClient, McpError, PROTOCOL_VERSION
-from protocol_conformance_harness import run_harness
+from earshot.simulator.mcp_client import McpClient, McpError, PROTOCOL_VERSION
+from simulator.tests.protocol_conformance_harness import run_harness
 
 
 class ClientTests(unittest.TestCase):

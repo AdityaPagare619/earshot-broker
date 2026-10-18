@@ -7,9 +7,9 @@ the identical public shape.
 """
 import unittest
 
-from harness import (SECRET_STRINGS, TENANT, OWNER, AuditSink, CertifiedFacade,
+from tests.failure_paths.harness import (SECRET_STRINGS, TENANT, OWNER, AuditSink, CertifiedFacade,
                      make_fixtures)
-from kernel import Kernel
+from earshot.kernel import Kernel
 
 
 def collect_public_strings(facade, kernel, receipt_known):

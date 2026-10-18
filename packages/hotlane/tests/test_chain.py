@@ -2,7 +2,7 @@
 
 import unittest
 
-from hotlane import (
+from earshot.hotlane import (
     D0,
     D1,
     D2,
@@ -15,7 +15,7 @@ from hotlane import (
     validate_chain,
 )
 
-from _helpers import make_chain
+from hotlane.tests._helpers import make_chain
 
 
 class TestValidateChain(unittest.TestCase):

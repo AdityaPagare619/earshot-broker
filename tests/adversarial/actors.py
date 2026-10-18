@@ -2,7 +2,7 @@
 it attempts — coverage is reason-about-able: a new attacker is a new persona."""
 from dataclasses import dataclass
 
-from kernel import Fact, Kernel, Label, PUBLIC
+from earshot.kernel import Fact, Kernel, Label, PUBLIC
 
 PUB = Label(frozenset({PUBLIC}))
 PRIYA = Label(frozenset({'priya'}), frozenset({'health'}))

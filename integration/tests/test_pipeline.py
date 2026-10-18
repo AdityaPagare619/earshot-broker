@@ -6,15 +6,12 @@ Each counterfactual changes the secret side of the world and asserts the
 room-facing bytes do not change. The negative control proves the protection
 comes from the secrecy edge, not from the code path.
 """
-
-import sys
 import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from integration.pipeline import SealedSpeechPipeline
-from packs.loader import load_pack
+from earshot.integration.pipeline import SealedSpeechPipeline
+from earshot.packs.loader import load_pack
 
 PACKS = os.path.join(os.path.dirname(__file__), "..", "..", "packs")
 

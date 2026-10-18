@@ -1,8 +1,8 @@
 """Heuristic inference on canonical fixtures (S4)."""
 import unittest
 
-from edges import EdgeProposal
-from inference import (FixtureLLMProposer, HeuristicProposer, InferenceInput)
+from earshot.secrecy.edges import EdgeProposal
+from earshot.secrecy.inference import (FixtureLLMProposer, HeuristicProposer, InferenceInput)
 
 
 def item(**kw):
@@ -54,7 +54,7 @@ class HeuristicTest(unittest.TestCase):
         self.assertTrue(all(p.confidence >= 0.6 for p in ps))
 
     def test_confidences_are_documented_constants(self):
-        import inference as inf
+        from earshot.secrecy import inference as inf
         self.assertEqual(inf.CONF_CLINIC, 0.75)
         self.assertEqual(inf.CONF_GIFT, 0.80)
         self.assertEqual(inf.CONF_MONEY, 0.70)

@@ -1,6 +1,6 @@
 """Shared fixtures for hotlane tests. Not a test module (underscore prefix)."""
 
-from hotlane import (
+from earshot.hotlane import (
     ExposureLedger,
     GeneralizationChain,
     Signal,

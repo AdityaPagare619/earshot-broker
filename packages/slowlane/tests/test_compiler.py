@@ -4,18 +4,16 @@ The compiler APPLIES edges; it never invents them. Unknown persons default
 to depth 0. Unverified chains and version replays are refused.
 """
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane.compiler import CompilerError, TableCompiler  # noqa: E402
-from slowlane.models import (  # noqa: E402
+from earshot.slowlane.compiler import CompilerError, TableCompiler  # noqa: E402
+from earshot.slowlane.models import (  # noqa: E402
     COMPILED, DraftChain, GeneralizationChain, QUARANTINED, SecrecyEdge,
     UnderstandOutput, quarantine_new, transition,
 )
-from slowlane.verifier import Verdict  # noqa: E402
+from earshot.slowlane.verifier import Verdict  # noqa: E402
 
 PASS = Verdict(passed=True, failures=(), checks_run=4)
 FAIL = Verdict(passed=False, failures=("entity-leak: x",), checks_run=4)

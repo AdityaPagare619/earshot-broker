@@ -4,16 +4,11 @@ Spins up the real server (stdlib HTTP) in a thread — no mocks, no stubs.
 Every test exercises the actual wire: real HTTP, real JSON-RPC, real kernel.
 """
 import json
-import sys
 import threading
 import time
 import urllib.request
 import urllib.error
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
-import server as S  # noqa: E402
+from earshot.gateway.mcp import server as S  # noqa: E402
 
 
 class Client:
@@ -86,7 +81,7 @@ class Client:
 
 def start_server(port, world_factory=None):
     """Start a real server in a thread. Returns (server, client-for-owner)."""
-    import fixtures as F
+    from earshot.gateway.mcp import fixtures as F
     srv = S.ThreadedMCPServer(("127.0.0.1", port), S.MCPHandler)
     srv.auth = S.auth_mod.AuthRegistry()
     srv.broker = S.broker_mod.Broker(world_factory=world_factory or F.strict_world)
@@ -97,3 +92,11 @@ def start_server(port, world_factory=None):
     t.start()
     time.sleep(0.2)
     return srv, Client(port, srv.auth.owner_token)
+
+
+def stop_server(srv):
+    """Release the port: shutdown() stops serving, server_close() frees the socket."""
+    try:
+        srv.shutdown()
+    finally:
+        srv.server_close()

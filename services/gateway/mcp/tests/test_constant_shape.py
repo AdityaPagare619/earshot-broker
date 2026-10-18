@@ -11,8 +11,8 @@ Two layers:
 import json
 import unittest
 
-import shape as shape_mod
-from shape import (
+from earshot.gateway.mcp import shape as shape_mod
+from earshot.gateway.mcp.shape import (
     AssemblyInput,
     PlannedItem,
     assemble,
@@ -24,7 +24,7 @@ from shape import (
     CHUNK_SIZE,
 )
 
-from harness import start_server  # noqa: E402
+from earshot.gateway.mcp.tests.harness import start_server, stop_server  # noqa: E402
 
 PORT = 8900
 DATE = "2026-10-19"
@@ -148,7 +148,7 @@ class WireTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     def _brief(self, key, **kw):
         args = {"date": DATE, "timezone": TZ, "request_key": key}

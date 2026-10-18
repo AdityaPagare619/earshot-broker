@@ -16,20 +16,16 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "..", "..", "services", "gateway", "mcp"))
-from gateway_port import GatewayPort  # noqa: E402  (sets kernel sys.path)
-from arbiter import Arbiter  # noqa: E402
-from audience import AudienceSource, SensorScript  # noqa: E402
-from kernel import Fact, Label  # noqa: E402
-import shape as shape_mod  # noqa: E402  (constant-shape assembly)
+from .gateway_port import GatewayPort
+from .arbiter import Arbiter
+from .audience import AudienceSource, SensorScript
+from earshot.kernel import Fact, Label
+from earshot.gateway.mcp import shape as shape_mod  # constant-shape assembly
 
 PUBLIC = "*"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -452,11 +448,11 @@ class Handler(BaseHTTPRequestHandler):
         pass  # keep demo output clean
 
 
-def main():
+def main(argv=None):
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8734)
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     global HOST
     HOST = Host()
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)

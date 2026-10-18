@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import math
 
-from edges import (
+from .edges import (
     DIRECTIONS,
     EDGE_TYPES,
     PROVENANCES,

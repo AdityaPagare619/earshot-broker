@@ -4,13 +4,11 @@ Run: python3 test_models.py (from this directory), or
 PYTHONPATH=<repo> python3 -m unittest discover -s packages/slowlane/tests
 """
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane.models import (  # noqa: E402
+from earshot.slowlane.models import (  # noqa: E402
     COMPILED, EXPIRED, QUARANTINED, RELEASED,
     IllegalTransition, Item, quarantine_new, transition,
 )

@@ -29,11 +29,9 @@ import sys
 import time
 import traceback
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-import auth as auth_mod
-import broker as broker_mod
-import fixtures as fixtures_mod
+from . import auth as auth_mod
+from . import broker as broker_mod
+from . import fixtures as fixtures_mod
 
 PROTOCOL_VERSION = "2025-11-25"
 SERVER_NAME = "earshot-broker"
@@ -458,8 +456,15 @@ def run(port: int, world_factory=None) -> None:
         pass
 
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
+def main(argv=None) -> int:
+    """Entry point for the `earshot-server` console script."""
+    ap = argparse.ArgumentParser(prog="earshot-server",
+                                 description="EARSHOT MCP gateway (Streamable HTTP, MCP spec 2025-11-25)")
     ap.add_argument("--port", type=int, default=8000)
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     run(args.port)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

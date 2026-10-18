@@ -1,9 +1,9 @@
 """Effective clearance: min-only overlay; counterfactual invariance (S4)."""
 import unittest
 
-from edges import EdgeProposal
-from overrides import effective_clearance
-from store import EdgeStore
+from earshot.secrecy.edges import EdgeProposal
+from earshot.secrecy.overrides import effective_clearance
+from earshot.secrecy.store import EdgeStore
 
 
 def prop(**kw):
@@ -59,7 +59,7 @@ class OverridesTest(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_global_scope_edges_apply_to_every_item(self):
-        from overrides import GLOBAL_SCOPE
+        from earshot.secrecy.overrides import GLOBAL_SCOPE
         s = EdgeStore()
         s.add(GLOBAL_SCOPE, prop(target="mom"))
         # Item-specific call sees the global edge...

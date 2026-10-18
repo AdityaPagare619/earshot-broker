@@ -10,9 +10,7 @@ import statistics
 import sys
 import time
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               '..', '..', 'packages', 'kernel'))
-from kernel import Context, Fact, Kernel, Label  # noqa: E402
+from earshot.kernel import Context, Fact, Kernel, Label  # noqa: E402
 
 PRI = Label(frozenset({'priya'}), frozenset({'health'}))
 SECRET = Fact('appointment', 'Prenatal visit, 15:40', PRI)

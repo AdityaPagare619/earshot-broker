@@ -9,18 +9,14 @@ Three claims, all machine-checked:
      no per-language string literals, no lang-keyed branches anywhere in
      packs/*.py or integration/.
 """
-
-import sys
 import os
 import re
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "demo"))
 
-import five_beats as demo
-from integration.pipeline import SealedSpeechPipeline
-from packs.loader import load_pack
+from earshot.demo import five_beats as demo
+from earshot.integration.pipeline import SealedSpeechPipeline
+from earshot.packs.loader import load_pack
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 PACKS = os.path.join(ROOT, "packs")

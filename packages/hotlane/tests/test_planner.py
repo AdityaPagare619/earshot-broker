@@ -2,7 +2,7 @@
 
 import unittest
 
-from hotlane import (
+from earshot.hotlane import (
     ALONE,
     BEACON_PRESENT,
     DEFER,
@@ -18,9 +18,9 @@ from hotlane import (
     plan_briefing,
     plan_item,
 )
-from hotlane.belief import initial_belief
+from earshot.hotlane.belief import initial_belief
 
-from _helpers import PRIORS, make_row, sig
+from hotlane.tests._helpers import PRIORS, make_row, sig
 
 NOW = 1_000_000.0
 ROLES = {"maya": frozenset({"role:child"}), "mom": frozenset({"role:guest"})}

@@ -128,7 +128,7 @@ class Arbiter:
         return self._listeners
 
     def _kernel_context(self, now: float):
-        from kernel import Context  # local import: kernel on sys.path
+        from earshot.kernel import Context
         # Single source of truth for audience semantics: the arbiter computes
         # the effective audience ONCE (freshness TTL, UNKNOWN on stale). The
         # Context is then built so the kernel's own effective_audience()

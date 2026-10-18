@@ -14,7 +14,7 @@ import abc
 from dataclasses import dataclass, field
 from typing import FrozenSet, Mapping
 
-from kernel import Fact, Label
+from earshot.kernel import Fact, Label
 
 # Deletion behaviors an adapter may declare (blueprint §3).
 DELETION_SEMANTICS = frozenset({"tombstone", "purge", "provider_managed"})

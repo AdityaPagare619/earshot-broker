@@ -11,9 +11,9 @@ independence (not equality) is asserted separately.
 """
 import unittest
 
-from harness import (PUBLIC, TENANT, OWNER, AuditSink, CertifiedFacade,
+from tests.failure_paths.harness import (PUBLIC, TENANT, OWNER, AuditSink, CertifiedFacade,
                      make_fixtures)
-from kernel import Fact, Kernel, Label
+from earshot.kernel import Fact, Kernel, Label
 
 
 def variant_private(value, topics=('health',)):

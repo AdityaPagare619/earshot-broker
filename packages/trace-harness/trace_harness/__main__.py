@@ -16,13 +16,12 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "kernel"))
 
-from trace_harness import (  # noqa: E402
+from earshot.trace_harness import (  # noqa: E402
     builtin_pairs, MCPHttpAdapter, KernelDirectAdapter, run_sequence,
     normalize_trace, diff_traces, adversarial_suite,
 )
-from trace_harness.normalize import assert_randomness_independent  # noqa: E402
+from earshot.trace_harness.normalize import assert_randomness_independent  # noqa: E402
 
 
 def _run_all(make_adapter, setup_world=None, teardown=None):
@@ -75,8 +74,7 @@ def _run_all(make_adapter, setup_world=None, teardown=None):
 
 
 def _to_fact(d):
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "kernel"))
-    from kernel import Fact, Label
+    from earshot.kernel import Fact, Label
     return Fact(d["key"], d["value"],
                 Label(frozenset(d["readers"]), frozenset(d.get("topics", ()))))
 
@@ -97,7 +95,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     if args.command == "slo":
-        from trace_harness.slo import run_slo_lab
+        from earshot.trace_harness.slo import run_slo_lab
         report = run_slo_lab(seed=args.seed, n_households=args.households,
                              out_dir=args.out)
         pts = report["pareto"]["points"]
@@ -110,7 +108,7 @@ def main(argv=None):
         return 0
 
     if args.selftest:
-        from kernel import Kernel
+        from earshot.kernel import Kernel
 
         def make_adapter(world):
             facts = tuple(_to_fact(d) for d in world.facts)
@@ -119,9 +117,13 @@ def main(argv=None):
         report = _run_all(make_adapter)
         report["mode"] = "selftest (in-process kernel; NOT server evidence)"
     else:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "tests"))
-        import fixtureserver
-
+        try:
+            import fixtureserver
+        except ImportError:
+            raise SystemExit(
+                "the 'run' command needs the dev fixture server "
+                "(packages/trace-harness/tests/fixtureserver.py); "
+                "run it from a repo checkout or use --selftest")
         server = fixtureserver.start(args.fixture_port)
         base = f"http://127.0.0.1:{args.fixture_port}/mcp"
 

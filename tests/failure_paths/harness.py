@@ -7,19 +7,17 @@ suite runs green today and becomes an integration gate for J3's server tomorrow.
 Public-opacity rule: every denial renders the same public shape for its tool,
 regardless of cause. The control plane (AuditSink) records the real reason.
 """
-import sys
 import os
 # The j04 worktree is a full repo checkout: use ITS OWN frozen kernel copy.
 _WORKTREE = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', '..'))
-sys.path.insert(0, os.path.join(_WORKTREE, 'packages', 'kernel'))
 
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from kernel import PUBLIC, Context, Fact, Kernel, Label  # noqa: E402
+from earshot.kernel import PUBLIC, Context, Fact, Kernel, Label  # noqa: E402
 
 GENERIC_MESSAGE = 'Your request is queued.'
 CONTINUATION = 'personal_inbox'  # C3: never a bare empty result.

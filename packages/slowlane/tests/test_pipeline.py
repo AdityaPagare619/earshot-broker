@@ -4,15 +4,13 @@ process_item: ingest (QUARANTINED) -> understand -> render -> verify ->
 compile -> TableRow. Failures leave the item QUARANTINED (fail private).
 """
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane import compiler, pipeline, quarantine  # noqa: E402
-from slowlane.models import COMPILED, QUARANTINED, RenderInput, SecrecyEdge  # noqa: E402
-from slowlane.understand import fixture_lexicon  # noqa: E402
+from earshot.slowlane import compiler, pipeline, quarantine  # noqa: E402
+from earshot.slowlane.models import COMPILED, QUARANTINED, RenderInput, SecrecyEdge  # noqa: E402
+from earshot.slowlane.understand import fixture_lexicon  # noqa: E402
 
 ROLE_DEFAULTS = {"priya": 4, "rahul": 4, "mom": 2, "role:child": 1, "role:guest": 0}
 ROLES = {"priya": "owner", "rahul": "partner", "mom": "guest", "maya": "child"}

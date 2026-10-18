@@ -3,17 +3,13 @@
 These are the machine-checkable version of the demo's narration — if a beat
 can't be asserted, it gets cut (K2), not faked.
 """
-
-import sys
 import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "demo"))
 
-import five_beats as demo
-from integration.pipeline import SealedSpeechPipeline
-from packs.loader import load_pack
+from earshot.demo import five_beats as demo
+from earshot.integration.pipeline import SealedSpeechPipeline
+from earshot.packs.loader import load_pack
 
 PACKS = os.path.join(os.path.dirname(__file__), "..", "..", "packs")
 

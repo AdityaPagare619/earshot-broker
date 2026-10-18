@@ -1,0 +1,4 @@
+# sdist completeness: ship the household-pack data and docs alongside the code.
+graft packs
+include LICENSE README.md
+global-exclude *.pyc __pycache__ .DS_Store

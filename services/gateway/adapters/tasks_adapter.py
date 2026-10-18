@@ -20,7 +20,7 @@ from datetime import datetime
 from typing import FrozenSet
 from zoneinfo import ZoneInfo
 
-from kernel import Fact, Label
+from earshot.kernel import Fact, Label
 
 from . import common
 from .contract import (MutationImpact, Record, RecurrenceError, SourceAdapter,

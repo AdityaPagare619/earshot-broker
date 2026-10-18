@@ -18,7 +18,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from arbiter import AudienceEvent
+from .arbiter import AudienceEvent
 
 
 @dataclass

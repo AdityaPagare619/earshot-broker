@@ -7,9 +7,9 @@ a silent change in behavior.
 import unittest
 from dataclasses import replace
 
-from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
+from tests.failure_paths.harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
                      make_fixtures)
-from kernel import Kernel
+from earshot.kernel import Kernel
 
 
 class LeaseLifecycleTests(unittest.TestCase):

@@ -5,16 +5,13 @@ validation, idempotency, constant-shape responses (no topic nouns echoed,
 no parse oracle), the edge actually landing in the choke-point store, and
 the adversarial keep_secret sentence producing TIGHTEN-only effects.
 """
-import sys
 import unittest
 
-sys.path.insert(0, "..")  # noqa: E402  (matches sibling test modules)
-sys.path.insert(0, "../../../packages/secrecy")
 
-from harness import Client, start_server  # noqa: E402
-from overrides import GLOBAL_SCOPE, effective_clearance  # noqa: E402
+from earshot.gateway.mcp.tests.harness import Client, start_server, stop_server  # noqa: E402
+from earshot.secrecy.overrides import GLOBAL_SCOPE, effective_clearance  # noqa: E402
 
-PORT = 8897
+PORT = 8902  # 8902-8904: clear of all other test ports (see DESIGN.md §7)
 
 
 def rk(n):
@@ -29,7 +26,7 @@ class RoomToolTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     def call_room(self, client, declaration, key):
         b = client.tool("room", {"declaration": declaration,
@@ -89,7 +86,7 @@ class KeepSecretToolTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     def call_keep(self, client, instruction, key):
         b = client.tool("keep_secret", {"instruction": instruction,
@@ -165,7 +162,7 @@ class ToolListTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     def test_six_tools_listed(self):
         s, _, b = self.c.call({"method": "tools/list", "params": {}})
