@@ -1,10 +1,19 @@
-
-# pytest one-command runs
 *.egg-info/
+*.egg
 *.pyc
 .DS_Store
+Thumbs.db
 .env
 .pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
 .venv/
 __pycache__/
+htmlcov/
+.coverage
+build/
+dist/
+.idea/
+.vscode/
 node_modules/
