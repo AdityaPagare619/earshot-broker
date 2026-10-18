@@ -14,6 +14,7 @@ as code.
 """
 from __future__ import annotations
 
+import json
 from datetime import date as _date
 from datetime import datetime
 from typing import FrozenSet
@@ -22,7 +23,7 @@ from zoneinfo import ZoneInfo
 from kernel import Fact, Label
 
 from . import common
-from .contract import (MutationImpact, Record, SourceAdapter,
+from .contract import (MutationImpact, Record, RecurrenceError, SourceAdapter,
                        UnsupportedSourceError)
 
 _OWNER = "owner"
@@ -154,8 +155,6 @@ class FixtureTasksAdapter(SourceAdapter):
         Returns [(due, flags)]. Unsupported repeat -> single occurrence with
         the "repeat_unsupported" flag; never silently dropped.
         """
-        import json
-        from .contract import RecurrenceError
         raw_rule = record.fields.get("repeat", "")
         due = record.derived.get("due_dt")
         if due is None:

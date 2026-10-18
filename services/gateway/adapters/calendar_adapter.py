@@ -9,6 +9,7 @@ Fixture-only: endpoint_allowlist is empty; no network, no OAuth flow.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from datetime import date, datetime
 from typing import FrozenSet
@@ -16,7 +17,7 @@ from typing import FrozenSet
 from kernel import Fact, Label
 
 from . import common
-from .contract import (MutationImpact, Record, SourceAdapter,
+from .contract import (MutationImpact, Record, RecurrenceError, SourceAdapter,
                        UnsupportedSourceError)
 
 _OWNER = "owner"
@@ -145,8 +146,6 @@ class FixtureCalendarAdapter(SourceAdapter):
         "recurrence_unsupported" for the single master occurrence fallback.
         Never silently dropped, never infinitely expanded.
         """
-        import json
-        from .contract import RecurrenceError
         raw_rule = record.fields.get("recurrence", "")
         start, end = record.derived["start_dt"], record.derived["end_dt"]
         if not raw_rule:

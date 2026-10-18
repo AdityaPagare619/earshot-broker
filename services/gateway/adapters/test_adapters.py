@@ -216,8 +216,9 @@ class TasksContractTests(unittest.TestCase):
 
     def test_no_import_of_calendar_adapter(self):
         import adapters.tasks_adapter as mod
-        import_lines = [l for l in open(mod.__file__).read().splitlines()
-                        if l.strip().startswith(("import ", "from "))]
+        with open(mod.__file__) as fh:
+            import_lines = [l for l in fh.read().splitlines()
+                            if l.strip().startswith(("import ", "from "))]
         self.assertFalse(any("calendar_adapter" in l for l in import_lines),
                          "tasks adapter must not import the calendar adapter")
 
@@ -333,6 +334,109 @@ class KernelIntegrationTests(unittest.TestCase):
             True, True, False, 1)  # uncontrolled host
         proj = k.room_projection(facts, ctx, 100.0)
         self.assertEqual(proj, ())  # nothing crosses to an uncontrolled host
+
+
+
+# ------------------------------------------------------- v3: hardening
+from adapters.plan_ops import (AmbiguousPlanOp, UnknownPlanOp,  # noqa: E402
+                               known_ops, validate_plan_ops)
+from adapters import default_registry  # noqa: E402
+
+
+class RegistrySyncTests(unittest.TestCase):
+    def test_freshness_lifecycle(self):
+        reg = AdapterRegistry()
+        reg.register(AD)
+        self.assertFalse(reg.is_fresh("fixture-calendar-v1", now=1000.0))
+        recs = [AD.normalize(ev())]
+        reg.mark_synced("fixture-calendar-v1", recs, now=1000.0)
+        self.assertTrue(reg.is_fresh("fixture-calendar-v1", now=1000.0 + 100))
+        self.assertFalse(reg.is_fresh("fixture-calendar-v1",
+                                      now=1000.0 + AD.freshness_ttl_s + 1))
+
+    def test_stale_version_fails_closed(self):
+        from adapters.contract import AdapterError
+        reg = AdapterRegistry()
+        reg.register(AD)
+        reg.mark_synced("fixture-calendar-v1", [AD.normalize(ev())], now=0.0)
+        stale = AD.normalize(ev(etag="v0"))
+        with self.assertRaises(AdapterError):
+            reg.check_version(stale)
+
+    def test_tombstone_deletion(self):
+        from adapters.contract import AdapterError
+        reg = AdapterRegistry()
+        reg.register(AD)  # calendar declares tombstone
+        reg.mark_synced("fixture-calendar-v1", [AD.normalize(ev())], now=0.0)
+        self.assertEqual(reg.note_deletion("fixture-calendar-v1", "e1"),
+                         "tombstoned")
+        self.assertTrue(reg.is_deleted("fixture-calendar-v1", "e1"))
+        with self.assertRaises(AdapterError):
+            reg.check_version(AD.normalize(ev()))
+
+    def test_purge_deletion(self):
+        reg = AdapterRegistry()
+        reg.register(TA)  # tasks declares purge
+        recs = [TA.normalize(task())]
+        reg.mark_synced("fixture-tasks-v1", recs, now=0.0)
+        self.assertEqual(reg.note_deletion("fixture-tasks-v1", "t1"), "purged")
+        self.assertFalse(reg.is_deleted("fixture-tasks-v1", "t1"))
+
+
+class PlanOpTests(unittest.TestCase):
+    def test_validate_known_ops(self):
+        reg = default_registry()
+        owners = validate_plan_ops(reg, ["load_busy_intervals",
+                                         "load_flexible_tasks"])
+        self.assertEqual(owners["load_busy_intervals"], "fixture-calendar-v1")
+        self.assertEqual(owners["load_flexible_tasks"], "fixture-tasks-v1")
+
+    def test_unknown_op_rejected(self):
+        reg = default_registry()
+        with self.assertRaises(UnknownPlanOp):
+            validate_plan_ops(reg, ["drop_tables"])
+
+    def test_ambiguous_op_rejected(self):
+        from adapters.contract import SourceAdapter, MutationImpact, Record
+        from adapters.calendar_adapter import FixtureCalendarAdapter
+
+        class Copycat(FixtureCalendarAdapter):
+            provider_id = "copycat-v1"
+
+        reg = default_registry()
+        reg.register(Copycat())
+        with self.assertRaises(AmbiguousPlanOp):
+            validate_plan_ops(reg, ["load_busy_intervals"])
+
+    def test_known_ops_union(self):
+        reg = default_registry()
+        self.assertIn("load_busy_intervals", known_ops(reg))
+        self.assertIn("load_flexible_tasks", known_ops(reg))
+
+
+class DSTEdgeTests(unittest.TestCase):
+    def test_all_day_across_dst_transition(self):
+        # America/New_York falls back on 2026-11-01; an all-day event must
+        # still be exactly one calendar day, not 25 hours of confusion.
+        rec = AD.normalize(ev(all_day=True, start="2026-11-01",
+                               end="2026-11-02", timezone="America/New_York"))
+        s, e = rec.derived["start_dt"], rec.derived["end_dt"]
+        self.assertEqual((s.utcoffset().total_seconds(),
+                          e.utcoffset().total_seconds()), (-14400.0, -18000.0))
+        self.assertEqual(s.date().isoformat(), "2026-11-01")
+
+    def test_recurrence_across_dst_keeps_wall_time(self):
+        import json as _json
+        rec = AD.normalize(ev(id="r2", timezone="America/New_York",
+                               start="2026-10-30T09:00:00",
+                               end="2026-10-30T09:30:00",
+                               recurrence=_json.dumps({"freq": "DAILY",
+                                                       "interval": 1,
+                                                       "count": 5})))
+        occs = AD.expand(rec, datetime(2026, 10, 30, tzinfo=ZoneInfo("UTC")),
+                         datetime(2026, 11, 6, tzinfo=ZoneInfo("UTC")))
+        # wall-clock 09:00 preserved across the Nov 1 fallback
+        self.assertTrue(all(o.hour == 9 and o.minute == 0 for o, _, _ in occs))
 
 
 if __name__ == "__main__":

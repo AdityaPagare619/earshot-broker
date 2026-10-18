@@ -114,10 +114,18 @@ class SourceAdapter(abc.ABC):
 
 
 class AdapterRegistry:
-    """Source-id -> adapter. Unknown sources fail private, typed and loud."""
+    """Source-id -> adapter. Unknown sources fail private, typed and loud.
+
+    Also tracks per-record versions and sync times so the gateway can
+    enforce freshness (blueprint §3) and deletion semantics (pipeline B
+    step 10: invalidate affected plans on updates or deletion).
+    """
 
     def __init__(self) -> None:
         self._adapters: dict = {}
+        self._versions: dict = {}   # provider_id -> {external_id: version}
+        self._synced_at: dict = {}  # provider_id -> last sync epoch seconds
+        self._tombstones: dict = {}  # provider_id -> {external_id: True}
 
     def register(self, adapter: SourceAdapter) -> None:
         contract_check(adapter)
@@ -139,6 +147,66 @@ class AdapterRegistry:
 
     def provider_ids(self) -> tuple:
         return tuple(sorted(self._adapters))
+
+    # -- sync / freshness / deletion (blueprint §3 + pipeline B step 10) ----
+    def mark_synced(self, provider_id: str, records, now: float) -> None:
+        """Record versions seen in a sync; sets the freshness baseline."""
+        self._versions[provider_id] = {r.external_id: r.version
+                                       for r in records}
+        self._synced_at[provider_id] = now
+        self._tombstones.setdefault(provider_id, {})
+
+    def is_fresh(self, provider_id: str, now: float) -> bool:
+        """False when never synced or the adapter's TTL has elapsed."""
+        adapter = self._adapters.get(provider_id)
+        if adapter is None:
+            raise UnsupportedSourceError(provider_id)
+        synced = self._synced_at.get(provider_id)
+        if synced is None:
+            return False
+        return (now - synced) <= adapter.freshness_ttl_s
+
+    def note_deletion(self, provider_id: str, external_id: str) -> str:
+        """Apply the adapter's deletion semantics. Returns what happened.
+
+        tombstone -> keep a marker (plans referencing the version fail
+        closed); purge -> drop all trace; provider_managed -> record the
+        report and let the provider own it.
+        """
+        adapter = self._adapters.get(provider_id)
+        if adapter is None:
+            raise UnsupportedSourceError(provider_id)
+        sem = adapter.deletion_semantics
+        if sem == "tombstone":
+            self._tombstones.setdefault(provider_id, {})[external_id] = True
+            return "tombstoned"
+        if sem == "purge":
+            self._versions.get(provider_id, {}).pop(external_id, None)
+            self._tombstones.get(provider_id, {}).pop(external_id, None)
+            return "purged"
+        return "provider_managed"
+
+    def is_deleted(self, provider_id: str, external_id: str) -> bool:
+        if self._tombstones.get(provider_id, {}).get(external_id):
+            return True
+        versions = self._versions.get(provider_id, {})
+        return external_id in versions and versions[external_id] is None
+
+    def check_version(self, record: Record) -> None:
+        """Fail closed when a plan pins a stale or tombstoned version.
+
+        Plans must regenerate before mutation (blueprint §3 calendar rule).
+        """
+        tombed = self._tombstones.get(record.source, {})
+        if tombed.get(record.external_id):
+            raise AdapterError(
+                f"{record.source}:{record.external_id} was deleted "
+                f"(tombstoned); regenerate the plan")
+        known = self._versions.get(record.source, {}).get(record.external_id)
+        if known is not None and known != record.version:
+            raise AdapterError(
+                f"{record.source}:{record.external_id} version {record.version} "
+                f"is stale (now {known}); regenerate the plan")
 
 
 def contract_check(adapter: SourceAdapter) -> None:
