@@ -1,0 +1,22 @@
+COST PER DEVICE-YEAR (base case; every input is a stated assumption):
+  model inference : $    4.38  (99.4% of COGS)
+  request infra   : $    0.01
+  storage         : $    0.01
+  TOTAL           : $    4.41 / device / year
+
+scenarios:
+  low    $   0.24/yr (model share 92%)
+  base   $   4.41/yr (model share 99%)
+  high   $  70.16/yr (model share 100%)
+
+sensitivity (±50% per input, ranked by spread):
+  requests_per_device_per_day                $  2.21 .. $  6.61
+  model_cost_per_call_usd                    $  2.22 .. $  6.60
+  private_task_fraction                      $  2.22 .. $  6.60
+  infra_cost_per_million_requests_usd        $  4.40 .. $  4.42
+  storage_gb_per_user                        $  4.40 .. $  4.42
+  storage_cost_per_gb_month_usd              $  4.40 .. $  4.42
+
+break-even at 50% gross margin: $0.73/month subscription
+
+READ: model inference dominates. The business question is planner-call gating/caching, not infra optimization.

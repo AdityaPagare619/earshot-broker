@@ -1,0 +1,69 @@
+profile: public_persistent_host
+flags: {'profile': 'public_persistent_host', 'allow_lease_issuance': False, 'private_reveal_via_mcp': False, 'local_arbiter_required': False, 'sensor_heartbeat_required': False}
+
+readiness gates:
+  [manual] auth_implemented_and_reviewed
+  [ok] cross_tenant_tests
+  [ok] private_data_absent_from_observability
+  [ok] common_release_assembler
+  [manual] source_updates_invalidate
+  [manual] tasks_survive_crashes_without_duplicate_effects
+  [ok] secret_dependent_errors_contained
+  [manual] owner_disclosure_settings_comprehensible
+  [ok] supported_transformations_tested
+  [manual] renderer_sensor_claims_measured
+  [manual] certification_questions_resolved
+
+DEPLOY BLOCKED by 6 gate(s):
+  - auth_implemented_and_reviewed
+  - source_updates_invalidate
+  - tasks_survive_crashes_without_duplicate_effects
+  - owner_disclosure_settings_comprehensible
+  - renderer_sensor_claims_measured
+  - certification_questions_resolved
+
+kernel latency (local, ms):
+operation                  p50       p95       p99       n
+accept                  0.0037    0.0083    0.0310    2000
+open_private            0.0007    0.0008    0.0011    2000
+public_projection       0.0007    0.0008    0.0051    2000
+room_projection         0.0012    0.0020    0.0069    2000
+derive                  0.0020    0.0022    0.0037    2000
+prepare                 0.0019    0.0021    0.0035    2000
+redeem                  0.0009    0.0010    0.0013    2000
+
+500ms-budget composition (measured vs assumed):
+stage                                             ms  basis
+kernel.accept (p99)                            0.031  MEASURED — 2000 local iterations
+kernel.public_projection (p99)                0.0051  MEASURED — 2000 local iterations
+Network and edge overhead                      120.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Token validation / request validation           25.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Snapshot and compiled-policy lookup             35.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Durable receipt + queue write                   30.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+Headroom                                       120.0  ASSUMED — dossier §13.1 allocation (hypothesis)
+TOTAL (illustrative only)                     330.04  MIXED — measured kernel + assumed system; NOT a claim
+
+NOTE: the 500ms MCP round-trip budget can only be verified by J3's real-server measurement over a network. Kernel time is necessary but not sufficient evidence.
+
+COST PER DEVICE-YEAR (base case; every input is a stated assumption):
+  model inference : $    4.38  (99.4% of COGS)
+  request infra   : $    0.01
+  storage         : $    0.01
+  TOTAL           : $    4.41 / device / year
+
+scenarios:
+  low    $   0.24/yr (model share 92%)
+  base   $   4.41/yr (model share 99%)
+  high   $  70.16/yr (model share 100%)
+
+sensitivity (±50% per input, ranked by spread):
+  requests_per_device_per_day                $  2.21 .. $  6.61
+  model_cost_per_call_usd                    $  2.22 .. $  6.60
+  private_task_fraction                      $  2.22 .. $  6.60
+  infra_cost_per_million_requests_usd        $  4.40 .. $  4.42
+  storage_gb_per_user                        $  4.40 .. $  4.42
+  storage_cost_per_gb_month_usd              $  4.40 .. $  4.42
+
+break-even at 50% gross margin: $0.73/month subscription
+
+READ: model inference dominates. The business question is planner-call gating/caching, not infra optimization.
