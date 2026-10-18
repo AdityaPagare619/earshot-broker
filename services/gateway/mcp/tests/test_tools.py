@@ -203,6 +203,59 @@ class ToolTests(unittest.TestCase):
                         {"request_ref": ref, "request_key": "wd-key-0000000027"})
         self.assertEqual(r["error"]["message"], "Unavailable")
 
+    # -- J4-C3: denials carry a continuation pointer, never a bare dead end ---
+
+    def test_unavailable_carries_identical_continuation(self):
+        """Unknown and forbidden refs: identical error incl. continuation (C3,
+        no oracle)."""
+        unk = self.c.tool("continue_on_personal_device",
+                          {"request_ref": "esh_" + "u" * 40,
+                           "request_key": "c3-unk-key-0000030"})
+        ref = self._mk_ref("c3-forbid-00000031")
+        frb = self.member.tool("continue_on_personal_device",
+                              {"request_ref": ref,
+                               "request_key": "c3-frb-key-0000032"})
+        self.assertEqual(unk["error"], frb["error"])
+        self.assertEqual(unk["error"]["code"], -32603)
+        self.assertEqual(unk["error"]["message"], "Unavailable")
+        self.assertEqual(unk["error"]["data"],
+                         {"continuation": "personal_inbox"})
+
+    def test_validation_errors_have_no_continuation_data(self):
+        """Client-bug rejections name the field (the actionable pointer);
+        the inbox affordance is reserved for true task denials."""
+        b = self.c.tool("prepare_day_brief",
+                        {"date": "not-a-date", "timezone": TZ,
+                         "request_key": "c3-val-key-0000033"})
+        self.assertEqual(b["error"]["code"], -32602)
+        self.assertNotIn("data", b["error"])
+
+    # -- J4-C4 substance: withdraw neutralizes in-flight continuations --------
+
+    def test_withdraw_after_continue_reconciles_outbox(self):
+        ref = self._mk_ref("c4-0000000000000034")
+        self.c.tool("continue_on_personal_device",
+                    {"request_ref": ref, "request_key": "c4-cont-key-000035"})
+        broker = self.srv.broker
+        slot = ("priya", "c4-cont-key-000035")
+        self.assertEqual(broker._outbox[slot]["state"], "queued")
+        w = self.c.tool("withdraw_request",
+                        {"request_ref": ref, "request_key": "c4-wd-key-0000036"})
+        r = w["result"]["structuredContent"]
+        self.assertEqual(r["request_state"], "accepted")  # never "undone"
+        self.assertIn("reconciling", r["public_facts"][0])
+        self.assertIn("cannot be retracted", r["public_facts"][0])
+        # The queued continuation can never be acted on afterwards.
+        self.assertEqual(broker._outbox[slot]["state"], "withdrawn")
+
+    def test_withdraw_without_inflight_keeps_plain_message(self):
+        ref = self._mk_ref("c4-plain-000000037")
+        w = self.c.tool("withdraw_request",
+                        {"request_ref": ref, "request_key": "c4-wd-key-000038"})
+        fact = w["result"]["structuredContent"]["public_facts"][0]
+        self.assertNotIn("reconciling", fact)
+        self.assertIn("cannot be retracted", fact)
+
     # -- error hygiene ------------------------------------------------------------
 
     def test_errors_carry_no_private_values(self):

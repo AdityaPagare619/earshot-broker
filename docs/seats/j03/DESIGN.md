@@ -113,6 +113,63 @@ strict fixture.
 - Protocol: MCP 2025-11-25 Streamable HTTP as specified in D2.
 - Kernel API: `packages/kernel/kernel.py` as-is (no modifications).
 
+### J4 wire contracts C1–C5 — conformance (verified 18 Oct, seat/j04 @ 6fcdd72)
+
+J4's contracts bind this server; I verified each against the real
+implementation rather than trusting the summary. Status:
+
+- **C1 — identical public shape for every tool error: SATISFIED.** All tool
+  errors are JSON-RPC `{"code", "message"[, "data"]}`; messages are
+  field-name-only (`invalid params: 'request_key'`) or the constant
+  `Unavailable`. No `hidden_count`, no reason codes, no secret-derived
+  strings. Conflicting-key-reuse is keyed `(tenant, owner, key)` — both from
+  the verified token — so its distinct message cannot oracle across
+  principals. Pinned by `test_errors_carry_no_private_values` and the R1
+  triple.
+- **C2 — conflicting `request_key` reuse → same shape as any invalid
+  request: SATISFIED.** `-32602`, identical JSON-RPC error shape.
+  `test_brief_conflicting_key_reuse_rejected`.
+- **C3 — denial carries a continuation pointer, never a bare dead end:
+  SATISFIED for task denials.** `UNAVAILABLE` (unknown/forbidden ref) now
+  carries `data: {"continuation": "personal_inbox"}` — byte-identical for
+  both causes, so the no-oracle property holds.
+  `test_unavailable_carries_identical_continuation`. Pure validation
+  failures (-32602) deliberately carry no inbox pointer: they are client
+  bugs, and the field name in the message IS the actionable pointer;
+  `test_validation_errors_have_no_continuation_data` pins this.
+- **C4 — withdraw on in-flight external effect: SUBSTANCE SATISFIED,
+  vocabulary open.** Withdrawing a receipt now marks every queued outbox
+  entry for that receipt `withdrawn` (it can never be acted on) and the
+  public message reads "reconciling" for the in-flight case vs the plain
+  message otherwise; the surface never claims "undone".
+  `test_withdraw_after_continue_reconciles_outbox`,
+  `test_withdraw_without_inflight_keeps_plain_message`. RESIDUAL: J4's
+  contract wants the literal public *state token* `reconciling`, but
+  API_CONTRACTS.json pins `request_state` to const `"accepted"` — changing
+  the vocabulary unilaterally would break contract validation and collide
+  with the merge. Flagged for merge reconciliation (parent + J4): either
+  amend the contract enum or accept the message-level rendering.
+- **C5 — strict-mode personal delivery: NOT APPLICABLE to this layer.** The
+  server never pushes, sounds, or badges; `continue_on_personal_device`
+  returns "accepted = queued, never delivered" (dossier §12.4). C5 binds
+  J5's personal surface.
+
+### J6-R1 blocking gate — CLOSED (verified, not asserted)
+
+F1: `accept()` idempotency returned the victim's receipt to anyone guessing
+`request_key`; `open_private` trusted caller-supplied `authenticated=True`.
+Closure, all in this seat's auth layer (kernel untouched):
+1. Identity binds ONLY from the verified bearer token — tool schemas
+   contain no identity fields (`additionalProperties: false` rejects
+   `tenant`/`owner` smuggling; `test_brief_extra_property_rejected`).
+2. `authenticated=True` is asserted by server code in `_capsule_facts`,
+   never read from arguments.
+3. Idempotency is keyed `(tenant, owner, key)` — same key, different owner
+   yields different receipts.
+Pinned by `test_same_key_different_owner_yields_different_receipt`,
+`test_member_cannot_use_owner_ref`,
+`test_unknown_ref_indistinguishable_from_forbidden`.
+
 ## Failure modes
 
 Bad version header → 400 · missing session → 400 · expired/unknown session →

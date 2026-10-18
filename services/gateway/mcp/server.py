@@ -378,7 +378,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             result = handler(tenant, owner, arguments)
             validate_against(result, tool["outputSchema"], "result")
         except broker_mod.BrokerError as exc:
-            self._send(200, rpc_error(req_id, exc.code, exc.message))
+            self._send(200, rpc_error(req_id, exc.code, exc.message, exc.data))
             return
         except Exception:  # never leak internals; redacted server-side log
             traceback.print_exc()
@@ -422,7 +422,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
         try:
             card = self.server.broker.day_card(sess["latest_ref"], tenant, owner)
         except broker_mod.BrokerError as exc:
-            self._send(200, rpc_error(req_id, exc.code, exc.message))
+            self._send(200, rpc_error(req_id, exc.code, exc.message, exc.data))
             return
         self._send(200, rpc_result(req_id, {"contents": [{
             "uri": uri, "mimeType": "application/json",

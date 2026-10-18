@@ -35,12 +35,17 @@ PUB = _k.PUBLIC  # '*'
 
 
 class BrokerError(Exception):
-    """Safe, secret-free error. `code` is a JSON-RPC error code."""
+    """Safe, secret-free error. `code` is a JSON-RPC error code.
 
-    def __init__(self, code: int, message: str):
+    `data` carries only public affordances (never secret-derived values);
+    it is rendered as the JSON-RPC error's `data` member.
+    """
+
+    def __init__(self, code: int, message: str, data: dict | None = None):
         super().__init__(message)
         self.code = code
         self.message = message
+        self.data = data
 
 
 # JSON-RPC error codes
@@ -51,7 +56,14 @@ INVALID_PARAMS = -32602
 INTERNAL_ERROR = -32603
 # Dossier §9: unknown vs forbidden reference are indistinguishable.
 UNAVAILABLE = -32603
-UNAVAILABLE_MSG = "Unavailable"
+# J4-C3: a task denial is never a bare dead end. The continuation pointer is
+# IDENTICAL for unknown and forbidden references, so it cannot oracle.
+CONTINUATION = "personal_inbox"
+
+
+def _unavailable() -> BrokerError:
+    return BrokerError(UNAVAILABLE, "Unavailable",
+                       data={"continuation": CONTINUATION})
 
 
 # --- validation (server-side, including cross-field constraints) ---
@@ -198,7 +210,8 @@ class Broker:
                                             authenticated=True, now=time.time())
         except PermissionError:
             # Unknown and forbidden are indistinguishable — no existence oracle.
-            raise BrokerError(UNAVAILABLE, UNAVAILABLE_MSG)
+            # The continuation pointer is identical for both (J4-C3).
+            raise _unavailable()
 
     # -- the 4 tools --
 
@@ -315,10 +328,29 @@ class Broker:
         try:
             self.kernel.revoke(receipt, tenant, owner)
         except PermissionError:
-            raise BrokerError(UNAVAILABLE, UNAVAILABLE_MSG)
+            raise _unavailable()
         self._tasks.pop(receipt, None)
 
+        # J4-C4 substance: a queued personal-device continuation is an
+        # in-flight external effect. Revoking the capsule does not un-queue
+        # it, so mark every outbox entry for this receipt withdrawn — it can
+        # never be acted on. The public surface never claims "undone"; the
+        # exact reconciliation state stays private.
+        had_inflight = False
+        for slot, entry in self._outbox.items():
+            if slot[0] == owner and entry.get("receipt") == receipt \
+                    and entry.get("state") == "queued":
+                entry["state"] = "withdrawn"
+                had_inflight = True
+
+        if had_inflight:
+            public_facts = ["Request withdrawn. A queued personal-device "
+                            "continuation is reconciling — already emitted "
+                            "output cannot be retracted."]
+        else:
+            public_facts = ["Request withdrawn. Already emitted output cannot "
+                            "be retracted."]
         resp = {"request_ref": receipt, "request_state": "accepted",
-                "public_facts": ["Request withdrawn. Already emitted output cannot be retracted."]}
+                "public_facts": public_facts}
         self._store_idem(tenant, owner, key, params, resp)
         return resp
