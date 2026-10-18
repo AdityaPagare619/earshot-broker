@@ -38,6 +38,7 @@ earshot-demo = "earshot.demo.five_beats:main"
 earshot-server = "earshot.gateway.mcp.server:main"
 earshot-sim = "earshot.simulator.host:main"
 earshot = "earshot.cli:main"
+earshot-validate-pack = "earshot.packs.validate:main"
 
 [tool.setuptools]
 # Interim package-dir mapping (see docs/seats/pro-packaging/DESIGN.md §2).
