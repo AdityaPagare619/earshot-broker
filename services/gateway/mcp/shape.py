@@ -9,15 +9,15 @@ two call sites. If these ever drift, shape leaks are born.
 The guarantee, stated as code: the assembler emits ONLY text it was given, in
 canonical order, with no counts, no ordinals, no depths, no sensitivities, no
 item IDs, and the fixed suffix ALWAYS appended (even when nothing was withheld).
-"Nothing above planned depth in any field" is structural — the planner (S2's
-real planner, or the fixture planner below) puts only planned-depth rendition
-text into PlannedItem; the assembler has no code path that can reach any other
-text.
+"Nothing above planned depth in any field" is structural — S2's planner puts
+only planned-depth rendition text into PlannedItem via planned_from_briefing;
+the assembler has no code path that can reach any other text.
 
 Cover-mode shape is a function of the credible set only — never of hidden data.
 """
 from __future__ import annotations
 
+import secrets
 from dataclasses import dataclass
 
 # --------------------------------------------------------------------------
@@ -105,12 +105,17 @@ def _check_item(it: PlannedItem) -> None:
 
 
 def _join_spoken(texts: list[str]) -> str:
-    """Join without counts, without ordinals. Oxford comma; constant template."""
-    if len(texts) == 1:
-        return texts[0]
-    if len(texts) == 2:
-        return f"{texts[0]}, and {texts[1]}"
-    return ", ".join(texts[:-1]) + f", and {texts[-1]}"
+    """Join without counts, without ordinals. Oxford comma; constant template.
+
+    Trailing periods are normalized (chains may or may not end with one) —
+    presentation only, the words never change.
+    """
+    clean = [t.rstrip().rstrip(".") for t in texts]
+    if len(clean) == 1:
+        return clean[0]
+    if len(clean) == 2:
+        return f"{clean[0]}, and {clean[1]}"
+    return ", ".join(clean[:-1]) + f", and {clean[-1]}"
 
 
 def assemble(inp: AssemblyInput) -> dict:
@@ -138,11 +143,12 @@ def assemble(inp: AssemblyInput) -> dict:
             raise AssertionError("assembler emitted unplanned text")
 
     if spoken:
-        speak = f"{_LEAD_IN}{_join_spoken(spoken)}. {FIXED_SUFFIX}"
+        joined = _join_spoken(spoken)
+        speak = f"{_LEAD_IN}{joined}. {FIXED_SUFFIX}"
     else:
         speak = f"{_NOTHING_LOUD}{FIXED_SUFFIX}"
 
-    _assert_wrapper_clean(speak, spoken)
+    _assert_wrapper_clean(speak, [t.rstrip().rstrip(".") for t in spoken])
 
     return _contract(speak, inp.mode, inp.followups, inp.screen_depth,
                      inp.continuation_ref, inp.request_state,
@@ -228,17 +234,14 @@ def terminal_assembly(plan_id: str, table_version: int, mode: str,
 
 
 # --------------------------------------------------------------------------
-# Fixture planner (STAND-IN for S2 — labeled FIXTURE throughout)
+# Fixture table compiler (STAND-IN for S1's Disclosure Table compiler)
 #
-# Implements the frozen-contract math minimally: credible set from fixture
-# listeners, ε(s) = 0.5 − 0.45·s, d* = min clearance over the credible set,
-# cover = any non-owner listener credible. S2's real planner implements the
-# AssemblyInput/PlannedItem interface above; the assembler never changes.
+# Compiles a fixture world into FixtureRows — the brief's TableRow shape
+# (item_id, sensitivity, clearance, chain, version), so the broker's
+# FixtureRow -> hotlane TableRow mapping is field-for-field. Deterministic.
 
 @dataclass(frozen=True)
 class FixtureRow:
-    """Mirrors the brief's TableRow field-for-field (named FixtureRow so S1's
-    future TableRow never collides)."""
     item_id: str
     sensitivity: float          # 0..1
     clearance: dict             # {person_or_role: depth_int}
@@ -246,58 +249,41 @@ class FixtureRow:
     version: int = FIXTURE_TABLE_VERSION
 
 
-def _epsilon(sensitivity: float) -> float:
-    return 0.5 - 0.45 * sensitivity
+# --------------------------------------------------------------------------
+# S2 adapter — the ONLY planner is S2's real minimax planner
+# (packages/hotlane). This module adapts its BriefingPlan to the assembler's
+# input. Duck-typed on purpose: shape.py imports NOTHING (stdlib only, zero
+# dependencies), so the seam can never drift with a package's internals.
+
+_DECISION_TO_ACTION = {"speak": "SPEAK", "phone": "PHONE", "defer": "DEFER"}
 
 
-def _clearance_for(row: FixtureRow, person: str) -> int:
-    if person in row.clearance:
-        return row.clearance[person]
-    if person == "unknown":
-        return row.clearance.get("unknown", 0)
-    # Named-but-unlisted listeners are guests of the household.
-    return row.clearance.get("role:guest", 0)
+def planned_from_briefing(plan, rows_by_id: dict) -> tuple:
+    """Adapt S2's BriefingPlan -> (planned, mode, screen_depth).
 
+    `plan`: hotlane BriefingPlan (ItemPlan items with item_id, decision,
+    depth, cover_mode). `rows_by_id`: {item_id: FixtureRow}.
 
-class FixturePlanner:
-    """Minimal planner over fixture rows. Deterministic. NOT the S2 planner."""
-
-    # Fixture belief: listed listeners are P=0.95 present; the "unknown"
-    # pseudo-person is P=0.05 (joins only at ε ≤ 0.05, i.e. sensitivity ≥ 1.0 —
-    # mechanism present, dormant in fixture).
-    _P_LISTED = 0.95
-    _P_UNKNOWN = 0.05
-
-    @classmethod
-    def plan(cls, rows: tuple, audience: frozenset, owner: str) -> tuple:
-        """-> tuple[PlannedItem], canonical order. Plus (mode, screen_depth)."""
-        planned = []
-        for row in rows:
-            eps = _epsilon(row.sensitivity)
-            credible = {p for p in audience if cls._P_LISTED >= eps}
-            if cls._P_UNKNOWN >= eps:
-                credible.add("unknown")
-            if not credible:
-                credible = {owner}
-            dstar = min(_clearance_for(row, p) for p in credible)
-            if dstar > 0:
-                text = row.chain[4 - dstar]
-                action = "SPEAK"
-            else:
-                text = ""
-                action = "DEFER"  # absorbed (d0): silent digest covers it
-            planned.append(PlannedItem(row.item_id, dstar, text, action,
-                                       row.version))
-        planned.sort(key=lambda p: p.item_id)
-        cover = any(p != owner for p in audience)
-        mode = "cover" if cover else "open"
-        spoken_depths = [p.depth for p in planned if p.action == "SPEAK"]
-        screen_depth = min(spoken_depths) if spoken_depths else 0
-        return tuple(planned), mode, screen_depth
+    Rendition text = the row's chain at the planned depth. Language-blind:
+    the canonical depths tuple — never renditions[lang] (S6 owns locale).
+    """
+    planned = []
+    for ip in plan.items:
+        row = rows_by_id[ip.item_id]
+        text = row.chain[4 - ip.depth] if ip.depth > 0 else ""
+        action = _DECISION_TO_ACTION[ip.decision]
+        planned.append(PlannedItem(ip.item_id, ip.depth, text, action,
+                                   row.version))
+    planned.sort(key=lambda p: p.item_id)
+    mode = "cover" if any(ip.cover_mode for ip in plan.items) else "open"
+    spoken = [ip.depth for ip in plan.items
+              if ip.decision == "speak" and ip.depth > 0]
+    screen_depth = min(spoken) if spoken else 0
+    return tuple(planned), mode, screen_depth
 
 
 # --------------------------------------------------------------------------
-# Fixture table compiler (STAND-IN for S1 — labeled FIXTURE throughout)
+# Fixture rows are compiled below.
 
 _HEALTH_HINTS = ("checkup", "therapy", "clinic", "prenatal", "doctor",
                  "ob-gyn", "dental", "hospital")

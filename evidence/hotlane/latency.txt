@@ -1,0 +1,4 @@
+hot-lane latency evidence (S2, K3: plan_briefing < 15ms compute)
+method: 50 items, 200 samples, perf_counter, this box
+p50=0.682ms p95=5.758ms p99=9.857ms max=13.872ms
+budget: 15.0ms  verdict: PASS

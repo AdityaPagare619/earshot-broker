@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -22,40 +23,73 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", "..", "services", "gateway", "mcp"))
 from gateway_port import GatewayPort  # noqa: E402  (sets kernel sys.path)
 from arbiter import Arbiter  # noqa: E402
 from audience import AudienceSource, SensorScript  # noqa: E402
 from kernel import Fact, Label  # noqa: E402
+import shape as shape_mod  # noqa: E402  (constant-shape assembly)
 
 PUBLIC = "*"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Two honest fixtures (dossier §4.3). Strict protects existence: no item
-# count, no buzz, quiet phone sync. Relaxed permits an existence nudge.
+# Demo fixtures (dossier §4.3). The briefing LINES are gone: the UI now speaks
+# the sealed-speech contract (res["speak"]) verbatim — the fixture never
+# authors room-facing text. stopped_line is constant-shape in both modes
+# (the old relaxed "One private item — sent to your phone." was a UI-visible
+# existence leak — killed). The phone buzz stays: it is owner-visible, on the
+# owner's device, never on the room speaker.
 FIXTURES = {
     "strict": {
         "label": "Strict — existence protected",
-        "briefing": [
-            "Good afternoon, Priya.",
-            "You have 3 flexible tasks today.",
-            "Rain is forecast after 6 — collect groceries after 6.",
-            "Your full plan is on your phone.",
-        ],
         "stopped_line": "Paused — moved to your phone.",
         "nudge": None,
     },
     "relaxed": {
         "label": "Relaxed — existence releasable",
-        "briefing": [
-            "Good afternoon, Priya.",
-            "You have 3 flexible tasks today.",
-            "Rain is forecast after 6 — collect groceries after 6.",
-            "One private item — sent to your phone.",
-        ],
-        "stopped_line": "One private item — sent to your phone.",
+        "stopped_line": "Paused — moved to your phone.",
         "nudge": "Private day plan ready — tap to review.",
     },
 }
+
+# Fixture probe detector (labeled demo routing, not NLU). The RESPONSE is the
+# guarantee: shape.probe_speak() is constant — identical whether the probed
+# item exists, doesn't exist, or is secret. A real NLU would replace these
+# patterns; the response vocabulary must stay a single sentence.
+_PROBE_RES = [
+    re.compile(r"anything private"),
+    re.compile(r"any private"),
+    re.compile(r"what.*private"),
+    re.compile(r"what are you (hiding|withholding|not telling)"),
+    re.compile(r"what'?s (being )?hidden"),
+    re.compile(r"what did you (skip|leave out|not (say|tell|mention))"),
+    re.compile(r"\bsecrets?\b"),
+    re.compile(r"don'?t tell (mom|him|her|them|anyone)"),
+]
+
+# "next"-shaped utterances (exact): continue a chunked brief.
+_NEXT_UTTERANCES = ("next", "more", "go on", "continue")
+
+
+def _speak_of(res: dict) -> tuple:
+    """Uniform speak extraction across backends.
+
+    mcp: {content, structuredContent: <contract>, ...}; kernel_direct:
+    <contract> directly. Returns (speak, contract).
+    """
+    sc = res.get("structuredContent")
+    if isinstance(sc, dict) and "speak" in sc:
+        return sc["speak"], sc
+    return res.get("speak", ""), res
+
+
+def _segments_of(speak: str) -> list:
+    """Split the contract's speak text into arbiter-gated segments.
+
+    Sentence boundaries only — never rewording, never reordering.
+    """
+    return [p.strip() for p in speak.split(". ") if p.strip()]
 
 
 class Host:
@@ -71,9 +105,13 @@ class Host:
         self._briefing_thread: threading.Thread | None = None
         self._stop_briefing = threading.Event()
         self._trace: list[dict] = []  # last wire/protocol events
-        self._round_trips: list[dict] = []
+        self._round_trips: list[dict] = []  # tool round trips
         self._phone_inbox: list[dict] = []
         self._lock = threading.Lock()
+        # Sealed-speech session state: the last brief's continuation ref and
+        # its followups (drives "next"). Never secret content.
+        self._last_ref: str | None = None
+        self._last_followups: tuple = ()
 
     # ---- briefing pipeline ----------------------------------------------
 
@@ -123,68 +161,125 @@ class Host:
 
     # ---- utterance routing (labeled demo routing, not NLU) ---------------
 
+    def _sync_audience_to_gateway(self):
+        """Fixture sensing -> gateway belief. The demo's AudienceSource is the
+        sensing layer; the fixture audience is exhaustive (nobody unmodeled
+        is around). Called before every tool call so belief is never stale."""
+        listeners = self.audience._last_listeners or frozenset({self.owner})
+        self.port.set_fixture_audience(listeners)
+
+    def _fresh_key(self, stem: str) -> str:
+        return f"{stem}-{int(time.time() * 1000)}-demo0001"
+
+    def _speak_brief(self, res: dict, tool: str) -> dict:
+        """Render a brief-family contract: speak verbatim, sentence-split
+        into arbiter-gated segments, phone digest queued silently."""
+        speak, contract = _speak_of(res)
+        self._last_ref = contract.get("request_ref")
+        self._last_followups = tuple(contract.get("followups", ()))
+        self._round_trips.append({"tool": tool,
+                                  "ms": res.get("_round_trip_ms")})
+        self._trace_add("tool_call", {"tool": tool,
+                                      "speak": speak,
+                                      "mode": contract.get("mode"),
+                                      "followups": list(self._last_followups)})
+        # A new utterance is new intent (not autoplay): return the speaker
+        # to service for NEW grants at the current audience epoch. Stopped
+        # segments stay stopped (epoch-bound invalidation).
+        listeners = self.audience._last_listeners or frozenset({self.owner})
+        self.arbiter.resume_after_retrust(frozenset(listeners))
+        self.start_briefing(_segments_of(speak),
+                            task_id=(self._last_ref or "brief")[:8])
+        self._phone_sync_quiet(self._last_ref)
+        return {"tool": tool, "spoken": speak,
+                "request_ref": self._last_ref}
+
     def utter(self, text: str) -> dict:
         low = text.lower()
-        listeners = self.audience._last_listeners
-        # Guest probing for private content: generic denial, no oracle.
-        if ("private" in low or "what was" in low) and listeners != frozenset({self.owner}):
-            self._trace_add("denial", {"utterance": text,
-                                       "listeners": sorted(listeners)})
-            return {"tool": None,
-                    "spoken": "I can't help with that on this speaker."}
+        # Probe resistance (Seam 3): probe-shaped queries NEVER reach a data
+        # path. One constant sentence, whatever the room, whatever exists.
+        if any(rx.search(low) for rx in _PROBE_RES):
+            self._trace_add("probe", {"utterance": text,
+                                      "response": "constant"})
+            return {"tool": None, "spoken": shape_mod.probe_speak()}
+        # "next": honest mid-conversation collapse — re-plan remaining items
+        # against FRESH belief (the audience may have changed mid-brief).
+        if low.strip() in _NEXT_UTTERANCES and self._last_ref:
+            if "next" not in self._last_followups:
+                return {"tool": None,
+                        "spoken": "That's everything I can share out loud."}
+            self._sync_audience_to_gateway()
+            res = self.port.call_tool(
+                "prepare_day_brief",
+                {"date": "2026-10-18", "timezone": "Asia/Kolkata",
+                 "request_key": self._fresh_key("next"),
+                 "continuation_ref": self._last_ref})
+            return self._speak_brief(res, "prepare_day_brief")
         if "organiz" in low or "afternoon" in low or "day" in low or "brief" in low:
-            res = self.port.call_tool("prepare_day_brief",
-                                      {"date": "2026-10-18",
-                                       "timezone": "Asia/Kolkata",
-                                       "request_key": f"brief-{int(time.time())}-demo0001"})
-            self._round_trips.append({"tool": "prepare_day_brief",
-                                      "ms": res.get("_round_trip_ms")})
-            self._trace_add("tool_call", {"tool": "prepare_day_brief",
-                                          "public_facts": res["public_facts"]})
-            self.start_briefing(FIXTURES[self.fixture_mode]["briefing"],
-                                task_id=res["request_ref"][:8])
-            self._phone_sync_quiet(res["request_ref"])
-            return {"tool": "prepare_day_brief",
-                    "spoken": res["public_message"],
-                    "request_ref": res["request_ref"]}
+            self._sync_audience_to_gateway()
+            res = self.port.call_tool(
+                "prepare_day_brief",
+                {"date": "2026-10-18", "timezone": "Asia/Kolkata",
+                 "request_key": self._fresh_key("brief")})
+            return self._speak_brief(res, "prepare_day_brief")
         if "room for" in low or "minute" in low or "call" in low:
+            if not self._last_ref:
+                return {"tool": None,
+                        "spoken": "Ask me to organize your day first."}
             mins = 20
             for tok in low.split():
                 if tok.isdigit():
                     mins = int(tok)
-            res = self.port.call_tool("resolve_day_change",
-                                      {"minutes": mins,
-                                       "request_ref": "demo-ref"})
+            self._sync_audience_to_gateway()
+            res = self.port.call_tool(
+                "resolve_day_change",
+                {"request_ref": self._last_ref,
+                 "request_key": self._fresh_key("resolve"),
+                 "change": {
+                     "kind": "find_alternative_window",
+                     "duration_minutes": mins,
+                     "window_start": "2026-10-19T09:00:00+05:30",
+                     "window_end": "2026-10-19T18:00:00+05:30"}})
+            speak, _ = _speak_of(res)
             self._round_trips.append({"tool": "resolve_day_change",
                                       "ms": res.get("_round_trip_ms")})
             self._trace_add("tool_call", {"tool": "resolve_day_change",
-                                          "minutes": mins})
-            self._phone_inbox.append(
-                {"at": time.time(), "kind": "plan_update",
-                 "text": (f"Plan adapted: {mins}-minute call fits after 6, "
-                          f"private 15:40 commitment untouched.")})
-            return {"tool": "resolve_day_change", "spoken": res["public_message"]}
+                                          "speak": speak, "minutes": mins})
+            return {"tool": "resolve_day_change", "spoken": speak}
         if "phone" in low or "privately" in low:
-            res = self.port.call_tool("continue_on_personal_device",
-                                      {"request_ref": "demo-ref"})
-            return {"tool": "continue_on_personal_device",
-                    "spoken": res["public_message"]}
+            if not self._last_ref:
+                return {"tool": None,
+                        "spoken": "Ask me to organize your day first."}
+            res = self.port.call_tool(
+                "continue_on_personal_device",
+                {"request_ref": self._last_ref,
+                 "request_key": self._fresh_key("continue")})
+            speak, _ = _speak_of(res)
+            return {"tool": "continue_on_personal_device", "spoken": speak}
         if low.strip() in ("stop", "cancel", "never mind", "withdraw"):
-            res = self.port.call_tool("withdraw_request",
-                                      {"request_ref": "demo-ref"})
             self._stop_briefing.set()
-            return {"tool": "withdraw_request", "spoken": res["public_message"]}
+            if not self._last_ref:
+                return {"tool": None, "spoken": "Stopped."}
+            res = self.port.call_tool(
+                "withdraw_request",
+                {"request_ref": self._last_ref,
+                 "request_key": self._fresh_key("withdraw")})
+            speak, _ = _speak_of(res)
+            self._last_ref = None
+            self._last_followups = ()
+            return {"tool": "withdraw_request", "spoken": speak}
         return {"tool": None,
                 "spoken": ("Try: 'help me organize my afternoon', "
                            "'make room for a twenty-minute call', or 'stop'.")}
 
-    def _phone_sync_quiet(self, request_ref: str):
-        """Strict fixture: the inbox syncs with no secret-dependent signal."""
+    def _phone_sync_quiet(self, request_ref: str | None):
+        """The inbox syncs with no secret-dependent signal beyond the fixture
+        buzz affordance (owner's device only). Content lives in the broker's
+        digest/outbox, read via the phone panel — never hardcoded here."""
         mode = self.fixture_mode
         self._phone_inbox.append({
             "at": time.time(), "kind": "day_plan",
-            "text": ("Exact plan: groceries after 6; private appointment "
-                     "15:40–16:10 (clinic); 3 flexible tasks fitted around it."),
+            "text": "Day plan synced — open your phone to review.",
             "buzz": bool(FIXTURES[mode]["nudge"]),
             "badge": bool(FIXTURES[mode]["nudge"]),
         })
@@ -209,6 +304,10 @@ class Host:
         self._trace_add("audience", {"action": action, **result})
         if result.get("accepted"):
             self._stop_briefing.set()
+        # Seam 3: the demo's sensing layer is the fixture audience — sync it
+        # to gateway belief NOW, so the next turn re-plans against the room
+        # as it is (the honest mid-conversation collapse).
+        self._sync_audience_to_gateway()
         return result
 
     # ---- scripted walk-in demo ---------------------------------------------

@@ -22,9 +22,9 @@ class GatewayPortTests(unittest.TestCase):
                            "request_key": "k" * 20})
         self.assertEqual(res["request_state"], "accepted")
         self.assertIn("request_ref", res)
-        # Public projection carries no private markers.
-        for fact in res["public_facts"]:
-            self.assertNotIn("Prenatal", fact)
+        # The sealed-speech contract carries no private markers in cover...
+        # (default port audience: live path, no declarations)
+        self.assertEqual(res["speak_policy"], "verbatim_no_elaboration")
 
     def test_mcp_backend_over_real_http(self):
         server, state, port = run_harness()

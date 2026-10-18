@@ -1,0 +1,26 @@
+S4 test report — 2026-10-18T11:53:22Z
+
+== packages/secrecy ==
+Ran 57 tests in 0.107s
+OK
+
+== services/gateway/mcp (J3 54 + S4 14) ==
+Ran 68 tests in 6.796s
+OK
+
+== kernel (frozen, untouched) ==
+Ran 24 tests in 0.006s
+OK
+
+== regression suites ==
+Ran 37 tests in 0.038s
+OK
+Ran 31 tests in 0.030s
+OK
+Ran 18 tests in 0.002s
+OK
+Ran 23 tests in 0.002s
+OK
+
+kernel diff (must be empty):
+0
