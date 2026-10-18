@@ -23,7 +23,7 @@ import re
 from datetime import date as date_cls
 from datetime import timedelta
 
-from edges import EdgeProposal
+from .edges import EdgeProposal
 
 ROLE_CHILD = "role:child"
 ROLE_GUEST = "role:guest"

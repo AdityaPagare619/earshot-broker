@@ -6,7 +6,7 @@ unexamined. Read docs/threat-model.md R1/R2/R3/R6 for the residual risks.
 """
 import unittest
 
-from kernel import Fact, Kernel, Label, PUBLIC
+from earshot.kernel import Fact, Kernel, Label, PUBLIC
 from tests.adversarial.actors import PUB, PRIYA, PUBLIC_FACT, SECRET
 from tests.support.j06_report import Reporter
 

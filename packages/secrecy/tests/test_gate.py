@@ -1,8 +1,8 @@
 """Gate truth table: the monotone acceptance rule, nailed down (S4)."""
 import unittest
 
-from edges import Confirmation, EdgeProposal
-from gate import MonotoneGate
+from earshot.secrecy.edges import Confirmation, EdgeProposal
+from earshot.secrecy.gate import MonotoneGate
 
 
 def prop(**kw):

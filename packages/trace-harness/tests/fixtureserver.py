@@ -19,8 +19,7 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
-from kernel import Kernel, Fact, Label  # noqa: E402
+from earshot.kernel import Kernel, Fact, Label  # noqa: E402
 
 PUBLIC = "*"
 

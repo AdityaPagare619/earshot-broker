@@ -3,7 +3,7 @@
 import math
 import unittest
 
-from hotlane import (
+from earshot.hotlane import (
     ALEXA_HINT,
     ALONE,
     BEACON_ABSENT,
@@ -19,9 +19,9 @@ from hotlane import (
     logit,
     sigmoid,
 )
-from hotlane.belief import DEFAULT_FUSION_CONFIG
+from earshot.hotlane.belief import DEFAULT_FUSION_CONFIG
 
-from _helpers import PRIORS, sig
+from hotlane.tests._helpers import PRIORS, sig
 
 CFG = DEFAULT_FUSION_CONFIG
 NOW = 1_000_000.0

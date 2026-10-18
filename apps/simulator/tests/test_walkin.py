@@ -1,11 +1,8 @@
 """End-to-end walk-in scenario through the real Host path."""
-import sys
-import os
 import time
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-import host as host_module
+from earshot.simulator import host as host_module
 
 PRIVATE_MARKERS = ("prenatal", "3:30", "clinic", "checkup")
 FIXED_SUFFIX = "the rest of your day is on your phone."

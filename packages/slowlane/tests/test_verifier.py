@@ -4,15 +4,13 @@ The verifier is the load-bearing mechanism of Seam 1: every draft chain —
 fixture or LLM — crosses it before becoming speakable.
 """
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane.models import DraftChain, UnderstandOutput  # noqa: E402
-from slowlane.understand import fixture_lexicon  # noqa: E402
-from slowlane.verifier import TopicLexicon, verify  # noqa: E402
+from earshot.slowlane.models import DraftChain, UnderstandOutput  # noqa: E402
+from earshot.slowlane.understand import fixture_lexicon  # noqa: E402
+from earshot.slowlane.verifier import TopicLexicon, verify  # noqa: E402
 
 
 def _understand(**kw):

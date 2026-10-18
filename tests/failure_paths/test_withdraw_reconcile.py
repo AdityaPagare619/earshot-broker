@@ -7,8 +7,8 @@ external effect; exact state is private.
 """
 import unittest
 
-from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_fixtures)
-from kernel import Kernel
+from tests.failure_paths.harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_fixtures)
+from earshot.kernel import Kernel
 
 
 class WithdrawReconcileTests(unittest.TestCase):

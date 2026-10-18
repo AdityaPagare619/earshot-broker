@@ -1,8 +1,8 @@
 """EdgeStore: the choke point holds; expiry is absence (S4)."""
 import unittest
 
-from edges import EdgeProposal
-from store import EdgeStore
+from earshot.secrecy.edges import EdgeProposal
+from earshot.secrecy.store import EdgeStore
 
 
 def prop(**kw):

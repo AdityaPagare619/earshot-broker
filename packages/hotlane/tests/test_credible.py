@@ -2,10 +2,10 @@
 
 import unittest
 
-from hotlane import UNKNOWN, credible_set, epsilon, logit
-from hotlane.belief import initial_belief
+from earshot.hotlane import UNKNOWN, credible_set, epsilon, logit
+from earshot.hotlane.belief import initial_belief
 
-from _helpers import PRIORS
+from hotlane.tests._helpers import PRIORS
 
 
 class TestEpsilon(unittest.TestCase):

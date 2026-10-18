@@ -1,15 +1,10 @@
 """Arbiter ordering tests — the epoch race must close, not just pass once."""
-import sys
-import os
 import threading
 import time
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                "packages", "kernel"))
-from arbiter import Arbiter, AudienceEvent
-from kernel import Fact, Kernel, Label
+from earshot.simulator.arbiter import Arbiter, AudienceEvent
+from earshot.kernel import Fact, Kernel, Label
 
 PUB = Label(frozenset({"*"}))
 PRI = Label(frozenset({"priya"}), frozenset({"health"}))

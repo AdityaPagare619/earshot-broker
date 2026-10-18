@@ -5,7 +5,7 @@ must not leak receipts; unknown vs forbidden references are indistinguishable.
 """
 import unittest
 
-from harness import Client, start_server
+from earshot.gateway.mcp.tests.harness import Client, start_server, stop_server
 
 PORT = 8892
 DATE = "2026-10-19"
@@ -28,7 +28,7 @@ class ToolTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     # -- prepare_day_brief -------------------------------------------------
 

@@ -1,13 +1,11 @@
 """Tests: confirm queue — it can only make you quieter."""
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane.confirm import ConfirmError, ConfirmQueue  # noqa: E402
-from slowlane.models import SecrecyEdge  # noqa: E402
+from earshot.slowlane.confirm import ConfirmError, ConfirmQueue  # noqa: E402
+from earshot.slowlane.models import SecrecyEdge  # noqa: E402
 
 
 def _edge(conf=0.45, direction="TIGHTEN"):

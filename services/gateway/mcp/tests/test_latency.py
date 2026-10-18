@@ -11,7 +11,7 @@ import statistics
 import time
 import unittest
 
-from harness import Client, start_server
+from earshot.gateway.mcp.tests.harness import Client, start_server, stop_server
 
 PORT = 8896
 N = 200
@@ -41,7 +41,7 @@ class LatencyTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        stop_server(cls.srv)
 
     def test_round_trip_latency(self):
         rtts = []

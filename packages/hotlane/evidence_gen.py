@@ -5,17 +5,16 @@ Writes:
   evidence/hotlane/counterfactuals.txt — planner-level counterfactual checks
   evidence/hotlane/test-run.txt        — full suite output (captured by runner)
 
-Run from the worktree root:
-  PYTHONPATH=packages python3 packages/hotlane/evidence_gen.py
+Run (after `pip install -e .`):
+  python -m earshot.hotlane.evidence_gen
 """
 
+import os
 import statistics
 import sys
 import time
 
-sys.path.insert(0, "packages")
-
-from hotlane import (  # noqa: E402
+from earshot.hotlane import (
     ALONE,
     BEACON_PRESENT,
     DECLARE_PRESENT,

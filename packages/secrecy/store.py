@@ -15,8 +15,8 @@ from __future__ import annotations
 import time
 from datetime import date as date_cls
 
-from edges import Confirmation, EdgeProposal, SecrecyEdge, normalize_until
-from gate import MonotoneGate
+from .edges import Confirmation, EdgeProposal, SecrecyEdge, normalize_until
+from .gate import MonotoneGate
 
 
 def _expired(edge: SecrecyEdge, now: float) -> bool:

@@ -12,18 +12,16 @@ the suite detects real leaks instead of vacuously passing:
    falls back to boring templates, and the compiled row is clean.
 """
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(_HERE, "..", ".."))
 
-from slowlane import compiler, pipeline, quarantine, seam  # noqa: E402
-from slowlane.models import (  # noqa: E402
+from earshot.slowlane import compiler, pipeline, quarantine, seam  # noqa: E402
+from earshot.slowlane.models import (  # noqa: E402
     COMPILED, DraftChain, GeneralizationChain, RenderInput, TableRow,
 )
-from slowlane.render import RenderBackend  # noqa: E402
-from slowlane.understand import fixture_lexicon  # noqa: E402
+from earshot.slowlane.render import RenderBackend  # noqa: E402
+from earshot.slowlane.understand import fixture_lexicon  # noqa: E402
 try:
     from .test_counterfactual import (  # noqa: E402; discover mode
         ROLE_DEFAULTS, ROLES, LEXICON, _compile_event,

@@ -21,9 +21,7 @@ from dataclasses import dataclass, replace
 
 import sys, os
 # Import the frozen kernel from THIS worktree (seat self-containment).
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               '..', '..', 'packages', 'kernel'))
-from kernel import Context, Fact, Kernel  # noqa: E402
+from earshot.kernel import Context, Fact, Kernel  # noqa: E402
 
 
 @dataclass(frozen=True)

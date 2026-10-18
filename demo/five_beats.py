@@ -20,12 +20,22 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from earshot.integration.pipeline import SealedSpeechPipeline
+from earshot.packs.loader import load_pack
 
-from integration.pipeline import SealedSpeechPipeline
-from packs.loader import load_pack
+def _packs_root() -> str:
+    """Locate the household-pack data dir, installed or from source."""
+    try:
+        from importlib.resources import files
+        cand = files("earshot.packs")
+        if cand.is_dir():
+            return str(cand)
+    except Exception:
+        pass
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "packs")
 
-PACKS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "packs")
+
+PACKS_ROOT = _packs_root()
 
 # ---------------------------------------------------------------- scenario
 STRINGS = {
@@ -116,10 +126,10 @@ def build_day(pack, lang, with_therapy=False, mom_present=False):
     return pipe, resp, info
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--lang", default="en", choices=("en", "hi"))
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     lang = args.lang
     S = STRINGS[lang]
 

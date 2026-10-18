@@ -1,12 +1,10 @@
 """Generate evidence/slowlane/run-summary.txt — measured claims, not prose."""
 import io
 import os
-import sys
 import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(_HERE, "..", "..", ".."))
-sys.path.insert(0, os.path.join(REPO, "packages"))
 
 loader = unittest.TestLoader()
 suite = loader.discover(os.path.join(REPO, "packages", "slowlane", "tests"),
@@ -28,8 +26,7 @@ with open(os.path.join(out_dir, "run-summary.txt"), "w") as f:
     f.write(stream.getvalue())
 
 # Canonical counterfactual artifact: the two projection byte-strings.
-from slowlane import compiler, quarantine, seam  # noqa: E402
-sys.path.insert(0, os.path.join(REPO, "packages", "slowlane", "tests"))
+from earshot.slowlane import compiler, quarantine, seam  # noqa: E402
 from test_counterfactual import _projection  # noqa: E402
 
 store_a, comp_a = quarantine.QuarantineStore(), compiler.TableCompiler()

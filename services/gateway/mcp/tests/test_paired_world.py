@@ -20,8 +20,8 @@ open-mode utility test (anti-over-redaction), and chunked-turn invariance.
 import json
 import unittest
 
-from harness import start_server  # noqa: E402  (inserts mcp/ into sys.path)
-import fixtures as F  # noqa: E402
+from earshot.gateway.mcp.tests.harness import start_server, stop_server  # noqa: E402
+from earshot.gateway.mcp import fixtures as F  # noqa: E402
 
 PORT_A = 8893
 PORT_B = 8894
@@ -94,7 +94,7 @@ class PairedWorldTests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         for s in (cls.srv_a, cls.srv_b, cls.srv_c, cls.srv_d):
-            s.shutdown()
+            stop_server(s)
 
     def _brief(self, client, key, **kw):
         args = {"date": DATE, "timezone": TZ, "request_key": key}

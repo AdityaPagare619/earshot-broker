@@ -22,7 +22,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-from edges import EdgeProposal
+from .edges import EdgeProposal
 
 
 @dataclass(frozen=True)

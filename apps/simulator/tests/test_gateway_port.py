@@ -1,13 +1,9 @@
 """GatewayPort backend tests: mcp path over real HTTP, kernel_direct path."""
-import sys
 import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                "packages", "kernel"))
-from gateway_port import GatewayPort
-from protocol_conformance_harness import run_harness
+from earshot.simulator.gateway_port import GatewayPort
+from simulator.tests.protocol_conformance_harness import run_harness
 
 
 class GatewayPortTests(unittest.TestCase):

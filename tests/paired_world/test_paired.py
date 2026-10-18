@@ -7,7 +7,7 @@ dossier row and records evidence via the J6 reporter.
 import random
 import unittest
 
-from kernel import Fact, Kernel, Label, PUBLIC
+from earshot.kernel import Fact, Kernel, Label, PUBLIC
 from tests.paired_world.harness import (
     FAMILY, PRIYA, PUB, PublicView, check_receipt_independence,
     make_world, secret)

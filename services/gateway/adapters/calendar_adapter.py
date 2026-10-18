@@ -14,7 +14,7 @@ from dataclasses import replace
 from datetime import date, datetime
 from typing import FrozenSet
 
-from kernel import Fact, Label
+from earshot.kernel import Fact, Label
 
 from . import common
 from .contract import (MutationImpact, Record, RecurrenceError, SourceAdapter,

@@ -17,7 +17,7 @@ nobody — tighten-only inputs cannot loosen, by construction.
 import random
 import unittest
 
-from hotlane import (
+from earshot.hotlane import (
     ALEXA_HINT,
     ALONE,
     BEACON_PRESENT,
@@ -34,9 +34,9 @@ from hotlane import (
     plan_item,
     sigmoid,
 )
-from hotlane.belief import fuse_belief
+from earshot.hotlane.belief import fuse_belief
 
-from _helpers import PRIORS, make_row, sig
+from hotlane.tests._helpers import PRIORS, make_row, sig
 
 NOW = 1_000_000.0
 PERSONS = ["priya", "mom", "maya", "ravi"]

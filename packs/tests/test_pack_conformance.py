@@ -8,13 +8,9 @@ import os
 import shutil
 import tempfile
 import unittest
-
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-
-from packs.loader import load_pack
-from packs.schema import validate_pack
-from packs.yaml_subset import PackError, parse
+from earshot.packs.loader import load_pack
+from earshot.packs.schema import validate_pack
+from earshot.packs.yaml_subset import PackError, parse
 
 PACKS_ROOT = os.path.join(os.path.dirname(__file__), "..")
 

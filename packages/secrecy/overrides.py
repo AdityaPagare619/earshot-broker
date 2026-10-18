@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import time
 
-from store import EdgeStore
+from .store import EdgeStore
 
 
 #: Edges stored under this item id apply to every item (standing rules such

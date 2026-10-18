@@ -1,25 +1,19 @@
 """Adapter tests v1: contract enforcement, registry fail-private, calendar.
 
-Run: python3 test_adapters.py  (stdlib unittest; run from this directory)
+Run: python -m pytest services/gateway/adapters/  (after `pip install -e .`)
 """
 import json
-import sys
 import os
 import unittest
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-# kernel package + this package's parent (services/gateway) for `adapters` imports.
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "packages", "kernel"))
-sys.path.insert(0, os.path.join(_HERE, ".."))
-
-from kernel import Fact, Label  # noqa: E402
-from adapters.contract import (AdapterRegistry, ContractViolation,  # noqa: E402
+from earshot.kernel import Fact, Label  # noqa: E402
+from earshot.gateway.adapters.contract import (AdapterRegistry, ContractViolation,  # noqa: E402
                                RecurrenceError, SourceAdapter,
                                UnsupportedSourceError, contract_check)
-from adapters.calendar_adapter import FixtureCalendarAdapter  # noqa: E402
-from adapters import common  # noqa: E402
+from earshot.gateway.adapters.calendar_adapter import FixtureCalendarAdapter  # noqa: E402
+from earshot.gateway.adapters import common  # noqa: E402
 
 UTC = ZoneInfo("UTC")
 AD = FixtureCalendarAdapter()
@@ -193,7 +187,7 @@ class MutationTests(unittest.TestCase):
 
 
 # ---------------------------------------------------------------- v2: tasks
-from adapters.tasks_adapter import FixtureTasksAdapter  # noqa: E402
+from earshot.gateway.adapters.tasks_adapter import FixtureTasksAdapter  # noqa: E402
 
 TA = FixtureTasksAdapter()
 
@@ -215,7 +209,7 @@ class TasksContractTests(unittest.TestCase):
         self.assertTrue(TA.plan_ops().isdisjoint(AD.plan_ops()))
 
     def test_no_import_of_calendar_adapter(self):
-        import adapters.tasks_adapter as mod
+        import earshot.gateway.adapters.tasks_adapter as mod
         with open(mod.__file__) as fh:
             import_lines = [l for l in fh.read().splitlines()
                             if l.strip().startswith(("import ", "from "))]
@@ -279,7 +273,7 @@ class ThirdAdapterTests(unittest.TestCase):
     register against the frozen contract with zero base-code changes."""
 
     def test_notes_adapter_registers(self):
-        from adapters.contract import SourceAdapter, MutationImpact, Record
+        from earshot.gateway.adapters.contract import SourceAdapter, MutationImpact, Record
 
         class NotesAdapter(SourceAdapter):
             provider_id = "fixture-notes-v1"
@@ -324,12 +318,12 @@ class KernelIntegrationTests(unittest.TestCase):
     """Adapters plug into the real kernel: labels gate projections."""
 
     def test_private_task_fact_withheld_from_public_host(self):
-        from kernel import Kernel
+        from earshot.kernel import Kernel
         from dataclasses import replace
         k = Kernel()
         rec = TA.normalize(task())  # medication/health, owner-only readers
         facts = TA.facts(rec)
-        ctx = __import__("kernel", fromlist=["Context"]).Context(
+        ctx = __import__("earshot.kernel", fromlist=["Context"]).Context(
             "house-a", "owner", frozenset({"owner"}), 1, 100.0,
             True, True, False, 1)  # uncontrolled host
         proj = k.room_projection(facts, ctx, 100.0)
@@ -338,9 +332,9 @@ class KernelIntegrationTests(unittest.TestCase):
 
 
 # ------------------------------------------------------- v3: hardening
-from adapters.plan_ops import (AmbiguousPlanOp, UnknownPlanOp,  # noqa: E402
+from earshot.gateway.adapters.plan_ops import (AmbiguousPlanOp, UnknownPlanOp,  # noqa: E402
                                known_ops, validate_plan_ops)
-from adapters import default_registry  # noqa: E402
+from earshot.gateway.adapters import default_registry  # noqa: E402
 
 
 class RegistrySyncTests(unittest.TestCase):
@@ -355,7 +349,7 @@ class RegistrySyncTests(unittest.TestCase):
                                       now=1000.0 + AD.freshness_ttl_s + 1))
 
     def test_stale_version_fails_closed(self):
-        from adapters.contract import AdapterError
+        from earshot.gateway.adapters.contract import AdapterError
         reg = AdapterRegistry()
         reg.register(AD)
         reg.mark_synced("fixture-calendar-v1", [AD.normalize(ev())], now=0.0)
@@ -364,7 +358,7 @@ class RegistrySyncTests(unittest.TestCase):
             reg.check_version(stale)
 
     def test_tombstone_deletion(self):
-        from adapters.contract import AdapterError
+        from earshot.gateway.adapters.contract import AdapterError
         reg = AdapterRegistry()
         reg.register(AD)  # calendar declares tombstone
         reg.mark_synced("fixture-calendar-v1", [AD.normalize(ev())], now=0.0)
@@ -397,8 +391,8 @@ class PlanOpTests(unittest.TestCase):
             validate_plan_ops(reg, ["drop_tables"])
 
     def test_ambiguous_op_rejected(self):
-        from adapters.contract import SourceAdapter, MutationImpact, Record
-        from adapters.calendar_adapter import FixtureCalendarAdapter
+        from earshot.gateway.adapters.contract import SourceAdapter, MutationImpact, Record
+        from earshot.gateway.adapters.calendar_adapter import FixtureCalendarAdapter
 
         class Copycat(FixtureCalendarAdapter):
             provider_id = "copycat-v1"

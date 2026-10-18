@@ -9,9 +9,9 @@ import json
 import os
 import unittest
 
-from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
+from tests.failure_paths.harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
                      make_fixtures)
-from kernel import Kernel
+from earshot.kernel import Kernel
 
 MATRIX_PATH = os.path.join(os.path.dirname(__file__), 'certification_matrix.json')
 
