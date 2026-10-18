@@ -3,9 +3,11 @@
 *.egg-info/
 *.pyc
 .DS_Store
+.earshot-*.json
 .env
 .pytest_cache/
+.venv-quickstart/
 .venv/
 __pycache__/
 node_modules/
-.venv-quickstart/
+preview.html
