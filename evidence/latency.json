@@ -1,0 +1,61 @@
+{
+  "machine": "htch-runtime / x86_64",
+  "python": "3.12.3",
+  "ops": {
+    "Label.allows": {
+      "n": 20000,
+      "p50_us": 0.351,
+      "p99_us": 0.48,
+      "max_us": 2191.373
+    },
+    "Label.join": {
+      "n": 20000,
+      "p50_us": 0.921,
+      "p99_us": 1.362,
+      "max_us": 7280.228
+    },
+    "Kernel.public_projection": {
+      "n": 20000,
+      "p50_us": 0.691,
+      "p99_us": 1.252,
+      "max_us": 13271.45
+    },
+    "Kernel.room_projection": {
+      "n": 20000,
+      "p50_us": 0.991,
+      "p99_us": 1.832,
+      "max_us": 6254.868
+    },
+    "Kernel.derive": {
+      "n": 20000,
+      "p50_us": 2.023,
+      "p99_us": 8.482,
+      "max_us": 5682.217
+    },
+    "Kernel.prepare": {
+      "n": 20000,
+      "p50_us": 1.883,
+      "p99_us": 17.145,
+      "max_us": 5074.434
+    },
+    "Kernel.redeem": {
+      "n": 20000,
+      "p50_us": 1.181,
+      "p99_us": 1.722,
+      "max_us": 10771.724
+    },
+    "Kernel.accept": {
+      "n": 20000,
+      "p50_us": 0.811,
+      "p99_us": 1.002,
+      "max_us": 12732.34
+    },
+    "Kernel.open_private": {
+      "n": 20000,
+      "p50_us": 0.712,
+      "p99_us": 0.981,
+      "max_us": 6148.437
+    }
+  },
+  "note": "Single-process CPython; kernel ops only. These bound the arbiter-response term of the \u00a711.3 latency sum, nothing else."
+}
