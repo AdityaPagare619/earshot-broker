@@ -20,3 +20,4 @@ dist/
 htmlcov/
 node_modules/
 preview.html
+*.measured.json
