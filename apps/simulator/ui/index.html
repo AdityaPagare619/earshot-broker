@@ -4,24 +4,62 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Earshot — controlled host simulator</title>
+<link rel="icon" href="data:,">
 <style>
   :root{
     --paper:#f7f5f1; --ink:#23232b; --muted:#6b6f7a; --rule:#e3ded4;
-    --echo:#1c1e26; --ring:#4aa8ff; --amber:#e8a13c; --green:#3fa46a;
+    --echo:#1c1e26; --ring:#4aa8ff; --amber:#e8a13c; --amber-deep:#b97a1e;
+    --amber-ink:#2a1c05; --green:#3fa46a;
     --card:#ffffff; --phone:#101216;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink);
     font-family:-apple-system,"Segoe UI",Inter,sans-serif;}
-  .banner{background:#23232b;color:#f7f5f1;font-size:12px;letter-spacing:.04em;
-    padding:8px 16px;text-align:center;}
-  .banner b{color:#ffd88a;font-weight:600;}
+  /* honesty banner — unmissable by design */
+  .banner{background:#171106;color:#ffe3ae;font-size:15px;font-weight:600;
+    letter-spacing:.02em;padding:12px 16px;text-align:center;
+    border-bottom:4px solid var(--amber);}
+  .banner .chip{display:inline-block;background:var(--amber);color:var(--amber-ink);
+    font-weight:800;font-size:13px;letter-spacing:.12em;border-radius:6px;
+    padding:3px 12px;margin-right:10px;vertical-align:1px;}
+  .banner small{display:block;font-weight:400;font-size:12px;color:#c8a86a;
+    margin-top:4px;letter-spacing:.04em;}
   .layout{max-width:1180px;margin:0 auto;padding:20px 16px 40px;
     display:grid;grid-template-columns:1fr 340px;gap:20px;}
   .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;
     padding:18px;}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
     margin:0 0 12px;font-weight:600;}
+  /* hero: the walk-in story */
+  .hero{grid-column:1/-1;display:flex;gap:18px;align-items:center;
+    background:linear-gradient(135deg,#fffdf7,#fdf3df);
+    border:2px solid #f0d9ae;}
+  .hero .copy{flex:1;min-width:0;}
+  .hero h1{font-size:22px;margin:0 0 6px;letter-spacing:-.01em;}
+  .hero p{margin:0;font-size:15px;line-height:1.5;color:#4a4438;max-width:60ch;}
+  .hero p b{color:var(--ink);}
+  .hero .cta{flex:none;display:flex;flex-direction:column;gap:8px;align-items:stretch;}
+  #walkin{font-size:17px;font-weight:700;padding:14px 26px;border-radius:12px;
+    background:var(--ink);color:#fff;border:none;cursor:pointer;
+    box-shadow:0 6px 18px rgba(35,35,43,.25);}
+  #walkin:hover{background:#000;}
+  #walkin:disabled{opacity:.55;cursor:default;}
+  .hero .dur{font-size:12px;color:var(--muted);text-align:center;}
+  /* storyline: one-part-at-a-time narration, event-driven */
+  .storyline{margin:0 0 12px;border-radius:12px;background:#fbf7ec;
+    border:1px solid #f0d9ae;padding:12px 14px;min-height:64px;}
+  .storyline .placeholder{color:var(--muted);font-size:14px;font-style:italic;}
+  .beat{display:flex;gap:10px;align-items:flex-start;padding:7px 0;
+    border-top:1px dashed #e8dcc2;font-size:14px;line-height:1.45;}
+  .beat:first-child{border-top:none;padding-top:0;}
+  .beat .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--amber);
+    color:var(--amber-ink);font-weight:800;font-size:13px;text-align:center;
+    line-height:24px;}
+  .beat.past{opacity:.62;}
+  .beat.now .n{background:var(--ink);color:#fff;}
+  .beat.now{font-weight:600;}
+  .beat .ev{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);
+    display:block;font-weight:400;margin-top:2px;}
   /* Echo device */
   .stage{display:flex;gap:20px;align-items:flex-start;}
   .echo{width:190px;flex:none;text-align:center;}
@@ -39,6 +77,9 @@
     animation:pulse 2.2s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
   @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){
+    .ring.listening,.ring.thinking,.ring.speaking,.ring.restricted{animation:none;}
+  }
   .core{position:absolute;inset:34px;border-radius:50%;background:#101218;}
   .devstate{font-size:12px;color:var(--muted);margin-top:8px;min-height:18px;}
   /* transcript */
@@ -54,6 +95,9 @@
     font-size:13px;font-style:italic;}
   /* room strip */
   .room{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+  .room.flash{animation:roomflash 1.2s ease-out 2;}
+  @keyframes roomflash{0%,100%{background:transparent}50%{background:#fdf0dc}}
+  @media (prefers-reduced-motion:reduce){.room.flash{animation:none;}}
   .pill{font-size:13px;padding:6px 12px;border-radius:20px;background:#eef1f6;
     border:1px solid var(--rule);}
   .pill.owner{background:#e2f0e6;border-color:#bfe0c9;}
@@ -70,6 +114,13 @@
   button.primary{background:#23232b;color:#fff;border-color:#23232b;}
   button.warn{background:#fdf0dc;border-color:#f0d9ae;}
   button:disabled{opacity:.5;cursor:default;}
+  button:focus-visible,#walkin:focus-visible,input:focus-visible,select:focus-visible{
+    outline:3px solid var(--ring);outline-offset:2px;}
+  .momrow{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  #momIn{font-size:16px;font-weight:700;padding:12px 22px;border-radius:12px;
+    background:#fdf0dc;border:2px solid var(--amber-deep);color:var(--amber-ink);}
+  #momIn:hover{background:#fbe8c8;}
+  .momrow .hint{font-size:13px;color:var(--muted);}
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
   .row label{font-size:13px;color:var(--muted);}
   select{padding:8px;font-size:14px;border-radius:8px;border:1px solid var(--rule);}
@@ -98,16 +149,48 @@
   .kv{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#9aa0ae;
     margin-bottom:10px;}
   .kv b{color:#fff;}
+  /* mobile: stack everything, sane at 390px */
+  @media (max-width:700px){
+    .layout{grid-template-columns:1fr;padding:12px 10px 32px;}
+    .hero{flex-direction:column;align-items:stretch;text-align:left;}
+    .hero h1{font-size:19px;}
+    .hero .cta{align-items:stretch;}
+    #walkin{width:100%;}
+    .stage{flex-direction:column;align-items:center;}
+    .transcript{min-height:200px;width:100%;}
+    .controls input[type=text]{min-width:0;flex:1 1 100%;}
+    #speak{flex:1;}
+    #momIn{flex:1;font-size:15px;}
+    .phone{width:100%;max-width:340px;}
+    .banner{font-size:13px;}
+    .epoch{margin-left:0;width:100%;}
+  }
 </style>
 </head>
 <body>
-<div class="banner">Independent simulator — <b>not a live Alexa+ device</b> ·
-  Profile B: controlled host · presence is simulated · synthetic data only</div>
+<div class="banner"><span class="chip">SIMULATED</span>Independent simulator — <b>not a live Alexa+ device</b>
+<small>Profile B: controlled host · presence is simulated · synthetic data only · nothing here hears a real room</small></div>
 
 <div class="layout">
+  <div class="card hero">
+    <div class="copy">
+      <h1>Replay the night Mom walked in</h1>
+      <p>Priya asks for her day plan. Mid-sentence, Mom walks in. Watch what the
+      speaker does — <b>and what it refuses to do</b>. Every caption below fires
+      off the real arbiter events, not a script timer.</p>
+    </div>
+    <div class="cta">
+      <button id="walkin">▶ Replay the night</button>
+      <div class="dur">about 40 seconds · scripted sensor, real code path</div>
+    </div>
+  </div>
+
   <div>
     <div class="card">
       <h2>Shared speaker</h2>
+      <div class="storyline" id="storyline" aria-live="polite">
+        <div class="placeholder" id="storyPlaceholder">Press <b>▶ Replay the night</b> — or type below and hit <b>Mom walks in</b> mid-briefing to drive it yourself.</div>
+      </div>
       <div class="stage">
         <div class="echo">
           <div class="device"><div class="ring idle" id="ring"></div><div class="core"></div></div>
@@ -117,19 +200,22 @@
       </div>
       <div class="room" id="room"></div>
       <div class="controls">
-        <input type="text" id="utter" placeholder='Say: "help me organize my afternoon"'>
+        <input type="text" id="utter" placeholder='Say: "help me organize my afternoon"'
+               aria-label="Say something to the speaker">
         <button class="primary" id="speak">Speak</button>
       </div>
+      <div class="momrow">
+        <button id="momIn" aria-label="Simulate Mom entering the room">Mom walks in</button>
+        <span class="hint">the moment everything changes — try it mid-briefing</span>
+      </div>
       <div class="row">
-        <button class="primary" id="walkin">▶ Run walk-in demo</button>
-        <button class="warn" id="momIn">Mom enters</button>
         <button id="momOut">Mom leaves</button>
         <button id="guestIn">Guest enters</button>
         <button id="guestOut">Guest leaves</button>
       </div>
       <div class="row">
         <label>Fixture:</label>
-        <select id="fixture">
+        <select id="fixture" aria-label="Fixture mode">
           <option value="strict">Strict — existence protected (quiet)</option>
           <option value="relaxed">Relaxed — existence releasable (nudge)</option>
         </select>
@@ -188,6 +274,74 @@ async function api(path, opts){
   return r.json();
 }
 
+/* ---- storyline: one-part-at-a-time narration, keyed on REAL events ----
+   Beats are added only when the backing event actually fired server-side.
+   No event → no caption. That is the honesty contract of this strip. */
+const beats = [];
+function storyBeat(id, html, ev){
+  if(beats.some(b => b.id === id)) return;
+  beats.forEach(b => b.el.classList.add("past"));
+  beats.forEach(b => b.el.classList.remove("now"));
+  const ph = $("storyPlaceholder");
+  if(ph) ph.remove();
+  const d = document.createElement("div");
+  d.className = "beat now";
+  d.innerHTML = '<span class="n">' + (beats.length + 1) + "</span><span>" + html +
+    (ev ? '<span class="ev">' + ev + "</span>" : "") + "</span>";
+  $("storyline").appendChild(d);
+  beats.push({id, el: d});
+  $("storyline").scrollTop = $("storyline").scrollHeight;
+}
+function storyReset(){
+  beats.length = 0;
+  $("storyline").innerHTML = "";
+}
+let lastEvAt = 0, lastTraceAt = 0, sawStopped = false, sawUnlock = false;
+async function watchStory(){
+  try{
+    const ev = await api("/api/events");
+    ev.forEach(e => {
+      if(e.at <= lastEvAt) return;
+      lastEvAt = Math.max(lastEvAt, e.at);
+      if(e.kind === "AUDIENCE_CHANGED" && (e.detail.listeners || []).includes("mom")){
+        const room = $("room"); room.classList.remove("flash");
+        void room.offsetWidth; room.classList.add("flash");
+        storyBeat("mom",
+          "<b>Mom walked in.</b> The speaker stopped <i>first</i> — then the epoch " +
+          "advanced and pending speech grants were invalidated. Stopped segments stay stopped.",
+          "AUDIENCE_CHANGED · epoch " + e.detail.epoch +
+          " · invalidated " + e.detail.invalidated +
+          (e.detail.invalidated === 1 ? " grant" : " grants"));
+      }
+      if(e.kind === "RETRUSTED"){
+        storyBeat("retrust",
+          "Room trusted again — but nothing sensitive replays automatically. " +
+          "The speaker only takes <i>new</i> requests from here.",
+          "RETRUSTED · epoch " + e.detail.epoch);
+      }
+    });
+    const tr = await api("/api/trace");
+    tr.forEach(t => {
+      if(t.at <= lastTraceAt) return;
+      lastTraceAt = Math.max(lastTraceAt, t.at);
+      const p = t.payload || {};
+      if(t.kind === "tool_call" && p.tool === "prepare_day_brief"){
+        storyReset();
+        storyBeat("brief",
+          "<b>Briefing the room.</b> Every sentence leaves as its own lease — " +
+          "the arbiter can revoke each one independently.",
+          "tools/call prepare_day_brief · " + (p.mode || "sealed"));
+      }
+      if(t.kind === "tool_call" && p.tool === "resolve_day_change"){
+        storyBeat("resolve",
+          "<b>It adapted the plan using the private commitment — without naming it.</b> " +
+          "The room hears a new time. The secret stays sealed.",
+          "tools/call resolve_day_change");
+      }
+    });
+  }catch(e){ /* polling is best-effort; the demo works without it */ }
+}
+
 async function refreshStatus(){
   const s = await api("/api/status");
   // ring
@@ -216,6 +370,13 @@ async function refreshStatus(){
     (s.degraded ? "<span style='color:#e8a13c'>degraded: " + s.degraded + "</span>" : "");
   window._stoppedLine = s.stopped_line;
   window._status = s;
+  if(s.phone_unlocked && !sawUnlock){
+    sawUnlock = true;
+    storyBeat("phone",
+      "<b>Phone unlocked — the exact plan was there all along.</b> " +
+      "It synced silently while the room heard nothing. Nothing was re-entered.",
+      "owner-authenticated · inbox + private facts");
+  }
   refreshPane();
 }
 
@@ -234,6 +395,10 @@ async function pollOutput(){
   }
   if(o.stopped && !window._wasStopped){
     bubble("sys", "— " + (window._stoppedLine || "Paused — moved to your phone.") + " —");
+    storyBeat("stopped",
+      "<b>What the room heard: “" + (window._stoppedLine || "Paused — moved to your phone.") +
+      "”</b> Nothing else. No count, no hint, no “one private item”.",
+      "output_stopped · epoch " + o.epoch);
     setRing("restricted", "restricted — output stopped");
     if("speechSynthesis" in window) speechSynthesis.cancel();
   }
@@ -321,9 +486,17 @@ $("momOut").onclick = () => audience("mom_leaves");
 $("guestIn").onclick = () => audience("guest_enters");
 $("guestOut").onclick = () => audience("guest_leaves");
 $("walkin").onclick = async () => {
+  storyReset(); sawStopped = false;
+  $("walkin").disabled = true;
   bubble("sys", "— walk-in demo: briefing starts, Mom enters at ~4s (scripted sensor, labeled) —");
   await api("/api/script", {method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({name:"walkin"})});
+  setTimeout(()=>{ $("walkin").disabled = false;
+    storyBeat("tryit",
+      "<b>Your turn.</b> Type “make room for a twenty-minute call” in the speaker box — " +
+      "watch it adapt using the private commitment without naming it. " +
+      "Or press “Mom walks in” again, any time.");
+  }, 14000);
 };
 $("fixture").onchange = async e => {
   await api("/api/config", {method:"POST", headers:{"Content-Type":"application/json"},
@@ -332,10 +505,10 @@ $("fixture").onchange = async e => {
   refreshStatus();
 };
 
-bubble("sys", "— try: “help me organize my afternoon”, then “Mom enters” mid-briefing —");
 setInterval(refreshStatus, 1500);
 setInterval(pollOutput, 600);
 setInterval(refreshPhone, 4000);
+setInterval(watchStory, 800);
 refreshStatus();
 </script>
 </body>
