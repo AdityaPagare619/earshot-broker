@@ -22,6 +22,7 @@ import sys
 
 from earshot.integration.pipeline import SealedSpeechPipeline
 from earshot.packs.loader import load_pack
+from earshot.wincompat import ensure_utf8_stdout
 
 def _packs_root() -> str:
     """Locate the household-pack data dir, installed or from source."""
@@ -127,6 +128,7 @@ def build_day(pack, lang, with_therapy=False, mom_present=False):
 
 
 def main(argv=None):
+    ensure_utf8_stdout()
     ap = argparse.ArgumentParser()
     ap.add_argument("--lang", default="en", choices=("en", "hi"))
     args = ap.parse_args(argv)

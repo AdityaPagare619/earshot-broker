@@ -25,6 +25,7 @@ from .gateway_port import GatewayPort
 from .arbiter import Arbiter
 from .audience import AudienceSource, SensorScript
 from earshot.kernel import Fact, Label
+from earshot.wincompat import ensure_utf8_stdout
 from earshot.gateway.mcp import shape as shape_mod  # constant-shape assembly
 
 PUBLIC = "*"
@@ -449,6 +450,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main(argv=None):
+    ensure_utf8_stdout()
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8734)

@@ -13,6 +13,7 @@ import os
 import statistics
 import sys
 import time
+from pathlib import Path
 
 from earshot.hotlane import (
     ALONE,
@@ -144,14 +145,13 @@ def counterfactual_evidence():
 
 
 def main():
-    import os
-    evdir = os.path.join("evidence", "hotlane")
-    os.makedirs(evdir, exist_ok=True)
+    evdir = Path("evidence") / "hotlane"
+    evdir.mkdir(parents=True, exist_ok=True)
     lat = latency_evidence()
     cf = counterfactual_evidence()
-    with open(os.path.join(evdir, "latency.txt"), "w") as f:
+    with open(evdir / "latency.txt", "w", encoding="utf-8") as f:
         f.write(lat)
-    with open(os.path.join(evdir, "counterfactuals.txt"), "w") as f:
+    with open(evdir / "counterfactuals.txt", "w", encoding="utf-8") as f:
         f.write(cf)
     print(lat)
     print(cf)

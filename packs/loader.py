@@ -10,8 +10,8 @@ name. It sees (item_id, depth:int, clearance:int) and rendition strings.
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from .schema import validate_lexicon, validate_pack, validate_renditions, validate_ui
 from .yaml_subset import load_file
@@ -40,36 +40,37 @@ def _flatten_topics(topics, prefix=""):
     return flat
 
 
-def load_pack(packs_root: str, lang: str) -> Pack:
+def load_pack(packs_root: "str | Path", lang: str) -> Pack:
     """Load and validate base + language pack. Raises PackError on any problem."""
-    base_dir = os.path.join(packs_root, "base")
-    lang_dir = os.path.join(packs_root, lang)
-    if not os.path.isdir(base_dir):
+    root = Path(packs_root)
+    base_dir = root / "base"
+    lang_dir = root / lang
+    if not base_dir.is_dir():
         raise FileNotFoundError(f"base pack not found: {base_dir}")
-    if not os.path.isdir(lang_dir):
+    if not lang_dir.is_dir():
         raise FileNotFoundError(f"language pack not found: {lang_dir}")
 
     base_manifest = validate_pack(base_dir)
     lang_manifest = validate_pack(lang_dir)
     if lang_manifest["inherits"] != base_manifest["name"]:
         from .yaml_subset import PackError
-        raise PackError(os.path.join(lang_dir, "pack.yaml"), 0,
+        raise PackError(lang_dir / "pack.yaml", 0,
                         f"language pack inherits {lang_manifest['inherits']!r}, "
                         f"want {base_manifest['name']!r}")
 
-    taxonomy = _flatten_topics(load_file(os.path.join(base_dir, "taxonomy.yaml"))["topics"])
-    roles = load_file(os.path.join(base_dir, "roles.yaml"))["roles"]
-    templates = load_file(os.path.join(base_dir, "templates.yaml"))
+    taxonomy = _flatten_topics(load_file(base_dir / "taxonomy.yaml")["topics"])
+    roles = load_file(base_dir / "roles.yaml")["roles"]
+    templates = load_file(base_dir / "templates.yaml")
 
-    lexicon_path = os.path.join(lang_dir, "lexicon.yaml")
+    lexicon_path = lang_dir / "lexicon.yaml"
     lexicon = load_file(lexicon_path)["lexicon"]
     validate_lexicon({"lexicon": lexicon}, lexicon_path, set(taxonomy))
 
-    renditions_path = os.path.join(lang_dir, "renditions.yaml")
+    renditions_path = lang_dir / "renditions.yaml"
     renditions = load_file(renditions_path)["renditions"]
     validate_renditions({"renditions": renditions}, renditions_path)
 
-    ui_path = os.path.join(lang_dir, "ui.yaml")
+    ui_path = lang_dir / "ui.yaml"
     ui = load_file(ui_path)["ui"]
     validate_ui({"ui": ui}, ui_path)
 

@@ -28,6 +28,7 @@ import socketserver
 import sys
 import time
 import traceback
+from earshot.wincompat import ensure_utf8_stdout
 
 from . import auth as auth_mod
 from . import broker as broker_mod
@@ -457,6 +458,7 @@ def run(port: int, world_factory=None) -> None:
 
 
 def main(argv=None) -> int:
+    ensure_utf8_stdout()
     """Entry point for the `earshot-server` console script."""
     ap = argparse.ArgumentParser(prog="earshot-server",
                                  description="EARSHOT MCP gateway (Streamable HTTP, MCP spec 2025-11-25)")

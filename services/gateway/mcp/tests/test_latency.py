@@ -7,6 +7,7 @@ timings are NOT reported as latency. Writes evidence/latency.json.
 """
 import json
 import os
+from pathlib import Path
 import statistics
 import time
 import unittest
@@ -16,8 +17,8 @@ from earshot.gateway.mcp.tests.harness import Client, start_server, stop_server
 PORT = 8896
 N = 200
 BUDGET_MS = 500.0
-EVIDENCE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
-                        "evidence", "latency.json")
+EVIDENCE = (Path(__file__).resolve().parent.parent
+              / "evidence" / "latency.json")
 
 
 def percentile(data, p):
@@ -72,7 +73,7 @@ class LatencyTests(unittest.TestCase):
             "date": time.strftime("%Y-%m-%dT%H:%M:%S"),
             "verdict": "PASS" if percentile(rtts, 99) < BUDGET_MS else "FAIL",
         }
-        os.makedirs(os.path.dirname(EVIDENCE), exist_ok=True)
+        EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
         with open(EVIDENCE, "w", encoding="utf-8") as fh:
             json.dump(stats, fh, indent=2)
         print("\nlatency: " + json.dumps({k: stats[k] for k in

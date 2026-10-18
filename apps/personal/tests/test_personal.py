@@ -8,8 +8,10 @@ import sys
 import tempfile
 import time
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
 
 from personal import auth, preview as preview_mod, profile as profile_mod  # noqa: E402
 from personal.fixture_calendar import FixtureCalendar, contract  # noqa: E402
@@ -158,8 +160,7 @@ class QuickstartTests(unittest.TestCase):
             import runpy
             try:
                 runpy.run_path(
-                    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                 "quickstart.py"),
+                    str(_HERE.parent / "quickstart.py"),
                     run_name="__main__")
                 code = 0
             except SystemExit as e:
@@ -167,8 +168,8 @@ class QuickstartTests(unittest.TestCase):
             elapsed = time.time() - t0
             self.assertEqual(code, 0, "quickstart exited non-zero")
             self.assertLess(elapsed, 90, f"quickstart took {elapsed:.1f}s")
-            self.assertTrue(os.path.exists(os.path.join(directory, "p.html")))
-            self.assertTrue(os.path.exists(os.path.join(directory, ".earshot-profile.json")))
+            self.assertTrue((Path(directory) / "p.html").exists())
+            self.assertTrue((Path(directory) / ".earshot-profile.json").exists())
         finally:
             shutil.rmtree(directory)
 

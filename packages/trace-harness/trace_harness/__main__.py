@@ -21,6 +21,7 @@ from earshot.trace_harness import (  # noqa: E402
     builtin_pairs, MCPHttpAdapter, KernelDirectAdapter, run_sequence,
     normalize_trace, diff_traces, adversarial_suite,
 )
+from earshot.wincompat import ensure_utf8_stdout
 from earshot.trace_harness.normalize import assert_randomness_independent  # noqa: E402
 
 
@@ -80,6 +81,7 @@ def _to_fact(d):
 
 
 def main(argv=None):
+    ensure_utf8_stdout()
     ap = argparse.ArgumentParser(description="Public-trace privacy harness")
     ap.add_argument("command", choices=["run", "slo"],
                     help="run: paired-world wire harness; slo: privacy SLO lab")

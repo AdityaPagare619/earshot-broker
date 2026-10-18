@@ -9,12 +9,17 @@ preview, runs the counterfactual proof, and prints elapsed time.
 Everything private stays private: fixture data only, demo-grade auth labeled.
 """
 import argparse
-import os
 import sys
 import time
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)  # personal/ package + kernel bootstrap via personal/__init__
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))  # personal/ package + kernel bootstrap via personal/__init__
+sys.path.insert(0, str(HERE.parent.parent))  # repo root: wincompat
+
+from earshot.wincompat import ensure_utf8_stdout  # noqa: E402
+
+ensure_utf8_stdout()
 
 from personal import auth, preview as preview_mod, profile as profile_mod, report  # noqa: E402
 from personal.inbox import PersonalSurface  # noqa: E402
@@ -32,18 +37,18 @@ def main() -> int:
     if args.fresh:
         for name in (profile_mod.PROFILE_FILENAME, "preview.html",
                      ".earshot-server.json"):
-            path = os.path.join(args.dir, name)
-            if os.path.exists(path):
-                os.remove(path)
+            path = Path(args.dir) / name
+            if path.exists():
+                path.unlink()
         print("Previous profile + server state wiped (--fresh).\n")
-    elif os.path.exists(profile_mod.profile_path(args.dir)):
+    elif Path(profile_mod.profile_path(args.dir)).exists():
         print("Reusing existing profile (use --fresh to start over).\n")
     t0 = time.time()
     stamp = lambda: f"{time.time() - t0:5.1f}s"
 
     print("EARSHOT personal quickstart — fixture data, demo-grade auth\n")
 
-    if os.path.exists(profile_mod.profile_path(args.dir)):
+    if Path(profile_mod.profile_path(args.dir)).exists():
         prof = profile_mod.load_profile(args.dir)
         print(f"[{stamp()}] reusing existing profile for {prof['owner']}@{prof['tenant']}")
     else:
@@ -75,7 +80,7 @@ def main() -> int:
     print("           public projection UNCHANGED across all variants ✓"
           if proof["counterfactual_ok"] else "           BOUNDARY FAILED ✗")
 
-    with open(os.path.join(args.dir, args.html), "w", encoding="utf-8") as fh:
+    with open(Path(args.dir) / args.html, "w", encoding="utf-8") as fh:
         fh.write(report.render(data, proof))
     print(f"[{stamp()}] report written to {args.html}")
 
