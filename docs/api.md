@@ -351,6 +351,13 @@ denies secrets** — the response is constant by design.
 | `declaration` | string | ✅ | 1–200 chars; spoken declaration, e.g. `"Mom's here"` |
 | `request_key` | string | ✅ | 16–128 chars; retry-stable, owner-bound dedupe |
 
+**Why `request_key` on a sensor declaration:** declarations are state
+mutations with the same retry hazards as any tool call — a retried "Mom's
+here" must not double-count, and a client that retries after a timeout must
+get the original outcome, not a second declaration. The key binds the
+declaration to the authenticated owner for dedupe, exactly like the other
+tools.
+
 ```bash
 curl -s -X POST http://127.0.0.1:8899/mcp "${H[@]}" \
   -d '{"jsonrpc":"2.0","id":7,"method":"tools/call",
@@ -392,6 +399,10 @@ always safe — the model may make you more private, never less.
 |---|---|---|---|
 | `instruction` | string | ✅ | 1–500 chars; one spoken sentence naming what to keep from whom |
 | `request_key` | string | ✅ | 16–128 chars; retry-stable, owner-bound dedupe |
+
+**Why `request_key` here too:** a secrecy edge is a state mutation — a
+retried "never mention the clinic" must return the original edge, not mint a
+duplicate. Same retry semantics as every other tool (see `room` above).
 
 ```bash
 curl -s -X POST http://127.0.0.1:8899/mcp "${H[@]}" \
@@ -482,11 +493,16 @@ JSON-RPC errors (HTTP 200, `{"jsonrpc":"2.0","id":…,"error":{…}}`):
 | `-32603` | Unavailable — **deliberately vague** | `{"code": -32603, "message": "Unavailable", "data": {"continuation": "personal_inbox"}}` (unknown `request_ref`) |
 
 **Why `-32603` says so little:** the error oracle is part of the privacy
-contract. Distinguishing "unknown ref" from "ref belongs to another owner"
-from "ref expired" would let a caller probe which requests exist. All
-unavailable states collapse to one message plus a recovery pointer
+contract **at the tool layer**. Distinguishing "unknown ref" from "ref belongs
+to another owner" from "ref expired" would let a caller probe which requests
+exist. All unavailable states collapse to one message plus a recovery pointer
 (`personal_inbox`). This indistinguishability is pinned by tests
 (`tests/failure_paths/`).
+**Scope note:** the *transport auth* layer is intentionally distinguishable
+(401 "missing" vs "malformed" vs "unknown token") — those are client
+integration errors, and distinguishing them reveals nothing about any tenant's
+data. The no-oracle promise covers tool results and references, not auth
+debugging.
 
 **Idempotency:** re-sending a call with the same `request_key` returns the
 original receipt (dedupe is keyed by `(tenant, owner, request_key)` — a
