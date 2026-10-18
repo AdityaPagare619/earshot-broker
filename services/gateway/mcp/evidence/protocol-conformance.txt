@@ -1,0 +1,27 @@
+test_batch_rejected (__main__.ProtocolTests.test_batch_rejected) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.79ms
+test_day_card_resource (__main__.ProtocolTests.test_day_card_resource) ... [11:02:56] POST - tool=- tenant=house-a status=200 1.66ms
+test_delete_is_405 (__main__.ProtocolTests.test_delete_is_405) ... ok
+test_expired_session_is_404 (__main__.ProtocolTests.test_expired_session_is_404) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.17ms
+test_get_is_405 (__main__.ProtocolTests.test_get_is_405) ... ok
+test_initialize_bad_params (__main__.ProtocolTests.test_initialize_bad_params) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.45ms
+test_initialize_bad_token_rejected (__main__.ProtocolTests.test_initialize_bad_token_rejected) ... [11:02:56] POST - tool=- tenant=- status=401 0.31ms
+test_initialize_negotiates_2025_11_25 (__main__.ProtocolTests.test_initialize_negotiates_2025_11_25) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.18ms
+test_initialize_newer_client_negotiates_down (__main__.ProtocolTests.test_initialize_newer_client_negotiates_down) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.20ms
+test_initialize_requires_auth (__main__.ProtocolTests.test_initialize_requires_auth) ... [11:02:56] POST - tool=- tenant=- status=401 0.45ms
+test_invalid_origin_is_403 (__main__.ProtocolTests.test_invalid_origin_is_403) ... [11:02:56] POST - tool=- tenant=- status=403 0.16ms
+test_localhost_origin_allowed (__main__.ProtocolTests.test_localhost_origin_allowed) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.24ms
+test_malformed_json_is_parse_error (__main__.ProtocolTests.test_malformed_json_is_parse_error) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.34ms
+test_missing_session_id_is_400 (__main__.ProtocolTests.test_missing_session_id_is_400) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.30ms
+test_oversize_body_is_413 (__main__.ProtocolTests.test_oversize_body_is_413) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.16ms
+test_rate_limit (__main__.ProtocolTests.test_rate_limit) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.20ms
+test_resources_empty_before_brief (__main__.ProtocolTests.test_resources_empty_before_brief) ... [11:02:56] POST resources/list tool=- tenant=house-a status=200 0.27ms
+test_resources_read_unknown_uri (__main__.ProtocolTests.test_resources_read_unknown_uri) ... [11:02:56] POST resources/read tool=- tenant=house-a status=200 0.15ms
+test_tools_list_names (__main__.ProtocolTests.test_tools_list_names) ... [11:02:56] POST tools/list tool=- tenant=house-a status=200 0.26ms
+test_tools_list_schemas_bounded (__main__.ProtocolTests.test_tools_list_schemas_bounded) ... [11:02:56] POST tools/list tool=- tenant=house-a status=200 0.23ms
+test_unknown_method (__main__.ProtocolTests.test_unknown_method) ... [11:02:56] POST prompts/list tool=- tenant=house-a status=200 0.19ms
+test_unknown_session_id_is_404 (__main__.ProtocolTests.test_unknown_session_id_is_404) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.28ms
+test_unknown_tool (__main__.ProtocolTests.test_unknown_tool) ... [11:02:56] POST tools/call tool=get_secret tenant=house-a status=200 0.26ms
+test_version_header_mismatch_is_400 (__main__.ProtocolTests.test_version_header_mismatch_is_400) ... [11:02:56] POST initialize tool=- tenant=house-a status=200 0.41ms
+test_wrong_path_is_404 (__main__.ProtocolTests.test_wrong_path_is_404) ... [11:02:56] POST - tool=- tenant=- status=404 0.31ms
+Ran 25 tests in 1.067s
+OK

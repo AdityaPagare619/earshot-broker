@@ -1,0 +1,7 @@
+test_brief_invariant_across_secret_titles (__main__.PairedWorldTests.test_brief_invariant_across_secret_titles) ... [11:02:58] POST notifications/initialized tool=- tenant=house-a status=202 0.36ms
+test_brief_invariant_secret_vs_no_secret (__main__.PairedWorldTests.test_brief_invariant_secret_vs_no_secret) ... [11:02:58] POST tools/call tool=prepare_day_brief tenant=house-a status=200 2.09ms
+test_brief_leaks_no_secret_tokens (__main__.PairedWorldTests.test_brief_leaks_no_secret_tokens) ... [11:02:58] POST tools/call tool=prepare_day_brief tenant=house-a status=200 1.02ms
+test_ref_shape_constant (__main__.PairedWorldTests.test_ref_shape_constant) ... [11:02:58] POST tools/call tool=prepare_day_brief tenant=house-a status=200 0.34ms
+test_resolve_invariant_across_worlds (__main__.PairedWorldTests.test_resolve_invariant_across_worlds) ... [11:02:58] POST tools/call tool=prepare_day_brief tenant=house-a status=200 0.77ms
+Ran 5 tests in 1.191s
+OK
