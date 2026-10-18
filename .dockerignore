@@ -1,0 +1,25 @@
+# Build context exclusions for the EARSHOT image.
+# Goal: small context, no history, no secrets, no junk in the daemon.
+
+# --- history & vcs ---
+.git/
+
+# --- python bytecode & caches ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# --- local virtualenvs ---
+.venv/
+venv/
+ENV/
+
+# --- internal build logs (stay in the private archive, never in the image) ---
+docs/seats/
+docs/dossier/
+
+# --- not used by this repo, cheap insurance ---
+node_modules/
+.DS_Store
