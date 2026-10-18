@@ -1,0 +1,10 @@
+planner-level counterfactual checks (S2)
+Note: the planner never sees content — only (sensitivity, clearance,
+beliefs, ledger). These checks pin that the *decision-relevant*
+inputs are labels/ints, and that audience changes only quieten.
+
+CF1 prenatal->therapy (label swap): decisions identical: True
+CF2 remove-item: b unchanged: True
+CF3 add-guest: depth 2 -> 0 (never rises: True)
+CF4 replay-alone: deterministic replay identical: True
+CF5 alone-vs-high-sensitivity: mom still credible: True (decision=phone)
