@@ -1,0 +1,9 @@
+=== packs/tests ===
+Ran 33 tests in 0.075s
+OK
+=== integration/tests ===
+Ran 14 tests in 0.062s
+OK
+=== demos ===
+en: ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]
+hi: ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]

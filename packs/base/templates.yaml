@@ -1,0 +1,30 @@
+# Fallback "boring" templates — provably clean renditions per kind and depth.
+# The slow lane's verifier falls back to these when drafted renditions fail.
+# Placeholders: {title} {time} {daypart} {location} {sender} {items} {category}.
+# d4 here is intentionally plain: full detail lives in per-language renditions.
+templates:
+  event:
+    d4: "{title} at {time}"
+    d3: "{category} at {time}"
+    d2: "an appointment at {time}"
+    d1: "something on your calendar this {daypart}"
+  reminder:
+    d4: "{title}"
+    d3: "{category} reminder"
+    d2: "a reminder this {daypart}"
+    d1: "something to remember this {daypart}"
+  delivery:
+    d4: "package from {sender}: {items}"
+    d3: "a package arriving {daypart}"
+    d2: "a delivery {daypart}"
+    d1: "something arriving {daypart}"
+  note:
+    d4: "{title}"
+    d3: "a note about {category}"
+    d2: "a note this {daypart}"
+    d1: "something noted this {daypart}"
+  message_summary:
+    d4: "{title}"
+    d3: "{category} update"
+    d2: "an update this {daypart}"
+    d1: "something to catch up on this {daypart}"

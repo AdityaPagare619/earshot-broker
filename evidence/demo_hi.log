@@ -1,0 +1,53 @@
+
+======================================================================
+EARSHOT — sealed-speech demo  [SIMULATOR] [FIXTURE] [lang=hi]
+======================================================================
+Independent simulator: not a live Alexa+ device. Fixture stages stand in
+for S1–S4 seats behind frozen ports. Dev auth: none (fixture pipeline).
+
+--- BEAT 1 [0:00–0:30] — Alone ---
+  Priya: "What's my day?" Belief shows only Priya.
+  [belief] maya:           0.02  mom:           0.02  priya:████████   0.88  rahul:           0.02
+  [plan] cover_mode=False credible=['priya']
+  [plan] depths: itm_343d→d4(SPEAK), itm_2ee3→d4(SPEAK), itm_5229→d4(SPEAK), itm_1e72→d4(SPEAK)
+  [speak] 3:40 बजे डॉ. मेहता के साथ ओबी-जीवाईएन चेकअप (क्लाउडनाइन) सुबह 10 बजे टीम स्टैंडअप (ऑफिस) याद रखें: किराने का सामान अमेज़न से इंस्टैक्स मिनी 12 कैमरा का पार्सल शाम आएगा
+  [ledger] 4 entries (over-attributed to credible set)
+
+--- BEAT 2 [0:30–1:00] — The data understood itself ---
+  An Instax order email arrives. Nobody wrote a rule.
+  [ingest] delivery -> state=COMPILED (quarantined immediately)
+  [secrecy] inferred: for(maya) until=None conf=0.91 provenance=inferred [TIGHTEN]
+  [secrecy] inferred: hidden_from(maya) until=None conf=0.91 provenance=inferred [TIGHTEN]
+  [phone card] confidence 0.91 >= 0.6 -> auto-applied (tightening is always safe). Had it been 0.3-0.6, this would be a confirm card.
+
+--- BEAT 3 [1:00–1:40] — Mom arrives ---
+  Belief rises. The briefing generalizes; the phone digest stays silent. Same suffix shape as beat 1.
+  [room] mom added to belief (sticky until 'mom left')
+  [belief] maya:           0.02  mom:██         0.27  priya:████████   0.88  rahul:           0.02
+  [plan] cover_mode=True credible=['mom', 'priya']
+  [plan] depths: itm_343d→d3(SPEAK), itm_2ee3→d2(SPEAK), itm_5229→d2(SPEAK), itm_1e72→d2(SPEAK)
+  [speak] 3:40 बजे डॉक्टर की अपॉइंटमेंट सुबह 10 बजे एक अपॉइंटमेंट शाम एक याद रखने वाली बात है शाम एक डिलीवरी है आपके दिन का बाकी हिस्सा आपके फ़ोन पर है।
+  [phone] [phone digest, silent] (nothing held back)
+  [ledger] 8 entries (over-attributed to credible set)
+
+--- BEAT 4 [1:40–2:20] — "Can you tell?" ---
+  Two briefings, back to back: a day WITH a hidden item, a day WITHOUT. Mom is present for both.
+  [with therapy]    speak: 3:40 बजे डॉक्टर की अपॉइंटमेंट सुबह 10 बजे एक अपॉइंटमेंट शाम एक याद रखने वाली बात है शाम एक डिलीवरी है आपके दिन का बाकी हिस्सा आपके फ़ोन पर है।
+  [without therapy] speak: 3:40 बजे डॉक्टर की अपॉइंटमेंट सुबह 10 बजे एक अपॉइंटमेंट शाम एक याद रखने वाली बात है शाम एक डिलीवरी है आपके दिन का बाकी हिस्सा आपके फ़ोन पर है।
+  [verdict] identical shape. Neither can Mom. (Existence-AUC chart is S5's measurement; this is its necessary condition.)
+
+--- BEAT 5 [2:20–2:55] — The probe + the walk-in ---
+  Maya: "I'm alone. Are any packages coming?" Then a guest joins between turns. We can't interrupt mid-sentence. We don't need to.
+  [maya probes] मैं इसके बारे में सब कुछ आपके फ़ोन पर भेज दूँगी।
+  [verdict] probe answer identical with/without the gift. "I'm alone" cannot loosen a target-linked secret.
+  [walk-in] turn 1 (alone): two items, full detail.
+  [turn 1] 3:40 बजे डॉ. मेहता के साथ ओबी-जीवाईएन चेकअप (क्लाउडनाइन) सुबह 10 बजे टीम स्टैंडअप (ऑफिस)
+  [walk-in] a guest phone joins the wifi between turns...
+  [belief] maya:           0.02  mom:           0.02  priya:████████   0.88  rahul:           0.02  unknown:█          0.18
+  [turn 2] सुबह 10 बजे एक अपॉइंटमेंट आपके दिन का बाकी हिस्सा आपके फ़ोन पर है।
+  [verdict] collapse happened at the turn boundary — the only place the platform allows it.
+
+======================================================================
+Close — "Secrets have audiences. Rooms have beliefs. Speech has memory."
+======================================================================
+ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]

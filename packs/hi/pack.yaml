@@ -1,0 +1,7 @@
+# Household Pack manifest — Hindi (Devanagari + Hinglish).
+# This entire directory is DATA. Adding Hindi required zero code changes:
+# no new modules, no branches, no edits outside packs/hi/.
+name: hi
+version: 1
+inherits: base
+description: Hindi (Devanagari) + Hinglish (romanized) lexicon and rendition templates.
