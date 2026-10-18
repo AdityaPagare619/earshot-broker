@@ -13,9 +13,6 @@
 .venv-quickstart/
 .venv/
 .vscode/
-<<<<<<< HEAD
-=======
->>>>>>> pro/pro-hygiene
 Thumbs.db
 __pycache__/
 build/
