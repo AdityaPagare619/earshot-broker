@@ -7,8 +7,11 @@ denial renders the continuation pointer (C3 — never a bare empty result).
 """
 import json
 import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
                      make_fixtures)
 from kernel import Kernel

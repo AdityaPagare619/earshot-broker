@@ -5,8 +5,12 @@ Certification requirement: error responses must not let a caller distinguish
 "unauthenticated" — and must never carry secret bytes. Every denial renders
 the identical public shape.
 """
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (SECRET_STRINGS, TENANT, OWNER, AuditSink, CertifiedFacade,
                      make_fixtures)
 from kernel import Kernel

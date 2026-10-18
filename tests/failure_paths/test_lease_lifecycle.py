@@ -4,9 +4,13 @@ Audience change is an interrupt; stale or missing evidence must never upgrade
 disclosure. Every transition is explicit at the control plane (audited), never
 a silent change in behavior.
 """
+import os
+import sys
 import unittest
 from dataclasses import replace
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_ctx,
                      make_fixtures)
 from kernel import Kernel

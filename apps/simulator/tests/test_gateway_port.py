@@ -7,6 +7,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 "packages", "kernel"))
 from gateway_port import GatewayPort
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper
 from protocol_conformance_harness import run_harness
 
 

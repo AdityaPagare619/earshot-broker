@@ -9,6 +9,8 @@ Two layers:
      worlds, and the response contract on every tool.
 """
 import json
+import os
+import sys
 import unittest
 
 import shape as shape_mod
@@ -24,6 +26,8 @@ from shape import (
     CHUNK_SIZE,
 )
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper
 from harness import start_server  # noqa: E402
 
 PORT = 8900

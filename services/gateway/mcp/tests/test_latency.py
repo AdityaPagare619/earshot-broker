@@ -7,10 +7,13 @@ timings are NOT reported as latency. Writes evidence/latency.json.
 """
 import json
 import os
+import sys
 import statistics
 import time
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import Client, start_server
 
 PORT = 8896

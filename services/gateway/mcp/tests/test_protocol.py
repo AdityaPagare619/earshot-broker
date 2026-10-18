@@ -3,8 +3,12 @@
 Every assertion targets a MUST/SHOULD from the transport spec, verified
 first-hand. No SDK, no mocks: real HTTP against the real server.
 """
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import Client, start_server
 
 PORT = 8891

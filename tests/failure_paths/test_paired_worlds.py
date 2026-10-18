@@ -9,8 +9,12 @@ response must not change when ONLY protected content changes:
 The request_ref is random by design and excluded from comparison; its
 independence (not equality) is asserted separately.
 """
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (PUBLIC, TENANT, OWNER, AuditSink, CertifiedFacade,
                      make_fixtures)
 from kernel import Fact, Kernel, Label

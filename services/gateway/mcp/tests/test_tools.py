@@ -3,8 +3,12 @@
 Includes the J6-R1 regression: request_key guessing across owners/tenants
 must not leak receipts; unknown vs forbidden references are indistinguishable.
 """
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import Client, start_server
 
 PORT = 8892

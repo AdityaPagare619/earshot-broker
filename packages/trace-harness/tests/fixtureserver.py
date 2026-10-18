@@ -18,8 +18,13 @@ import secrets
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
+# Portable: resolve sibling packages from this file's location, never a
+# hardcoded worktree path (an absolute path here once shadowed the current
+# trace_harness with a stale copy that lacked trace_harness/slo/).
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent / "kernel"))
 from kernel import Kernel, Fact, Label  # noqa: E402
 
 PUBLIC = "*"

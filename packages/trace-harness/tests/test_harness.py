@@ -9,9 +9,15 @@ Adversarial: reference replay and double-withdraw behave identically.
 """
 import sys
 import unittest
+from pathlib import Path
 
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/kernel")
-sys.path.insert(0, "/home/hatch/workspace/earshot-broker-trees/j07/packages/trace-harness")
+# Portable: resolve sibling packages from this file's location, never a
+# hardcoded worktree path (an absolute path here once shadowed the current
+# trace_harness with a stale copy that lacked trace_harness/slo/).
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent.parent / "kernel"))
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE))  # sibling fixtureserver
 
 import fixtureserver
 from fixtureserver import to_fact
@@ -34,6 +40,14 @@ class HarnessHttpTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.server = fixtureserver.start(PORT)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Release the port: the old per-suite process exited after this class,
+        # but the unified pytest run keeps the process alive — a listening
+        # socket here collides with later suites (e.g. mcp's PORT+2 = 8899).
+        cls.server.shutdown()
+        cls.server.server_close()
 
     def _run_pair(self, pair):
         # World A

@@ -1,0 +1,38 @@
+# EARSHOT — pyproject.toml
+#
+# This file is OWNED JOINTLY:
+#   - pro-tests added [tool.pytest.ini_options] + the test extra (one-command tests).
+#   - pro-packaging EXPANDS [project] (entry points: earshot-demo, earshot-server,
+#     earshot-sim; package layout src/earshot; classifiers; URLs).
+# Coordinate before restructuring.
+
+[project]
+name = "earshot"
+version = "0.1.0"
+description = "EARSHOT — a private task broker for Alexa+: sealed tasks, constant-shape speech."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+# ONE invocation: `python -m pytest` from the repo root. No PYTHONPATH hacks —
+# root conftest.py owns sys.path (see docs/seats/pro-tests/DESIGN.md).
+testpaths = [
+    "tests",
+    "packages",
+    "services",
+    "apps",
+    "packs",
+    "integration",
+    "demo",
+]
+python_files = ["test_*.py"]
+# --import-mode is CLI-only in pytest (no ini equivalent exists), so it lives in
+# addopts: test modules import under fully-qualified names, so the two
+# test_gate.py / two test_pipeline.py files cannot alias each other in
+# sys.modules (pytest's default prepend mode would silently merge them).
+# Keep collection quiet and deterministic.
+addopts = ["-q", "--tb=short", "--import-mode=importlib"]

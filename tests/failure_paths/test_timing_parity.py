@@ -6,8 +6,12 @@ constant-time proof — the reference kernel explicitly does not implement
 constant-time transport (dossier 14.3). Labeled limitation, not faked proof.
 """
 import time
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_fixtures)
 from kernel import Kernel
 

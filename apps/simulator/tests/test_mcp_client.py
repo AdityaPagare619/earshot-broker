@@ -5,6 +5,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from mcp_client import McpClient, McpError, PROTOCOL_VERSION
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper
 from protocol_conformance_harness import run_harness
 
 

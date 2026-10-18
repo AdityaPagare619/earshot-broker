@@ -5,8 +5,12 @@ disclosures. It cannot retract a sent email, undo a delivered notification, or
 un-speak a sentence. The public surface must never report 'undone' for an
 external effect; exact state is private.
 """
+import os
+import sys
 import unittest
 
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling test helper (harness)
 from harness import (TENANT, OWNER, AuditSink, CertifiedFacade, make_fixtures)
 from kernel import Kernel
 
