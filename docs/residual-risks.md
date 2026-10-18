@@ -5,29 +5,26 @@ demonstration, why it is unfixable *there*, fix shape, and owner. A risk
 leaves this register only when a test proves the fix — never by rewording.
 
 Origin: J10's red-team register (Oct 2026), updated for the sealed-speech
-wave: R1 closed at the gateway layer, RR-4 fail-loud, RR-11 found Nov-side
-during the professional migration.
+wave: R1 closed at the gateway layer, RR-4 fail-loud, RR-11 found and closed
+2026-10-18 during the professional migration.
 
 ## Open risks
 
-## RR-11 — Idempotent replay bypasses belief re-evaluation (new)
+## RR-11 — Idempotent replay bypasses belief re-evaluation — **CLOSED 2026-10-18**
 
-**Mechanism:** the gateway's `_check_idem` (`services/gateway/mcp/broker.py`)
-returns the cached sealed response *before* any belief or audience evaluation.
-Replaying a `request_key` first used in a permissive audience state returns
-the permissive response even after the room has tightened — strictly more
-powerful than a fresh call, which would be re-planned against current belief.
-**Demonstrated:** by code read (pro-threat lane); no test yet — needs one.
-**Why unfixable here:** idempotency is a transport-layer promise; belief is a
-pipeline-layer state. The two don't share a key.
-**Fix shape:** bind the audience/belief epoch into the idempotency slot, or
-re-plan on cache hit and serve the re-planned response.
-**Scope note:** in the full Profile A deployment the render-time arbiter epoch
-check is *designed* to bound the damage (stale segments are denied at playback
-when the epoch advanced on audience change); the standalone gateway has no
-such check, and the epoch-bump-on-every-belief-change invariant is a
-deployment property, not a verified code invariant.
-**Suggested owner:** gateway (J3 seat).
+**Mechanism (historical):** the gateway's `_check_idem` returned the cached
+sealed response *before* any belief or audience evaluation. Replaying a
+`request_key` first used in a permissive audience returned the permissive
+response after the room tightened.
+**Fix (landed):** the idempotency slot now binds an audience epoch
+(declaration count + secrecy edge count + fixture audience) —
+`services/gateway/mcp/broker.py::_audience_epoch()`. Replay after
+`room`/`keep_secret`/audience-swap re-plans against current belief; true
+retries within an epoch still hit the cache.
+**Proven by:** `services/gateway/mcp/tests/test_replay_epoch.py` (3 tests,
+full HTTP path, negative control — fail on the unfixed broker).
+**Residual:** `_idem` grows unboundedly per distinct key (O(n) scan per call)
+— a bounded LRU is a follow-up, not a correctness risk.
 
 ## R2 — Label provenance trusted, not verified
 

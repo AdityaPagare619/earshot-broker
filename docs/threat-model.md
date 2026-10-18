@@ -101,7 +101,7 @@ worse than a risk we disclose.
 
 | ID | Risk | Severity | Status |
 |---|---|---|---|
-| **RR-11** | **Idempotent replay bypasses belief re-evaluation.** `_check_idem` returns the cached sealed response *before* audience/belief is evaluated. Replaying a `request_key` first used in a permissive audience returns the permissive response after the room tightened. Needs the victim's bearer token + the key. In full Profile A the render-time arbiter epoch check is designed to bound this (epoch-bump on audience change is a deployment property, not verified code); the standalone gateway does not re-validate. Fix: bind audience epoch into the idempotency check, or re-plan on hit. | High | **Open — found this lane** |
+| **RR-11** | **Idempotent replay bypassed belief re-evaluation.** `_check_idem` returned the cached sealed response *before* audience/belief was evaluated. | High | **Closed 2026-10-18** — epoch-bound slots + 3 regression tests (`services/gateway/mcp/tests/test_replay_epoch.py`) |
 | R2 | **Label provenance trusted, not verified.** A PUBLIC-labeled secret is released by design. The adapter contract fails loudly on unlabeled fields, but a *wrong* label is undetectable downstream. | High | Open — needs adapter allowlist + label audit |
 | R3 | **Control-flow taint invisible to the pipeline.** A planner that branches on private data and labels output PUBLIC bypasses the algebra. Relies on planner discipline + review. | High | Open — by design at this layer |
 | R4 | **Timing side channel.** Constant-shape makes *content* invariant; planner latency still varies with corpus size. Measured (`evidence/j06-timing-report.json`), not bounded. | Medium | Open |

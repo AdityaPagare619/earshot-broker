@@ -102,7 +102,9 @@ Adversarial listener, 200 paired worlds per policy, existence AUC
 | Word-filter lattice (our retired prototype) | 0.875 |
 | **EARSHOT sealed-speech** | **0.497** |
 
-An eavesdropper guessing from EARSHOT's speech does no better than chance.
+Against a keyword-counting listener (a deliberate lower bound on attacker sophistication),
+an eavesdropper guessing from EARSHOT's speech does no better than chance (AUC 0.497).
+Stronger attackers (topic models, LLM listeners) are future work, not a claimed result.
 Utility stays 1.000, added friction 0.060. Evidence:
 [`packages/trace-harness/evidence/slo/slo-report.md`](packages/trace-harness/evidence/slo/slo-report.md)
 · wire-level paired-world byte-identity with negative controls:

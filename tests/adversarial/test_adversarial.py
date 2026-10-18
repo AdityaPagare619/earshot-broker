@@ -2,6 +2,13 @@
 
 Every test: WHO attacks, WHAT they hold, WHAT they attempt, WHY they must fail.
 Evidence recorded per test via the J6 reporter.
+
+SCOPE (J6 condition, 2026-10-18): this suite exercises the kernel's in-process
+API — the ownership-enforcement layer. The threat model declares the MCP
+gateway the real attack boundary; wire-level named-attacker coverage lives in
+`services/gateway/mcp/tests/test_replay_epoch.py` (replay attacker, full HTTP
+path, negative control). A kernel that enforces ownership correctly but a
+gateway that misbinds identity is still a breach — read both suites together.
 """
 import unittest
 from dataclasses import replace
