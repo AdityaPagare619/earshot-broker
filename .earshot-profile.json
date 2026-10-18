@@ -1,0 +1,40 @@
+{
+  "created_at": 1792338906.8155577,
+  "declassify": {
+    "busy_times": true,
+    "existence": false,
+    "leave_by": false,
+    "reminders": false,
+    "sounds": false
+  },
+  "defaults": {
+    "new_data": "private"
+  },
+  "destination": {
+    "kind": "local-inbox",
+    "lock_screen_previews": false
+  },
+  "owner": "priya",
+  "profile_version": 1,
+  "public_ack": true,
+  "session": {
+    "grade": "demo-token (fixture-grade \u2014 production needs OAuth/PKCE)",
+    "minted_at": 1792338906.8254147,
+    "owner": "priya",
+    "tenant": "house-a",
+    "token": "demo-vEApxnDbnIB9Vav_4LBs4hXz6L_Y2vxy"
+  },
+  "sources": [
+    {
+      "freshness": "manual-refresh",
+      "label_default": "private",
+      "provider": "fixture-calendar",
+      "scopes": [
+        "read:busy",
+        "read:events"
+      ],
+      "uri": "fixture:calendar:priya"
+    }
+  ],
+  "tenant": "house-a"
+}
