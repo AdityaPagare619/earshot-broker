@@ -1,0 +1,58 @@
+{
+  "generated_utc": "2026-10-18T10:55:07.017841+00:00",
+  "kernel_sha": "729921459edbb5f0fee84e85e2017c8911acbd25",
+  "n_records": 5,
+  "records": [
+    {
+      "detail": {
+        "full_read_without_credentials": true
+      },
+      "dossier_ref": "verdict F1 / \u00a75 G2",
+      "observation": "attacker guesses request key -> receives victim receipt -> reads capsule with zero credentials",
+      "suite": "boundaries",
+      "test": "test_accept_idempotency_returns_victim_receipt_to_attacker",
+      "verdict": "pass-boundary"
+    },
+    {
+      "detail": {
+        "spoofed_accept": true
+      },
+      "dossier_ref": "verdict F1 / \u00a75 G2",
+      "observation": "unauthenticated accept() + caller-supplied authenticated=True opens a capsule for an arbitrary tenant/owner",
+      "suite": "boundaries",
+      "test": "test_accept_spoofing_succeeds_without_auth",
+      "verdict": "pass-boundary"
+    },
+    {
+      "detail": {
+        "released": true
+      },
+      "dossier_ref": "verdict F3 / blueprint \u00a74",
+      "observation": "control-flow taint invisible to kernel: planner-labeled PUB output released",
+      "suite": "boundaries",
+      "test": "test_control_flow_taint_is_not_enforced",
+      "verdict": "pass-boundary"
+    },
+    {
+      "detail": {
+        "released": true
+      },
+      "dossier_ref": "verdict F2 / \u00a76 provenance",
+      "observation": "PUB-labeled secret-key fact released: labels are trusted input",
+      "suite": "boundaries",
+      "test": "test_public_labeled_fact_with_secret_key_is_released",
+      "verdict": "pass-boundary"
+    },
+    {
+      "detail": {
+        "bearer": true
+      },
+      "dossier_ref": "verdict F6 / \u00a75 G2",
+      "observation": "receipt alone (+auth flag) grants access: bearer-token semantics",
+      "suite": "boundaries",
+      "test": "test_receipt_is_bearer_token",
+      "verdict": "pass-boundary"
+    }
+  ],
+  "suite": "boundaries"
+}
