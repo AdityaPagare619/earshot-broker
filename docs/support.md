@@ -66,7 +66,7 @@ as a production guarantee.
 | Symptom | Likely cause | What to do |
 |---|---|---|
 | `python3 -m unittest discover -s packages/kernel` fails | Wrong working directory, or a non-stdlib Python | Run from the repo root with system `python3`; the kernel needs no dependencies |
-| MCP client can't reach the server | Server not running, or wrong URL/port | Start the gateway service (J3 seat; landing on its branch) per its README; confirm `POST /mcp` answers `initialize` (see `evidence/VALIDATION_SUMMARY.md` for the expected handshake) |
+| MCP client can't reach the server | Server not running, or wrong URL/port | Start the gateway server (`earshot-server`) per the quickstart; confirm `POST /mcp` answers `initialize` (see `evidence/VALIDATION_SUMMARY.md` for the expected handshake) |
 | Inspector shows tools but calls fail | Schema mismatch or stale server | Restart the server; schemas are frozen in `packages/contracts/API_CONTRACTS.json` — extra input properties are forbidden by contract |
 | `continue_on_personal_device` says "accepted" but nothing arrived | Accepted means **queued**, not delivered | Check the personal outbox; delivery is acknowledged separately — "never say delivered on enqueue alone" is a design rule, not a bug |
 | A plan change didn't apply to my calendar | `resolve_day_change` is draft-only by design | External writes require explicit owner approval on the personal surface, then reconciliation |
@@ -85,7 +85,7 @@ as a production guarantee.
 ## Contact / feedback
 
 - **Hackathon judges:** product feedback and friction log live with the
-  submission (Devpost). The dossier's §15.4 lists the product feedback we
+  submission (Devpost). `docs/ask-amazon.md` lists the product feedback we
   believe Amazon could act on — filed as requests, not invented APIs.
 - **Contributors:** open an issue on the repo with the observed behavior,
   expected behavior, and the evidence artifact it traces to. Reports without
@@ -97,6 +97,6 @@ as a production guarantee.
 ## Support-burden note (for reviewers)
 
 This page exists because support burden is a ship-blocker. Every answer above
-traces to the dossier, the kernel, or `evidence/` — no invented behavior, no
+traces to the architecture doc, the kernel, or `evidence/` — no invented behavior, no
 "coming soon" promises. Where we don't know yet, we say so and point at the
 open question instead of inventing an answer.

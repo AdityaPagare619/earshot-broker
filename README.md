@@ -3,7 +3,7 @@
 **Secrets have audiences. Rooms have beliefs. Speech has memory.**
 
 [![CI](https://github.com/AdityaPagare619/earshot-broker/actions/workflows/ci.yml/badge.svg)](https://github.com/AdityaPagare619/earshot-broker/actions/workflows/ci.yml)
-![tests](https://img.shields.io/badge/tests-640%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-643%20passing-brightgreen)
 ![python](https://img.shields.io/badge/python-3.10%E2%80%933.12-blue)
 ![stdlib](https://img.shields.io/badge/dependencies-stdlib%20only-lightgrey)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -34,7 +34,7 @@ pip install -e ".[test]"
 earshot-demo --lang en        # the 5-beat sealed-speech story (also --lang hi)
 earshot-server --port 8899    # real MCP server (spec 2025-11-25, Streamable HTTP)
 earshot-sim                   # labeled independent simulator, Echo-class UI
-python -m pytest              # 640 tests, one command, ~30s, zero env vars
+python -m pytest              # 643 tests, one command, ~30s, zero env vars
 ```
 
 Windows, macOS, Linux. Python 3.10–3.12. Zero dependencies outside the
@@ -123,10 +123,11 @@ Utility stays 1.000, added friction 0.060. Evidence:
 - **Simulated Alexa+ experience** via an independent, honestly labeled web
   simulator in-repo — the competition's gated Alexa+ tooling is unavailable
   to participants, and the rules explicitly bless the simulated path.
-- **<500ms round trip**: measured client-side p99 **11.4ms** (N=200,
-  `prepare_day_brief` over loopback; budget 500ms — 44× margin), kernel ops in
+- **<500ms round trip**: measured client-side p99 **8.6ms** (N=200,
+  `prepare_day_brief` over loopback; budget 500ms — 58× margin), kernel ops in
   microseconds —
-  [`services/gateway/mcp/evidence/latency.json`](services/gateway/mcp/evidence/latency.json).
+  [`services/gateway/mcp/evidence/latency.json`](services/gateway/mcp/evidence/latency.json)
+  (frozen 2026-10-18; test runs write `latency.measured.json` instead).
 
 ## What we don't claim
 
@@ -158,7 +159,7 @@ packages/hotlane/         seam 2: belief fusion, credible sets, minimax planner
 packages/secrecy/         secrecy graph + monotone gate (the only edge mint)
 packages/trace-harness/   open-source paired-world privacy testing + SLO lab
 integration/              pipeline wiring S1→S2→S3→S4 through frozen ports
-tests/                    unified suite — python -m pytest, 640 tests
+tests/                    unified suite — python -m pytest, 643 tests
 docs/                     architecture, quickstart, API, threat model, honesty
 evidence/                 validation summary, test outputs, measured numbers
 examples/                 copy-paste starting points

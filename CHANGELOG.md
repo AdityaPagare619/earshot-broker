@@ -44,7 +44,7 @@ releasable facts plus an opaque, owner-bound request reference.
   server, MCP spec **2025-11-25 pinned**. 6 tools: `prepare_day_brief`,
   `resolve_day_change`, `continue_on_personal_device`, `withdraw_request`,
   `room`, `keep_secret`. 91 wire tests over real HTTP; measured round trip
-  p99 **2.54ms** against the 500ms budget (`evidence/latency.json`).
+  p99 **8.6ms** against the 500ms budget (`evidence/latency.json`, frozen 2026-10-18).
 - **Controlled web host** (`apps/simulator/`): real MCP client, output arbiter
   with epoch-bound single-use playback grants, Echo-class UI with an explicit
   honesty banner. 35 tests.
@@ -117,8 +117,8 @@ releasable facts plus an opaque, owner-bound request reference.
   authentication. Profile A (EARSHOT-controlled host) is the only shippable
   deployment profile; the persistent room-facing host profile is documented
   but not recommended.
-- Latency figures (kernel ≤17.1µs p99, HTTP p99 2.54ms) were measured on the
-  development machine; other terms in the 500ms budget are unmeasurable here
+- Latency figures (kernel ≤17.1µs p99, HTTP p99 8.6ms) were measured on the
+  development machine (Linux, 2026-10-18; evidence file carries the run date); other terms in the 500ms budget are unmeasurable here
   and labeled as such.
 
 [1.0.0]: https://github.com/AdityaPagare619/earshot-broker/releases/tag/v1.0.0

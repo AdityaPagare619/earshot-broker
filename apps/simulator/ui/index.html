@@ -26,6 +26,7 @@
     margin-top:4px;letter-spacing:.04em;}
   .layout{max-width:1180px;margin:0 auto;padding:20px 16px 40px;
     display:grid;grid-template-columns:1fr 340px;gap:20px;}
+  .layout>*{min-width:0;}
   .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;
     padding:18px;}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
@@ -51,6 +52,8 @@
   .storyline .placeholder{color:var(--muted);font-size:14px;font-style:italic;}
   .beat{display:flex;gap:10px;align-items:flex-start;padding:7px 0;
     border-top:1px dashed #e8dcc2;font-size:14px;line-height:1.45;}
+  .beat>span:last-child{min-width:0;overflow-wrap:anywhere;}
+  .beat .ev{overflow-wrap:anywhere;}
   .beat:first-child{border-top:none;padding-top:0;}
   .beat .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--amber);
     color:var(--amber-ink);font-weight:800;font-size:13px;text-align:center;

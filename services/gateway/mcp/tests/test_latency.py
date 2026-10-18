@@ -74,7 +74,12 @@ class LatencyTests(unittest.TestCase):
             "verdict": "PASS" if percentile(rtts, 99) < BUDGET_MS else "FAIL",
         }
         EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
-        with open(EVIDENCE, "w", encoding="utf-8") as fh:
+        # The committed evidence file is FROZEN (2026-10-18): it documents the
+        # canonical measured run, and docs cite its numbers. Test runs write
+        # their own measurement to a scratch file so they can never drift the
+        # cited evidence. (J8 condition: one latency number everywhere.)
+        measured = EVIDENCE.with_name("latency.measured.json")
+        with open(measured, "w", encoding="utf-8") as fh:
             json.dump(stats, fh, indent=2)
         print("\nlatency: " + json.dumps({k: stats[k] for k in
               ("p50_ms", "p95_ms", "p99_ms", "max_ms", "verdict")}))
