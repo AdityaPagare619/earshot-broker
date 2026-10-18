@@ -1,9 +1,23 @@
-=== packs/tests ===
-Ran 33 tests in 0.075s
-OK
-=== integration/tests ===
-Ran 14 tests in 0.062s
-OK
-=== demos ===
-en: ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]
-hi: ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]
+# EARSHOT unified test suite — counts
+# Invocation: python -m pytest   (repo root, zero env vars; see conftest.py)
+# Base: main @ c422bae (post-foundation: packaging + unified tests + Windows + CI)
+
+Canonical result (2026-10-18, quiet machine, verified by maintainer):
+  640 passed, 64 subtests passed in ~30s
+
+Lane re-run (2026-10-18, pro-evidence worktree @ c422bae):
+  637 passed, 3 errors, 57 subtests passed in 41.05s
+  The 3 errors are environmental, not code: a sibling build lane was holding
+  TCP 8899 (its own earshot-server), so HarnessHttpTests could not bind its
+  fixture server (EADDRINUSE). The 7 missing subtests belong to those 3 tests
+  (64 - 57 = 7). Re-run on a quiet machine returns 640/640.
+
+Per-suite breakdown (unified run):
+  tests/ (adversarial, failure_paths, paired_world, races, failure-injection): 17+37+14+18+23
+  packages/kernel: 24 (frozen reference kernel)
+  packages/hotlane: 89 · packages/secrecy: 57 · packages/slowlane: 68
+  packages/trace-harness: 16 · packs/tests: 33
+  services/gateway/adapters: 43 · services/gateway/config: 45 · services/gateway/mcp: 91
+  apps/personal: 16 · apps/simulator: 35 · integration: 14
+
+Stdlib only. No test dropped, none skipped without a written reason.

@@ -1,26 +1,108 @@
-# S6 Evidence — measurements, not claims
+# Evidence — measurements, not claims
 
-## Test counts (2026-10-18)
-- `packs/tests`: 33 tests, OK (27 pack conformance + 6 language-blind)
-- `integration/tests`: 14 tests, OK (8 pipeline incl. 3 seam counterfactuals
-  + 1 negative control; 6 demo-beat properties)
-- Total: **47 tests, all green**, stdlib only (`unittest`).
+Every number in the public README traces one hop to a file here (or to the
+SLO lab output it names). Every file below says how to reproduce it.
+Rule: a claim without a file behind it does not ship.
 
-## Demo runs
-- `evidence/demo_en.log`: 5-beat demo, `--lang en` → ALL 5 BEATS PASSED
-- `evidence/demo_hi.log`: 5-beat demo, `--lang hi` → ALL 5 BEATS PASSED
-- Both runs compute through the same `SealedSpeechPipeline`; every beat
-  asserts (exit non-zero on any failure). Honest `[SIMULATOR]`/`[FIXTURE]`
-  labels throughout; not a live Alexa+ device.
+## 1. Privacy SLO — the headline claim
 
-## Key measured properties
-- Beat 4 (counterfactual): therapy-day vs no-therapy-day briefings are
-  byte-identical in both languages (mom present).
-- Language-blind: identical depth/action decisions en vs hi across three
-  room states (alone / mom / maya); spoken strings differ (Devanagari
-  present in hi, absent in en).
-- Verifier catches: the pack's own leak verifier fired twice during
-  development (a `{category}` placeholder in d3 templates leaking
-  "therapy"; a Latin-only gift regex) — both fixed in data, not code.
-- Exposure budget observed live: a turn-1 d4 disclosure correctly
-  tightened a turn-2 re-disclosure to d2 (Law 5 working as designed).
+**Claim:** sealed-speech holds existence AUC ≈ 0.5 (chance) against the fixture
+adversarial listener; the naive baseline leaks at 0.928.
+
+| policy | existence AUC | source |
+|---|---|---|
+| native (no protection) | 0.928 | `packages/trace-harness/evidence/slo/existence-auc.json` |
+| keyword filter | 0.921 | same file |
+| v1 answer-filter lattice | 0.875 | same file |
+| **sealed-speech** | **0.497** | same file |
+
+- 200 AUC triples per policy, seed 7, 4 synthetic households × 30 days × 2 episodes.
+- Chart: `packages/trace-harness/evidence/slo/pareto.svg` (leakage vs utility).
+- Full method, counterfactual suites, and limits: `packages/trace-harness/evidence/slo/slo-report.md`.
+- Reproduce: `python -m trace_harness slo` (stdlib only, bit-for-bit reproducible).
+- **Honest limits (read before citing):** the fixture listener is a *lower bound*
+  on adversary strength — a smarter adversary could do better. Results are
+  policy-layer, not wire-layer; synthetic households are not real households.
+  The SLO lab output lives under `packages/trace-harness/` (not here) because
+  the lab writes there on re-run; it is referenced, not duplicated.
+
+## 2. Constant shape at the wire (S3)
+
+`constant-shape-results.txt` — paired-world tests over **real HTTP** against the
+MCP gateway: secret-swaps under a fixed cover audience produce **byte-identical
+response bodies** (modulo opaque `request_ref`/`plan_id`, which are shape-pinned
+by regex). Includes the negative control (a mislabeled secret *does* change the
+body — the suite has teeth) and the open-mode anti-over-redaction check
+(constant shape ≠ constant silence: the owner alone hears their own appointment).
+Reproduce: `python -m pytest services/gateway/mcp/tests/test_constant_shape.py`
+(part of the unified suite).
+
+## 3. Latency
+
+- `latency.json` — kernel operations, 20k iterations each on
+  `htch-runtime / x86_64`, Python 3.12.3: p99 ≤ 17.1µs per op
+  (`Kernel.prepare` p99 17.145µs is the max). Machine-labeled; your hardware
+  differs — re-run, don't quote.
+- `j01-latency.txt` — 500ms round-trip budget composition. **Honest basis:**
+  kernel terms MEASURED (10k local iterations); network/edge/token-validation/
+  snapshot/receipt/headroom terms ASSUMED (dossier §13.1 allocation, labeled
+  hypothesis). Total 330.02ms is illustrative, not a claim.
+- The living proof: `services/gateway/mcp/tests/test_latency.py` asserts
+  client-measured HTTP p99 < 500ms over real Streamable HTTP (spec 2025-11-25).
+  Runs in the unified suite — no separate benchmark to trust.
+
+## 4. Test counts
+
+- `test_counts.txt` — the unified suite: **640 passed + 64 subtests**
+  (`python -m pytest` from repo root, zero env vars, stdlib only).
+- `kernel-tests.txt` — the frozen reference kernel: 24/24.
+- `failure-path-results.txt` — 61 tests: 24 kernel + 37 failure-path
+  (error-oracle indistinguishability, deny→recovery matrix, lease lifecycle).
+
+## 5. Demo runs
+
+- `demo_en.log` / `demo_hi.log` — the scripted 5-beat sealed-speech demo,
+  `--lang en` and `--lang hi`: `ALL 5 BEATS PASSED`, every beat asserting
+  (non-zero exit on failure). Honest `[SIMULATOR]`/`[FIXTURE]` labels throughout;
+  not a live Alexa+ device.
+- Reproduce: `earshot-demo --lang en` (or `--lang hi`) after `pip install -e .`.
+
+## 6. Races and failure modes
+
+- `race-matrix.md` — 8 documented races (RR-1..RR-8) with forced interleavings.
+  **Honest headline:** the kernel alone closes none of the dossier's races.
+  The reference mitigation — per-chunk `authorize_playback` against fresh
+  belief — exists as test scaffolding (`tests/races/arbiter.py`), not as
+  production code; the production simulator ships epoch-bound single-use
+  grants + stop-output-first (`apps/simulator/arbiter.py`). Closing the gap
+  is documented future work, not a shipped claim.
+- `synthetic-scenario-trace.json` — persistent-host public projection unchanged
+  by audience; controlled pending lease revoked; owner retrieval succeeds,
+  other-person retrieval denied.
+- `j06-timing-report.json` — timing side-channel measurements referenced by
+  `docs/threat-model.md` (R4); regenerated by `tests/paired_world/harness.py`.
+
+## 7. Cost model — who pays
+
+`j01-cost.txt` — $4.41/device/year base case (99.4% planner inference);
+break-even $0.73/month at 50% margin. **Every input is a stated assumption**
+(sensitivity table included); the read is "planner-call gating/caching is the
+business question, not infra optimization."
+
+---
+
+## Internal build logs (private archive only)
+
+The files below are seat-scoped raw outputs and superseded reports. They stay in
+the private `earshot-broker` archive with full history; every claim they
+supported is covered by a curated artifact above. Excluded from the public repo
+at migration (see `docs/seats/pro-evidence/DESIGN.md` for the exclusion list):
+
+- `j01-config-tests.txt`, `j01-readiness.txt` — internal readiness checklists
+- `j05-personal.md` — seat report; superseded by the 16 personal tests in the suite
+- `j06-adversarial-report.json`, `j06-boundaries-report.json`, `j06-paired-world-report.json` —
+  superseded by `constant-shape-results.txt` + the unified suite
+- `s04-test-report.txt` — superseded by the unified suite
+- `j08-public-surface-check.md` — checked the pre-migration README; stale
+- `adapters/`, `hotlane/`, `simulator-j02/`, `slowlane/`, `trace-harness/` —
+  seat raw outputs (hotlane/slowlane regenerable via their `evidence_gen.py`)
