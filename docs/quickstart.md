@@ -1,88 +1,153 @@
-# Quickstart — from `git clone` to a private day brief in 90 seconds
+# Quickstart — from `git clone` to a real MCP call in ~2 minutes
 
-**You need:** Python 3.10+, this repo, 90 seconds. No installs, no builds, no
-browser, no network. Everything below runs on the weakest device you own.
+**You need:** Python 3.10+, `git`, ~2 minutes. No other dependencies —
+the package is stdlib-only. Works on Windows, macOS, and Linux.
 
-## The one command
-
-```bash
-git clone <this-repo> && cd <this-repo>
-python3 apps/personal/quickstart.py
-```
-
-That's the whole setup. In well under 90 seconds (measured: <1s on a laptop)
-you get:
-
-1. **Onboarding, all 7 steps** — source connected with explicit scopes, private
-   by default, public-acknowledgement choice, per-field declassification
-   (existence / busy / leave-by / reminders / sounds — separate choices),
-   personal destination registered, scope + runtime profiles acknowledged.
-2. **An owner session** — demo-grade token, labeled as such everywhere.
-3. **A sealed day brief** through the real kernel — receipt, stable public
-   message, plan digest.
-4. **The per-audience preview** — public vs. controlled-room vs. personal, side
-   by side, with stated assumptions.
-5. **The counterfactual proof** — the hidden appointment changes
-   (prenatal → therapy → removed) and the public output does not move. Byte for
-   byte.
-6. **`preview.html`** — a single-file report you can open on your phone.
-
-Re-run any time; it reuses your profile (`--fresh` starts over).
-
-## The personal surface
-
-From `apps/personal/`:
+## 1. Install (60 seconds)
 
 ```bash
-python3 -m personal.cli onboard --interactive   # guided setup, your answers
-python3 -m personal.cli inbox                   # sealed requests (refs only)
-python3 -m personal.cli open <ref>              # exact plan + labeled facts
-python3 -m personal.cli preview <ref>           # what each recipient sees
-python3 -m personal.cli preview <ref> --html r.html
-python3 -m personal.cli approve <ref>           # approval bound to plan digest
-python3 -m personal.cli prove <ref>             # counterfactual proof
-python3 -m personal.cli settings                # view declassification choices
-python3 -m personal.cli settings --set busy_times=no
+git clone https://github.com/AdityaPagare619/earshot.git
+cd earshot
+pip install -e .
 ```
 
-Write sensitive rules here, on the personal surface — **never speak a rule that
-contains a secret to the shared speaker**. A spoken rule leaks through the
-room and through host context; no downstream gateway can undo that.
+Verify:
 
-## What each recipient sees (the trust model in one table)
+```bash
+earshot-demo --help
+```
 
-| Recipient | Sees | Why |
+> **Windows (PowerShell):** use `py -m pip install -e .` if `pip` isn't on
+> your PATH. `curl.exe` ships with Windows 10+ — the commands below work,
+> but replace the `\` line-continuations with a backtick `` ` `` or join each
+> command into one line. Everything else is shown in both forms where it
+> differs.
+
+## 2. Run the demo (30 seconds)
+
+```bash
+earshot-demo --lang en
+```
+
+You should see five beats of a sealed day-briefing play out — a private
+secret, a room with a changing audience, the spoken answer reshaping while
+the phone stays unchanged — ending in:
+
+```
+ALL 5 BEATS PASSED  [SIMULATOR] [FIXTURE]
+```
+
+Try `--lang hi` for the Hindi/Hinglish pack. The labels are honest: this is
+fixture data on an independent simulator, not a live Alexa+ device.
+
+## 3. Talk to the real MCP server (60 seconds)
+
+Start the gateway (Streamable HTTP, MCP spec **2025-11-25** pinned):
+
+```bash
+# Terminal 1
+earshot-server --port 8000
+```
+
+The server prints dev bearer <redacted> at startup (non-production, restart
+reseeds). For a reproducible token, pin your own instead:
+
+```bash
+# macOS / Linux
+EARSHOT_DEV_TOKENS='{"demotoken123": ["house-a", "priya"]}' earshot-server --port 8000
+```
+
+```powershell
+# Windows PowerShell
+$env:EARSHOT_DEV_TOKENS = '{"demotoken123": ["house-a", "priya"]}'
+earshot-server --port 8000
+```
+
+Then, in a second terminal, speak MCP. Every request needs the bearer <redacted>
+
+```bash
+# Terminal 2 — initialize (use your token from the server's startup log)
+curl -s -X POST http://127.0.0.1:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer demotoken123" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize",
+       "params":{"protocolVersion":"2025-11-25","capabilities":{},
+                 "clientInfo":{"name":"quickstart","version":"1.0"}}}'
+```
+
+Copy the `Mcp-Session-Id` from the response headers, then list the tools:
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer demotoken123" \
+  -H "Mcp-Session-Id: <paste-session-id>" \
+  -H "MCP-Protocol-Version: 2025-11-25" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+```
+
+Six tools: `prepare_day_brief`, `resolve_day_change`,
+`continue_on_personal_device`, `withdraw_request`, `room`, `keep_secret`.
+Call one — identity comes from your token, never from arguments:
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer demotoken123" \
+  -H "Mcp-Session-Id: <paste-session-id>" \
+  -H "MCP-Protocol-Version: 2025-11-25" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call",
+       "params":{"name":"prepare_day_brief",
+                 "arguments":{"request_key":"quickstart-demo-0001",
+                              "date":"2026-10-19",
+                              "timezone":"Asia/Kolkata"}}}'
+```
+
+You'll get a sealed response: a `speak` line safe for the room, marked
+`verbatim_no_elaboration`, with the rest held for the owner's phone. That
+is the whole product in one call.
+
+## 4. Open the simulator (30 seconds)
+
+```bash
+earshot-sim --port 8734
+```
+
+Open <http://127.0.0.1:8734/> — an Echo-class web UI driving the same sealed
+pipeline. The banner always reads *"Independent simulator — not a live
+Alexa+ device"*. Try the audience toggle: the spoken answer reshapes, the
+phone doesn't.
+
+## 5. Run the tests (optional, ~30 seconds)
+
+```bash
+pip install -e ".[test]"
+python -m pytest
+```
+
+640 tests, one invocation, zero environment variables. See
+[`../evidence/`](../evidence/) for what the numbers mean.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
 |---|---|---|
-| Anyone, any host (Profile A) | Weather, team lunch | Only durable-public facts cross |
-| Room, controlled host, "alone" assumed (Profile B demo) | + the private appointment | Explicit stated assumption, lease-bound |
-| Owner, personal surface | Everything + exact plan + approvals | Owner session, tenant/owner binding |
+| `earshot-demo: command not found` | install step missed, or shell PATH stale | re-run `pip install -e .`; open a new terminal |
+| `OSError: [Errno 98] Address already in use` | another server on that port (or a second checkout's test run) | `earshot-server --port 8001` — any free port works |
+| `401` / `{"error": "unknown or revoked token"}` | missing or wrong bearer token | copy the token from the server's startup log, or pin one via `EARSHOT_DEV_TOKENS` |
+| `400` after `initialize` | session header missing | pass `Mcp-Session-Id` (from initialize's response headers) and `MCP-Protocol-Version: 2025-11-25` on every later request |
+| `UnicodeEncodeError` on Windows | legacy console encoding | fixed in-app; if you still see it, `set PYTHONUTF8=1` (cmd) or `$env:PYTHONUTF8 = "1"` (PowerShell) |
+| `python` / `pip` not found (Windows) | Python installed without PATH | use `py -m pip` / `py -m pytest` — the `py` launcher always works |
 
-Listings never contain private content. Unknown/forbidden requests answer
-`Unavailable` — the surface is not an existence oracle.
+**Python version:** 3.10+ required (`requires-python = ">=3.10"` in
+`pyproject.toml`). Check with `python3 --version` / `py --version`.
 
-## Honest boundaries (read before demoing)
-
-- **Fixture everything:** fixture calendar, fixture deterministic planner (NOT
-  the dossier's bounded-AI planner), fixture-grade auth. Each is labeled at
-  every surface that uses it.
-- **No real sensors, no OAuth, no network, no audio.** The "controlled host"
-  is a stated assumption in this demo, not a measured device.
-- **Profile A vs B is load-bearing:** never imply Profile B's controls exist
-  in Profile A. The preview prints its assumptions every time.
-- Timings are wall-clock observations on the machine that ran them.
-
-## To production (what's missing, no hand-waving)
-
-From the blueprint's readiness gates, the onboarding-relevant subset:
-
-1. Real OAuth/PKCE owner sessions replacing the demo token (kernel already
-   takes `authenticated` + tenant/owner binding — the seam exists).
-2. A real source adapter implementing the §3 contract (the fixture adapter
-   declares the contract; a production adapter fills it).
-3. The bounded-AI planner + deterministic solver replacing the fixture
-   slot-finder (the plan digest / approval binding already assumes a real
-   planner — the interface doesn't change).
-4. Cross-tenant tests over every store, private data out of observability,
-   secret-independent error shapes (partially demonstrated; not complete).
-5. Usability testing that owners actually understand the declassification
-   choices (step 4 is the highest-risk UX in this flow).
+**What this is not:** the demo and simulator use fixture data and a labeled
+independent simulator. There is no live Alexa+ device here — the
+competition's Alexa+ builder tooling is partner-gated, and we don't pretend
+otherwise. See [honesty.md](honesty.md) before citing any number.
