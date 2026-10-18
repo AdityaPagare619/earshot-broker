@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 770" role="img" aria-label="EARSHOT trust boundaries and information flow">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#376d68" stroke-width="1.5"/></marker></defs>
+<rect width="1080" height="770" rx="18" fill="#f5f4ee"/>
+<text x="36" y="46" font-family="sans-serif" font-size="24" font-weight="700" fill="#102b35">A task can cross the boundary. Its secrets do not have to.</text>
+<rect x="30" y="72" width="1020" height="180" rx="12" fill="#e5efeb"/>
+<text x="50" y="101" font-family="sans-serif" font-size="13" font-weight="700" fill="#376d68">PUBLIC / SHARED DOMAIN</text>
+<g fill="#fff" stroke="#88aaa1" stroke-width="1.2"><rect x="50" y="125" width="270" height="85" rx="9"/><rect x="405" y="125" width="270" height="85" rx="9"/><rect x="760" y="125" width="270" height="85" rx="9"/></g>
+<g font-family="sans-serif" text-anchor="middle" fill="#102b35"><text x="185" y="157" font-size="18" font-weight="700">Room-facing host</text><text x="185" y="183" font-size="13">Alexa design target / real MCP client</text><text x="540" y="157" font-size="18" font-weight="700">Public MCP facade</text><text x="540" y="183" font-size="13">Task intent + opaque request reference</text><text x="895" y="157" font-size="18" font-weight="700">Approved projection</text><text x="895" y="183" font-size="13">No hidden facts, counts or rationale</text></g>
+<g stroke="#376d68" stroke-width="2" fill="none" marker-end="url(#arrow)"><path d="M320 167H400"/><path d="M760 190H680"/></g>
+<path d="M30 279H1050" stroke="#bd8e49" stroke-width="2" stroke-dasharray="8 6"/>
+<rect x="367" y="264" width="346" height="30" fill="#f5f4ee"/>
+<text x="540" y="284" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#946a30">RELEASE BOUNDARY — EXPLICIT AUTHORIZATION</text>
+<g fill="#fff" stroke="#b9c5c6" stroke-width="1.2"><rect x="50" y="335" width="270" height="92" rx="9"/><rect x="405" y="335" width="270" height="92" rx="9"/><rect x="760" y="335" width="270" height="92" rx="9"/></g>
+<g font-family="sans-serif" text-anchor="middle" fill="#102b35"><text x="185" y="368" font-size="18" font-weight="700">Private task worker</text><text x="185" y="394" font-size="13">Bounded AI planner + interval solver</text><text x="540" y="368" font-size="18" font-weight="700">Task orchestrator</text><text x="540" y="394" font-size="13">Ownership, versions, durable state</text><text x="895" y="368" font-size="18" font-weight="700">Release kernel</text><text x="895" y="394" font-size="13">Labeled facts + typed transformations</text></g>
+<g stroke="#376d68" stroke-width="2" fill="none" marker-end="url(#arrow)"><path d="M540 211V258M540 298V330"/><path d="M405 380H326"/><path d="M320 405H400"/><path d="M675 380H754"/><path d="M895 334V215"/></g>
+<g fill="#102b35"><rect x="50" y="490" width="270" height="100" rx="9"/><rect x="405" y="490" width="270" height="100" rx="9"/><rect x="760" y="490" width="270" height="100" rx="9"/></g>
+<g font-family="sans-serif" text-anchor="middle" fill="#fff"><text x="185" y="523" font-size="18" font-weight="700">Scoped sources</text><text x="185" y="550" font-size="13">Private records + provenance</text><text x="540" y="523" font-size="18" font-weight="700">Personal continuation</text><text x="540" y="550" font-size="13">Owner-authenticated inbox + approval</text><text x="895" y="523" font-size="18" font-weight="700">Context + policy</text><text x="895" y="550" font-size="13">Unknowns, freshness, audience epochs</text></g>
+<g stroke="#376d68" stroke-width="2" fill="none" marker-end="url(#arrow)"><path d="M185 490V433"/><path d="M540 427V484"/><path d="M895 490V433"/></g>
+<rect x="50" y="642" width="980" height="90" rx="9" fill="#f3e8d4" stroke="#d2b888"/>
+<text x="72" y="670" font-family="sans-serif" font-size="15" font-weight="700" fill="#795520">CONTROLLED-HOST EXTENSION ONLY</text>
+<text x="72" y="696" font-family="sans-serif" font-size="14" fill="#102b35">Release lease → local output arbiter → bounded TTS/display segments. Audience change invalidates pending output.</text>
+<text x="72" y="718" font-family="sans-serif" font-size="13" fill="#795520">Not a verified Echo control API. Previously emitted sound cannot be revoked.</text>
+</svg>

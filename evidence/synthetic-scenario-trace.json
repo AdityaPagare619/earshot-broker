@@ -1,0 +1,20 @@
+{
+  "fixture_notice": "Synthetic; groceries time is independently public, not derived from the private event.",
+  "public_projection_alone_uncontrolled_host": [
+    "Collect groceries after 6."
+  ],
+  "public_projection_after_entry_uncontrolled_host": [
+    "Collect groceries after 6."
+  ],
+  "controlled_host_pending_lease_denied_after_entry": true,
+  "request_receipt_public": {
+    "receipt": "VjSGB1y4p0AL1W9eMIKXf4h71SNjUzg0",
+    "state": "accepted",
+    "public_message": "Your request is queued."
+  },
+  "owner_private_contents": [
+    "Prenatal visit at 15:40",
+    "Collect groceries after 6."
+  ],
+  "other_person_denied": true
+}

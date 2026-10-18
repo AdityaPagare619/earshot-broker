@@ -1,0 +1,29 @@
+test_clock_regression_denies_private (test_kernel.KernelTests.test_clock_regression_denies_private) ... ok
+test_controlled_host_can_release_under_explicit_assumptions (test_kernel.KernelTests.test_controlled_host_can_release_under_explicit_assumptions) ... ok
+test_epoch_change_without_audience_change_still_invalidates (test_kernel.KernelTests.test_epoch_change_without_audience_change_still_invalidates) ... ok
+test_expired_capsule (test_kernel.KernelTests.test_expired_capsule) ... ok
+test_expiry_invalidates (test_kernel.KernelTests.test_expiry_invalidates) ... ok
+test_finite_audience_monotonicity (test_kernel.KernelTests.test_finite_audience_monotonicity) ... ok
+test_handle_is_not_authorization (test_kernel.KernelTests.test_handle_is_not_authorization) ... ok
+test_idempotent_accept (test_kernel.KernelTests.test_idempotent_accept) ... ok
+test_identity_change_invalidates (test_kernel.KernelTests.test_identity_change_invalidates) ... ok
+test_missing_coverage_denies_private (test_kernel.KernelTests.test_missing_coverage_denies_private) ... ok
+test_mother_entered_invalidates_lease (test_kernel.KernelTests.test_mother_entered_invalidates_lease) ... ok
+test_owner_can_open (test_kernel.KernelTests.test_owner_can_open) ... ok
+test_policy_change_invalidates (test_kernel.KernelTests.test_policy_change_invalidates) ... ok
+test_public_host_never_gets_private_fact_even_alone (test_kernel.KernelTests.test_public_host_never_gets_private_fact_even_alone) ... ok
+test_reader_intersection (test_kernel.KernelTests.test_reader_intersection) ... ok
+test_receipt_shape_independent_of_private_result (test_kernel.KernelTests.test_receipt_shape_independent_of_private_result) ... ok
+test_refuse_unproven_dependency_free_derivation (test_kernel.KernelTests.test_refuse_unproven_dependency_free_derivation) ... ok
+test_revoked_capsule (test_kernel.KernelTests.test_revoked_capsule) ... ok
+test_secret_rename_and_existence_do_not_change_public_projection (test_kernel.KernelTests.test_secret_rename_and_existence_do_not_change_public_projection) ... ok
+test_stale_denies_private (test_kernel.KernelTests.test_stale_denies_private) ... ok
+test_taint_of_derived_result (test_kernel.KernelTests.test_taint_of_derived_result) ... ok
+test_uncontrolled_cannot_issue_lease (test_kernel.KernelTests.test_uncontrolled_cannot_issue_lease) ... ok
+test_unknown_denies_private (test_kernel.KernelTests.test_unknown_denies_private) ... ok
+test_valid_commit (test_kernel.KernelTests.test_valid_commit) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.002s
+
+OK

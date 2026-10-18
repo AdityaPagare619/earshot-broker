@@ -1,0 +1,289 @@
+{
+  "status": "PROPOSED CONTRACTS, not all implemented",
+  "protocolVersion": "2025-11-25",
+  "security_note": "Identity, owner, policy, audience and authorization context are NOT model-supplied tool arguments. Tool annotations are hints, not enforcement. Validate cross-field time constraints server-side.",
+  "tools": [
+    {
+      "name": "prepare_day_brief",
+      "description": "Prepare a day plan using sources the owner connected to EARSHOT. Return only explicitly public facts. Full plan and actual private processing status remain in the authenticated owner inbox. Does not change external calendars.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "timezone": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "Validated IANA timezone, not a guessed numeric offset."
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "date",
+          "timezone",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "resolve_day_change",
+      "description": "Prepare a revision to an existing sealed day plan, using private constraints without returning them. Draft only: external calendar changes require personal approval. Does not reveal why a slot is unavailable.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "change": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "add_flexible_block",
+                  "find_alternative_window"
+                ]
+              },
+              "duration_minutes": {
+                "type": "integer",
+                "minimum": 5,
+                "maximum": 240
+              },
+              "window_start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "window_end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "kind",
+              "duration_minutes",
+              "window_start",
+              "window_end"
+            ]
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "request_ref",
+          "change",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "continue_on_personal_device",
+      "description": "Queue continuation of this EARSHOT request in the registered owner inbox. Does not accept an arbitrary destination. Accepted means queued, not delivered or read; no private item count is returned.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "withdraw_request",
+      "description": "Withdraw pending work and unreleased EARSHOT output. Cannot undo already emitted speech or completed external effects. Exact partial-completion state remains in the owner inbox.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}
