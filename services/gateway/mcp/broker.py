@@ -1,14 +1,19 @@
-"""Sealed-task broker: the 4 MCP tools against the real kernel (J3).
+"""Sealed-task broker: the 6 MCP tools against the real kernel (J3 + S4).
 
 Every tool binds (tenant, owner) from the verified auth context — never from
 arguments. Private computation happens inside the boundary; only explicitly
 authorized public facts cross it. All error messages are secret-free.
-"""
+
+S4 addition: `room` and `keep_secret` user-control tools, backed by the
+secrecy graph (packages/secrecy) — choke-point edge store, monotone gate,
+declaration log with asymmetric trust at ingest."""
 from __future__ import annotations
 
 import importlib.util
 import json
 import os
+import secrets
+import sys
 import time
 from datetime import date as date_cls
 from datetime import datetime
@@ -20,6 +25,13 @@ from fixtures import FixtureWorld
 # --- kernel loading (single source of truth: packages/kernel/kernel.py) ---
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 _KERNEL_PATH = os.path.join(_REPO_ROOT, "packages", "kernel", "kernel.py")
+
+# --- secrecy package (S4): graph + monotone gate + declarations ------------
+sys.path.insert(0, os.path.join(_REPO_ROOT, "packages", "secrecy"))
+from store import EdgeStore
+from declarations import DeclarationLog, parse_declaration
+from parse import parse_keep_secret
+from overrides import GLOBAL_SCOPE
 
 
 def _load_kernel():
@@ -184,6 +196,9 @@ class Broker:
         self._tasks: dict[str, dict] = {}        # receipt -> {world_name, date, timezone}
         self._idem: dict[tuple, tuple] = {}      # (tenant, owner, key) -> (params_json, response)
         self._outbox: dict[tuple, dict] = {}     # (owner, request_key) -> entry
+        # S4: secrecy graph (choke-point store) + declaration log.
+        self.secrecy = EdgeStore()
+        self.declarations = DeclarationLog()
 
     # -- internal helpers --
 
@@ -213,7 +228,66 @@ class Broker:
             # The continuation pointer is identical for both (J4-C3).
             raise _unavailable()
 
-    # -- the 4 tools --
+    # -- the 6 tools (4 sealed-task + 2 user-control) --
+
+    def room(self, tenant: str, owner: str, params: dict) -> dict:
+        """Declaration -> belief update. The declaration is recorded with its
+        trust class (asymmetric: voice can add listeners freely; "I'm alone"
+        only loosens low-sensitivity items). The response is constant-shape:
+        identical whether parsed or not, known person or not — it never
+        confirms or denies secrets."""
+        declaration = params.get("declaration")
+        _check(isinstance(declaration, str)
+               and 1 <= len(declaration) <= 200, "declaration")
+        validate_request_key(params.get("request_key"))
+        key = params["request_key"]
+
+        hit = self._check_idem(tenant, owner, key, params)
+        if hit is not None:
+            return hit
+
+        parsed = parse_declaration(declaration)
+        if parsed is not None:
+            person, kind = parsed
+            # Voice declarations are unauthenticated by construction: the MCP
+            # transport carries no speaker-verification claim. The trust class
+            # is tagged here; S2's fusion consumes it.
+            self.declarations.declare(person, kind, source="voice",
+                                      authenticated=False)
+
+        ref = "room-" + secrets.token_urlsafe(16)
+        resp = {"request_ref": ref, "request_state": "accepted",
+                "public_facts": ["Noted."]}
+        self._store_idem(tenant, owner, key, params, resp)
+        return resp
+
+    def keep_secret(self, tenant: str, owner: str, params: dict) -> dict:
+        """One sentence -> instant TIGHTEN edge (global scope). Parse, gate,
+        store — all in one call, so clearance drops immediately via the
+        min-only overlay. No confirmation needed: tightening is always safe.
+        The response never echoes topic nouns (Seam 3 discipline)."""
+        instruction = params.get("instruction")
+        _check(isinstance(instruction, str)
+               and 1 <= len(instruction) <= 500, "instruction")
+        validate_request_key(params.get("request_key"))
+        key = params["request_key"]
+
+        hit = self._check_idem(tenant, owner, key, params)
+        if hit is not None:
+            return hit
+
+        for proposal in parse_keep_secret(instruction):
+            # claimed_source="declared" comes from the parser: an explicit
+            # user act. The gate still enforces TIGHTEN ∧ conf >= 0.6; the
+            # parser's output vocabulary is TIGHTEN-only anyway.
+            self.secrecy.add(GLOBAL_SCOPE, proposal, owner=owner)
+
+        ref = "ks-" + secrets.token_urlsafe(16)
+        resp = {"request_ref": ref, "request_state": "accepted",
+                "public_facts": ["Noted. I'll keep that private from the "
+                                 "people you named."]}
+        self._store_idem(tenant, owner, key, params, resp)
+        return resp
 
     def prepare_day_brief(self, tenant: str, owner: str, params: dict) -> dict:
         validate_date(params.get("date"))

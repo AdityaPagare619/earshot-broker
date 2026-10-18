@@ -100,8 +100,10 @@ class ProtocolTests(unittest.TestCase):
         s, _, b = self.c.call({"method": "tools/list", "params": {}})
         self.assertEqual(s, 200)
         names = [t["name"] for t in b["result"]["tools"]]
+        # S4: the surface grew to the final 6 tools (room + keep_secret).
         self.assertEqual(names, ["prepare_day_brief", "resolve_day_change",
-                                 "continue_on_personal_device", "withdraw_request"])
+                                 "continue_on_personal_device",
+                                 "withdraw_request", "room", "keep_secret"])
 
     def test_tools_list_schemas_bounded(self):
         s, _, b = self.c.call({"method": "tools/list", "params": {}})

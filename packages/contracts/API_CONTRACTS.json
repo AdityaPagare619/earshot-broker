@@ -284,6 +284,116 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "room",
+      "description": "Declare room state in plain words (\"Mom's here\", \"I'm alone\"). Updates presence belief with asymmetric trust: declarations can add listeners freely, but 'alone' only loosens low-sensitivity items. Never confirms or denies secrets.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "declaration": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Spoken declaration, e.g. \"Mom's here\" or \"I'm alone\"."
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "declaration",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      }
+    },
+    {
+      "name": "keep_secret",
+      "description": "Say in one sentence what to keep private from whom (\"Never mention the clinic in front of Mom\"). Creates an immediate TIGHTEN edge: clearance drops at once, no confirmation needed. Tightening is always safe.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instruction": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "One spoken sentence naming what to keep from whom."
+          },
+          "request_key": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 128,
+            "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          }
+        },
+        "required": [
+          "instruction",
+          "request_key"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Opaque EARSHOT request reference; not authorization."
+          },
+          "request_state": {
+            "type": "string",
+            "const": "accepted"
+          },
+          "public_facts": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        },
+        "required": [
+          "request_ref",
+          "request_state",
+          "public_facts"
+        ]
+      }
     }
   ]
 }
