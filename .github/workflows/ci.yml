@@ -1,0 +1,121 @@
+# EARSHOT CI — proves the professional claims.
+#
+# Target layout: the NEW public repo (PRO_MIGRATION_BRIEF.md) —
+#   pyproject.toml at root, `pip install -e .`, `python -m pytest` from root.
+# Honesty rules for this file:
+#   - no `|| true`, no `continue-on-error` on test/smoke jobs, no output
+#     parsing that could mask a failure. Red is red.
+#   - `fail-fast: false` on the matrix: one broken cell must not hide the others.
+
+name: CI
+
+on:
+  # All branches: the migration has 20+ lanes pushing to pro/* branches, and
+  # CI must vet those pushes — not just main. Superseded runs are cancelled
+  # by the concurrency group, so this stays cheap.
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: this workflow only reads the repo.
+permissions:
+  contents: read
+
+# Don't burn minutes on superseded pushes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Windows console encoding is the classic cross-platform test killer.
+# Force UTF-8 everywhere so a judge's laptop behaves like ours.
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package (editable, stdlib-only)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Install test runner (CI-only, pinned)
+        # NOTE: pytest is a CI dependency, NOT a package dependency — the
+        # earshot package itself stays stdlib-only per the migration brief.
+        # Pinned deliberately: unpinned CI is how "green yesterday, red today"
+        # happens. If pro-packaging adds a `test` extra to pyproject.toml,
+        # switch this line to `python -m pip install -e ".[test]"`.
+        run: python -m pip install "pytest==8.3.4"
+
+      - name: Run the full test suite
+        # ONE invocation from repo root, no PYTHONPATH. If this fails because
+        # tests still need per-package PYTHONPATH, that is a REAL failure —
+        # the migration brief requires the unified layout, and CI must not
+        # paper over it with env hacks.
+        run: python -m pytest -q
+
+  lint:
+    name: lint (byte-compile, stdlib-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Byte-compile every Python file
+        # compileall is stdlib — zero new dependencies. Layout-agnostic by
+        # design: whatever the merged tree looks like, every .py file outside
+        # .git must compile. A syntax error anywhere is a red build.
+        run: python -m compileall -q -f -x '/\.git/' .
+
+  smoke-windows:
+    name: smoke (Windows demo entry point)
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package (editable)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Run the 5-beat demo via its console entry point
+        # The judge story, verbatim: clone → install → earshot-demo.
+        # The runner is scripted and non-interactive; its exit code is the
+        # verdict. Windows is the riskiest judge surface, so it gets its own
+        # job instead of hiding inside the matrix.
+        run: earshot-demo --lang en
