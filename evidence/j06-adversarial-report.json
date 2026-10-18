@@ -1,0 +1,124 @@
+{
+  "generated_utc": "2026-10-18T10:55:07.025321+00:00",
+  "kernel_sha": "729921459edbb5f0fee84e85e2017c8911acbd25",
+  "n_records": 12,
+  "records": [
+    {
+      "detail": {},
+      "dossier_ref": "\u00a714.4 stale sensor",
+      "observation": "clock regression -> deny",
+      "suite": "adversarial",
+      "test": "test_clock_regression_denies",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "distinct_messages": [
+          "Unavailable"
+        ]
+      },
+      "dossier_ref": "\u00a714.4 / \u00a75 G2",
+      "observation": "6 probes, 1 identical error message",
+      "suite": "adversarial",
+      "test": "test_error_messages_identical_no_oracle",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 impersonation",
+      "observation": "unauthenticated principal denied",
+      "suite": "adversarial",
+      "test": "test_i_am_priya_text_creates_no_identity",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "derived_label_readers": [
+          "priya"
+        ]
+      },
+      "dossier_ref": "\u00a714.4 prompt injection",
+      "observation": "injected text stays data; derived taint kept private",
+      "suite": "adversarial",
+      "test": "test_injected_event_text_is_data_not_control",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 mom-alone",
+      "observation": "mom-alone denied, generic error",
+      "suite": "adversarial",
+      "test": "test_mom_alone_gets_nothing",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 cross-tenant replay",
+      "observation": "cross-tenant denied",
+      "suite": "adversarial",
+      "test": "test_reference_replay_across_tenants_denied",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 reference replay",
+      "observation": "other user denied",
+      "suite": "adversarial",
+      "test": "test_reference_replay_by_other_user_denied",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 reference replay",
+      "observation": "foreign revoke denied, no oracle",
+      "suite": "adversarial",
+      "test": "test_revocation_is_owner_scoped",
+      "verdict": "pass"
+    },
+    {
+      "detail": {},
+      "dossier_ref": "\u00a714.4 sensor disconnect",
+      "observation": "invalid evidence -> deny",
+      "suite": "adversarial",
+      "test": "test_sensor_disconnect_denies",
+      "verdict": "pass"
+    },
+    {
+      "detail": {},
+      "dossier_ref": "\u00a714.4 stale sensor",
+      "observation": "stale evidence -> UNKNOWN -> deny",
+      "suite": "adversarial",
+      "test": "test_stale_sensor_event_denies",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "error": "Unavailable"
+      },
+      "dossier_ref": "\u00a714.4 cross-tenant",
+      "observation": "revocation is tenant-scoped",
+      "suite": "adversarial",
+      "test": "test_tenant_capsule_isolation",
+      "verdict": "pass"
+    },
+    {
+      "detail": {},
+      "dossier_ref": "\u00a714.4 audience change",
+      "observation": "old lease dead after walk-in AND walk-out; fresh grant works",
+      "suite": "adversarial",
+      "test": "test_walk_in_then_out_grants_no_replay",
+      "verdict": "pass"
+    }
+  ],
+  "suite": "adversarial"
+}

@@ -1,0 +1,248 @@
+{
+  "generated_utc": "2026-10-18T10:55:06.994329+00:00",
+  "kernel_sha": "729921459edbb5f0fee84e85e2017c8911acbd25",
+  "n_records": 14,
+  "records": [
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 17677,
+          "median_ns": 731,
+          "n": 300,
+          "p95_ns": 1282
+        },
+        "timing_b": {
+          "max_ns": 8953,
+          "median_ns": 721,
+          "n": 300,
+          "p95_ns": 871
+        }
+      },
+      "dossier_ref": "\u00a714.3 location variation",
+      "observation": "public view invariant across 'clinic-a' vs 'clinic-b'",
+      "suite": "paired-world",
+      "test": "test_different_clinic_locations",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 51067,
+          "median_ns": 722,
+          "n": 300,
+          "p95_ns": 1162
+        },
+        "timing_b": {
+          "max_ns": 12819,
+          "median_ns": 691,
+          "n": 300,
+          "p95_ns": 892
+        }
+      },
+      "dossier_ref": "\u00a75 G5 existence invariance",
+      "observation": "public view invariant across 'exists' vs 'absent'",
+      "suite": "paired-world",
+      "test": "test_existence_on_vs_off",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 25067,
+          "median_ns": 721,
+          "n": 300,
+          "p95_ns": 842
+        },
+        "timing_b": {
+          "max_ns": 5308,
+          "median_ns": 711,
+          "n": 300,
+          "p95_ns": 821
+        }
+      },
+      "dossier_ref": "\u00a76 label granularity",
+      "observation": "public view invariant across 'family' vs 'private'",
+      "suite": "paired-world",
+      "test": "test_family_vs_private_label",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 1869900,
+          "median_ns": 681,
+          "n": 300,
+          "p95_ns": 852
+        },
+        "timing_b": {
+          "max_ns": 15994,
+          "median_ns": 741,
+          "n": 300,
+          "p95_ns": 802
+        }
+      },
+      "dossier_ref": "\u00a714.3 no-event-vs-event",
+      "observation": "public view invariant across 'no-event' vs 'one-event'",
+      "suite": "paired-world",
+      "test": "test_no_event_vs_one_event",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 20951,
+          "median_ns": 731,
+          "n": 300,
+          "p95_ns": 811
+        },
+        "timing_b": {
+          "max_ns": 12278,
+          "median_ns": 801,
+          "n": 300,
+          "p95_ns": 861
+        }
+      },
+      "dossier_ref": "\u00a714.3 count variation",
+      "observation": "public view invariant across 'one' vs 'three'",
+      "suite": "paired-world",
+      "test": "test_one_vs_several_private_events",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 25519,
+          "median_ns": 731,
+          "n": 300,
+          "p95_ns": 801
+        },
+        "timing_b": {
+          "max_ns": 15744,
+          "median_ns": 701,
+          "n": 300,
+          "p95_ns": 792
+        }
+      },
+      "dossier_ref": "\u00a714.3 error-vs-nomatch",
+      "observation": "public view invariant across 'private-error' vs 'private-no-match'",
+      "suite": "paired-world",
+      "test": "test_private_error_vs_private_no_match",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "seed": 20261018,
+        "trials": 300
+      },
+      "dossier_ref": "\u00a714.2 unauthorized disclosure rate",
+      "observation": "300/300 random lattice trials: exact public release",
+      "suite": "paired-world",
+      "test": "test_projection_never_releases_nonpublic_over_random_lattice",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "projection": [
+          "Rain is forecast.",
+          "Today is Sunday."
+        ]
+      },
+      "dossier_ref": "\u00a714.2 task completion",
+      "observation": "public facts project; receipt shape stable",
+      "suite": "paired-world",
+      "test": "test_public_facts_still_project",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 20221,
+          "median_ns": 742,
+          "n": 300,
+          "p95_ns": 811
+        },
+        "timing_b": {
+          "max_ns": 1202,
+          "median_ns": 741,
+          "n": 300,
+          "p95_ns": 811
+        }
+      },
+      "dossier_ref": "\u00a714.3 reorder",
+      "observation": "public view invariant across 'order-ab' vs 'order-ba'",
+      "suite": "paired-world",
+      "test": "test_reordered_private_records",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n": 4
+      },
+      "dossier_ref": "\u00a714.3 repeated requests",
+      "observation": "4 repetitions invariant",
+      "suite": "paired-world",
+      "test": "test_repeated_requests_varying_secret_predicate",
+      "verdict": "pass"
+    },
+    {
+      "detail": {},
+      "dossier_ref": "\u00a76.3 label propagation",
+      "observation": "chained derivation keeps private readers",
+      "suite": "paired-world",
+      "test": "test_taint_propagates_through_derive_chains",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "n_bytes": 34,
+        "timing_a": {
+          "max_ns": 53010,
+          "median_ns": 731,
+          "n": 300,
+          "p95_ns": 1312
+        },
+        "timing_b": {
+          "max_ns": 1502,
+          "median_ns": 721,
+          "n": 300,
+          "p95_ns": 791
+        }
+      },
+      "dossier_ref": "\u00a714.3 title counterfactual",
+      "observation": "public view invariant across 'prenatal' vs 'therapy'",
+      "suite": "paired-world",
+      "test": "test_title_prenatal_vs_therapy",
+      "verdict": "pass"
+    },
+    {
+      "detail": {
+        "worlds": [
+          "prenatal",
+          "oncology",
+          "therapy"
+        ]
+      },
+      "dossier_ref": "\u00a714.3 title counterfactual",
+      "observation": "3-way title invariance holds",
+      "suite": "paired-world",
+      "test": "test_title_three_way",
+      "verdict": "pass"
+    },
+    {
+      "detail": {},
+      "dossier_ref": "\u00a76.2 canonical objects",
+      "observation": "topics do not leak into projection text",
+      "suite": "paired-world",
+      "test": "test_topics_never_appear_in_projection",
+      "verdict": "pass"
+    }
+  ],
+  "suite": "paired-world"
+}
