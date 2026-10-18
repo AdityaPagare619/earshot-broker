@@ -1,0 +1,83 @@
+# English leak-verifier lexicon. Per topic: sensitive terms + aliases.
+# The deterministic verifier (S1) checks drafted renditions against these —
+# normalized (NFKC, lowercase) — so "Cloudnine", "CLOUDNINE" and "cloudnine"
+# all match. Aliases catch spelling variants the term list misses.
+lexicon:
+  health.reproductive:
+    terms:
+      - pregnancy
+      - pregnant
+      - expecting
+      - prenatal
+      - ob-gyn
+      - obstetrician
+      - fertility
+      - ivf
+    aliases:
+      ob-gyn:
+        - obgyn
+        - o.b.-gyn
+  health.general:
+    terms:
+      - diagnosis
+      - prescription
+      - therapy
+      - therapist
+      - surgery
+    aliases:
+      therapy:
+        - therapist
+        - counselling
+        - counseling
+  finance:
+    terms:
+      - debt
+      - loan
+      - overdraft
+      - emi
+      - credit card bill
+      - bankruptcy
+      - salary
+    aliases:
+      emi:
+        - e.m.i.
+  gift:
+    terms:
+      - surprise
+      - gift
+      - present
+      - secret santa
+      - instax
+    aliases:
+      gift:
+        - pressie
+  work:
+    terms:
+      - interview
+      - offer letter
+      - resignation
+      - layoff
+      - pip
+      - standup
+      - meeting
+    aliases:
+      pip:
+        - performance improvement plan
+  relationship:
+    terms:
+      - divorce
+      - separation
+      - affair
+      - dating
+  legal:
+    terms:
+      - lawyer
+      - lawsuit
+      - court
+      - custody
+      - notice
+  kids:
+    terms:
+      - report card
+      - detention
+      - parent-teacher

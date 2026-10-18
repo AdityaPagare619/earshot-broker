@@ -1,0 +1,6 @@
+# English UI strings — every word the room hears that isn't item content.
+# These are language data, not code: the constant-shape suffix and the
+# probe response must be identical in shape across languages, never hardcoded.
+ui:
+  cover_suffix: "The rest of your day is on your phone."
+  probe_response: "I'll put anything about that on your phone."

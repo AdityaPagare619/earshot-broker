@@ -1,0 +1,29 @@
+# English renditions — nicer than the fallback templates, never leakier.
+# Each depth must be a strict information subset of the one above it.
+# Placeholders: {title} {time} {daypart} {location} {sender} {items} {category}.
+renditions:
+  event:
+    d4: "{title} at {time} at {location}"
+    d3: "doctor's appointment at {time}"
+    d2: "an appointment at {time}"
+    d1: "something on your calendar this {daypart}"
+  reminder:
+    d4: "remember: {title}"
+    d3: "{category} reminder"
+    d2: "a reminder this {daypart}"
+    d1: "something to remember this {daypart}"
+  delivery:
+    d4: "package from {sender} with {items} arrives {daypart}"
+    d3: "a package arriving {daypart}"
+    d2: "a delivery {daypart}"
+    d1: "something arriving {daypart}"
+  note:
+    d4: "note: {title}"
+    d3: "a note about {category}"
+    d2: "a note this {daypart}"
+    d1: "something noted this {daypart}"
+  message_summary:
+    d4: "{title}"
+    d3: "{category} update"
+    d2: "an update this {daypart}"
+    d1: "something to catch up on this {daypart}"

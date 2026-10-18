@@ -1,0 +1,6 @@
+# Hindi UI strings — Devanagari. Same contract as the English pack:
+# fixed suffix always appended in cover mode, probe response identical
+# whether the item exists or not.
+ui:
+  cover_suffix: "आपके दिन का बाकी हिस्सा आपके फ़ोन पर है।"
+  probe_response: "मैं इसके बारे में सब कुछ आपके फ़ोन पर भेज दूँगी।"

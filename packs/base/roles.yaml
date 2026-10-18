@@ -1,0 +1,20 @@
+# Role defaults: clearance depth 0..4 per topic.
+# default_clearance applies to every topic; topic_overrides refine it.
+# Depth meaning: d4 full detail, d3 generalized, d2 vague, d1 existence-only,
+# d0 nothing (absorbed into the constant-shape suffix).
+roles:
+  child:
+    default_clearance: 1
+    topic_overrides:
+      kids: 2
+  guest:
+    default_clearance: 1
+  elder:
+    default_clearance: 2
+    topic_overrides:
+      health: 3
+      kids: 3
+  partner:
+    default_clearance: 4
+  unknown:
+    default_clearance: 0
