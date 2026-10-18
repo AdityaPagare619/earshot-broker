@@ -120,7 +120,7 @@ def load_profile(directory: str = ".") -> dict:
     path = profile_path(directory)
     if not Path(path).exists():
         raise FileNotFoundError(
-            f"No profile at {path}. Run onboarding first: python3 quickstart.py")
+            f"No profile at {path}. Run onboarding first: earshot personal-quickstart")
     with open(path, encoding="utf-8") as fh:
         profile = json.load(fh)
     if profile.get("profile_version") != PROFILE_VERSION:

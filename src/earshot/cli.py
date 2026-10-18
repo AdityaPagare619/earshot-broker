@@ -4,6 +4,8 @@ Installed as:
     earshot-demo    5-beat sealed-speech demo (<60s, [SIMULATOR]/[FIXTURE] labeled)
     earshot-server  real MCP gateway (Streamable HTTP, spec 2025-11-25)
     earshot-sim     independent Echo-class web host (simulated, honesty banner)
+    earshot-personal
+                    owner's private surface (onboard, inbox, open, preview, approve, prove, settings)
     earshot         help + subcommand dispatcher
 """
 
@@ -33,10 +35,27 @@ def sim(argv=None) -> int:
     return main(argv)
 
 
+def personal(argv=None) -> int:
+    """Run the owner's private surface. Returns None (argparse exits itself)."""
+    from earshot.personal.cli import main
+
+    main(argv)
+    return 0
+
+
+def personal_quickstart(argv=None) -> int:
+    """Run the 90-second personal onboarding flow. Returns the exit code."""
+    from earshot.personal import quickstart
+
+    return quickstart.main(argv)
+
+
 _COMMANDS = {
     "demo": ("run the 5-beat sealed-speech demo", demo),
     "server": ("run the MCP gateway (Streamable HTTP, spec 2025-11-25)", server),
     "sim": ("run the independent Echo-class simulator", sim),
+    "personal": ("owner's private surface: onboard, inbox, open, preview, approve, prove, settings", personal),
+    "personal-quickstart": ("90-second personal onboarding: brief, preview, proof", personal_quickstart),
 }
 
 
@@ -50,7 +69,7 @@ def main(argv=None) -> int:
         for name, (desc, _) in _COMMANDS.items():
             print(f"  {name:<10} {desc}")
         print()
-        print("Or use the dedicated entry points: earshot-demo, earshot-server, earshot-sim")
+        print("Or use the dedicated entry points: earshot-demo, earshot-server, earshot-sim, earshot-personal")
         return 0
     cmd, rest = argv[0], argv[1:]
     if cmd not in _COMMANDS:

@@ -8,7 +8,7 @@ import hashlib
 import json
 import time
 
-from kernel import Context, Fact, Kernel, Label
+from earshot.kernel import Context, Fact, Kernel, Label
 
 from . import auth
 from . import planner

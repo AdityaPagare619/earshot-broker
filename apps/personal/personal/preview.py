@@ -8,7 +8,7 @@ projection byte-identical.
 """
 import time
 
-from kernel import Kernel
+from earshot.kernel import Kernel
 
 from .fixture_calendar import FixtureCalendar
 from .inbox import PUBLIC_WEATHER, controlled_context, uncontrolled_context, _fact_from_event

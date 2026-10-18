@@ -5,7 +5,7 @@ ownership, field labels with private defaults, and freshness semantics, exactly
 as a production adapter must. It only serves fixture data and refuses to stand
 in for a real provider.
 """
-from kernel import Fact, Label
+from earshot.kernel import Fact, Label
 
 PROVIDER_ID = "fixture-calendar"
 ALLOWLIST = ("fixture://calendar",)
