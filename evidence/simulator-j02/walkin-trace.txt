@@ -1,0 +1,16 @@
+=== walk-in demo trace (scripted sensor, real path) ===
+
+--- segments the speaker released:
+  stopped: True | epoch: 1
+
+--- arbiter event log:
+  10:58:57 PREPARED {'grant': 'g1', 'task_id': 'vQKKPtq3', 'epoch': 0}
+  10:58:57 COMMITTED {'grant': 'g1', 'segment': 1, 'epoch': 0}
+  10:58:59 PREPARED {'grant': 'g2', 'task_id': 'vQKKPtq3', 'epoch': 0}
+  10:58:59 COMMITTED {'grant': 'g2', 'segment': 2, 'epoch': 0}
+  10:59:00 PREPARED {'grant': 'g3', 'task_id': 'vQKKPtq3', 'epoch': 0}
+  10:59:00 COMMITTED {'grant': 'g3', 'segment': 3, 'epoch': 0}
+  10:59:02 AUDIENCE_CHANGED {'epoch': 1, 'listeners': ['mom', 'priya'], 'invalidated': 0, 'source': 'scripted'}
+  10:59:10 SEGMENT_REJECTED {'segment': 1, 'seg_epoch': 0, 'epoch': 1}
+  10:59:10 SEGMENT_REJECTED {'segment': 2, 'seg_epoch': 0, 'epoch': 1}
+  10:59:10 SEGMENT_REJECTED {'segment': 3, 'seg_epoch': 0, 'epoch': 1}

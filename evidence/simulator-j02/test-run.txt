@@ -1,0 +1,20 @@
+=== test_mcp_client.py ===
+Ran 10 tests in 6.059s
+
+OK
+
+=== test_arbiter.py ===
+Ran 12 tests in 0.133s
+
+OK
+
+=== test_walkin.py ===
+Ran 7 tests in 7.204s
+
+OK
+
+=== test_gateway_port.py ===
+Ran 4 tests in 0.545s
+
+OK
+
