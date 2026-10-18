@@ -67,7 +67,7 @@ facts never enter that host's context through EARSHOT; on an
 stop future output (stated sensing limits — this is not presented as an
 Echo-interruption API).
 
-## The four MCP tools
+## The six MCP tools
 
 Spec 2025-11-25, Streamable HTTP. Schemas in
 [`packages/contracts/API_CONTRACTS.json`](packages/contracts/API_CONTRACTS.json).
@@ -82,6 +82,47 @@ Spec 2025-11-25, Streamable HTTP. Schemas in
 - **`withdraw_request`** — withdraw pending work and unreleased output.
   Cannot unsay emitted speech or undo completed external effects — stated
   plainly, because revoking access is not erasing knowledge.
+- **`room`** — declare who's present ("mom just walked in"). The declaration
+  updates belief; the response is always the constant-shape "Noted." — it
+  never confirms or denies anything.
+- **`keep_secret`** — instant tighten: "don't tell Maya about the gift."
+  Takes effect through the monotone gate immediately, with zero new
+  entry points.
+
+## The sealed-speech architecture
+
+Three seams, each eliminating a whole problem class:
+
+1. **Quarantine** — nothing untrusted reaches the hot path. Every ingested
+   item is quarantined, verified by a deterministic 4-check verifier
+   (entity / topic / quasi-identifier / monotonicity, multilingual), and
+   compiled into a Disclosure Table before it can be spoken about.
+2. **The seal** — private facts never cross into the room-facing host.
+   Belief about who's in the room is fused from declarations with asymmetric
+   trust (a voice "I'm alone" can only loosen low-sensitivity items); a
+   minimax planner speaks to the worst credible listener.
+3. **Constant shape** — spoken output is conditionally independent of
+   withheld content. Two briefings — one with a hidden appointment, one
+   without — come out byte-identical. Measured: existence AUC **0.497**
+   against an adversarial listener (chance), vs 0.928 for a normal assistant.
+
+One law above all: **the model may make you more private, never less.**
+Loosening requires an authenticated owner act.
+
+## See it work (30 seconds)
+
+```bash
+# 1. The 5-beat demo (simulator, fixtures labeled):
+python3 demo/five_beats.py --lang en     # or --lang hi
+
+# 2. The real MCP server (spec 2025-11-25, Streamable HTTP):
+python3 services/gateway/mcp/server.py --port 8899
+# in another terminal: initialize, then tools/call prepare_day_brief
+# (dev bearer token is printed by the server on startup)
+
+# 3. The privacy-SLO lab (adversarial listener, 4 baselines, Pareto):
+python3 -m trace_harness slo            # from packages/trace-harness
+```
 
 ## What we don't claim (why you can trust what we do)
 
@@ -106,12 +147,22 @@ Spec 2025-11-25, Streamable HTTP. Schemas in
   lease invalidation, unknown/stale audiences, cross-user negatives
   ([`evidence/kernel-tests.txt`](evidence/kernel-tests.txt),
   [`packages/kernel/`](packages/kernel/))
-- Synthetic scenario trace: public projection unchanged by audience change,
-  controlled pending lease revoked on entry, owner retrieval succeeds,
-  other-person retrieval denied
-  ([`evidence/synthetic-scenario-trace.json`](evidence/synthetic-scenario-trace.json))
-- Real Streamable HTTP MCP server exercised through Inspector: tools/list
-  and tools/call succeeded; handshake negotiated 2025-11-25
+- Privacy SLO lab: adversarial listener, existence AUC **0.497** for
+  sealed-speech vs 0.928 native / 0.875 v1-lattice / 0.921 keyword-filter;
+  4 counterfactual suites; negative controls per instrument
+  ([`packages/trace-harness/evidence/slo/`](packages/trace-harness/evidence/slo/),
+  [`packages/trace-harness/trace_harness/slo/`](packages/trace-harness/trace_harness/slo/))
+- Wire-level paired-world tests: secret-swaps under fixed cover audiences
+  are byte-identical (modulo opaque refs), with negative controls
+  ([`evidence/constant-shape-results.txt`](evidence/constant-shape-results.txt))
+- 5-beat demo runner (EN + HI): quarantine → belief → constant shape →
+  secrecy graph, every beat computed through the pipeline and asserted
+  (`demo/five_beats.py`)
+- Full test suite: **400+ tests green** (kernel 24, MCP gateway 91,
+  simulator 35, slowlane 68, hotlane 89, secrecy 57, trace-harness 16,
+  packs 47, integration 14) — stdlib only
+- Real Streamable HTTP MCP server exercised over the wire: tools/list and
+  tools/call succeeded; handshake negotiated 2025-11-25
   ([`evidence/VALIDATION_SUMMARY.md`](evidence/VALIDATION_SUMMARY.md))
 - Full architecture: 57-page dossier
   ([`docs/dossier/EARSHOT_REDESIGN.md`](docs/dossier/EARSHOT_REDESIGN.md),
@@ -135,9 +186,17 @@ Questions, troubleshooting, known limitations, and how to reach us:
 - `docs/dossier/` — architecture dossier, blueprint, source audit
 - `docs/support.md` — FAQ, troubleshooting, contact
 - `packages/kernel/` — reference kernel (labels, sealed tasks, leases)
-- `packages/contracts/` — the four MCP tool schemas
+- `packages/slowlane/` — Seam 1: quarantine, verifier, Disclosure Table compiler
+- `packages/hotlane/` — belief fusion, credible sets, minimax planner, exposure budgets
+- `packages/secrecy/` — secrecy graph + monotone gate (only edge mint)
+- `packages/trace-harness/` — open-source paired-world privacy testing + SLO lab
+- `packs/` — Household Pack data (base taxonomy, EN + HI/Hinglish lexicons)
+- `services/gateway/mcp/` — real MCP server (2025-11-25, Streamable HTTP, stdlib)
+- `apps/simulator/` — independent web simulator (Echo-class UI, labeled)
+- `demo/` — 5-beat sealed-speech demo runner
+- `integration/` — pipeline wiring S1→S2→S3→S4 through frozen ports
+- `docs/` — dossier, support, product feedback, friction log, ask-amazon proposal
 - `evidence/` — validation summary, test outputs, traces
-- `apps/` · `services/` — the competition build (in progress across seats)
 
 ## Run the kernel tests
 
