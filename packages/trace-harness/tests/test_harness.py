@@ -8,6 +8,10 @@ of vacuously passing.
 Adversarial: reference replay and double-withdraw behave identically.
 """
 import unittest
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling fixtureserver
 
 
 import fixtureserver
