@@ -164,16 +164,23 @@ Profile B: fresh public context from authorized structured state after audience
 changes, never "sanitized" summaries.
 **Suggested owner:** simulator (J2), certification (J4).
 
-## Pack-R1 — Pack verifier is heuristic (new)
+## Pack-R1 — Pack verifier bypassable by paraphrase (demonstrated 2026-10-18)
 
 **Mechanism:** household packs are third-party-authorable YAML; the
-leak-verifier is a heuristic scanner. It caught two real leaks during
-development (a `{category}` placeholder leaking "therapy"; a Latin-only gift
-regex) — proof it works, not proof it's complete.
+leak-verifier is a lexicon blocklist. J10 demonstrated the bypass end to end:
+a d3 template reading "your weekly head-shrinking session at {time}" (slang
+for therapy, absent from the lexicon) validates clean via
+`earshot-validate-pack` AND passes the render-time verifier
+(`verdict passed=True`), while the literal "therapy" is caught. Blocklists
+don't survive paraphrase.
 **Why unfixable here:** template-language expressiveness vs. static analysis
-is an open problem, not a bug.
-**Fix shape:** verifier + mandatory human review for third-party packs; keep
-the verifier's own test suite (packs/tests, 33 tests) green and growing.
+is an open problem, not a bug; semantic detection needs embeddings (not
+stdlib).
+**Fix shape:** the verifier is a **lint, not a security boundary** — treat
+pack authorship as a trust boundary (review packs like code). The actual
+security boundary is the MonotoneGate + secrecy edges (code, not pack data):
+a paraphrased template can only render what the clearance already permits.
+**Status:** demonstrated, disclosed; verifier scope corrected in docs/packs.md.
 **Suggested owner:** packs seat.
 
 ## Bearer-R1 — Token theft enables availability attack (new)

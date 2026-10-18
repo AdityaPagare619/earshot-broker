@@ -118,6 +118,17 @@ The lesson is structural: packs are data, data gets policed, and the policing
 happens at authoring time (the validator) *and* at render time (the verifier).
 Neither trusts the other.
 
+**What the verifier is not.** It is a lexicon blocklist — a lint, not a
+security boundary. A red-team probe (2026-10-18) demonstrated the bypass: a d3
+template reading "your weekly head-shrinking session at {time}" (slang for
+therapy, absent from the lexicon) validates clean *and* verifies clean, while
+the literal "therapy" is caught. Paraphrase, slang, and euphemism beat any
+blocklist; semantic detection would need embeddings (not stdlib). Treat pack
+authorship as a trust boundary — review third-party packs like code. The
+actual security boundary is the MonotoneGate + secrecy edges (code, not pack
+data): a paraphrased template can only render what the item's clearance
+already permits. See Pack-R1 in `docs/residual-risks.md`.
+
 ## What the loader guarantees downstream
 
 `load_pack()` merges base + language into one validated `Pack` and the hot path

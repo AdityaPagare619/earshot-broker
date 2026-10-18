@@ -115,7 +115,7 @@ worse than a risk we disclose.
 | RR-7 | **Empty-audience release.** Valid evidence of an empty room releases secrets into the renderer — arguably intended, but "nobody is present" is only as good as the sensor (see R8/RR-3). | Medium | Open — policy decision needed |
 | RR-9 | **No distributed serialization boundary.** The arbiter is single-process; blueprint requires one logical sequencer per room. | Medium | Open — deployment work |
 | RR-10 | **Renderer memory.** A renderer that legitimately received a value retains it; no test can prove erasure. | Medium | Open — Profile A never returns revocable secrets to persistent hosts |
-| Pack-R1 | **Pack verifier is heuristic.** It caught two real leaks in development — proof it works, not proof it's complete. Third-party packs need review, not just the verifier. | Medium | Open |
+| Pack-R1 | **Pack verifier bypassable by paraphrase.** Lexicon blocklist; J10 demonstrated a slang bypass end to end (validates clean, verifies clean). The verifier is a lint, not a security boundary — pack authorship is a trust boundary. The real boundary is MonotoneGate + secrecy edges (code, not pack data). | Medium | Open — by design at this layer |
 
 ### Closed or controlled (kept for the record)
 
