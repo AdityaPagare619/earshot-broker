@@ -1,13 +1,25 @@
-
-# pytest one-command runs
+*.egg
 *.egg-info/
 *.pyc
 .DS_Store
+.coverage
 .earshot-*.json
 .env
+.hypothesis/
+.idea/
+.mypy_cache/
 .pytest_cache/
+.ruff_cache/
 .venv-quickstart/
 .venv/
+.vscode/
+<<<<<<< HEAD
+=======
+>>>>>>> pro/pro-hygiene
+Thumbs.db
 __pycache__/
+build/
+dist/
+htmlcov/
 node_modules/
 preview.html
