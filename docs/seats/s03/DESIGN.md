@@ -125,3 +125,59 @@ constant-shape. Probe branch → `probe_response()`.
   fixture chains/lexicons with pack data. `table_version` is currently a fixture
   constant — your compiler should use a monotonic epoch counter (NOT a content
   hash; content-derived versions are metadata leaks).
+
+## Post-merge amendments (18 Oct ~18:40–19:00 IST — S1/S2/S4/S5/S6 all landed)
+
+The wave moved while S3 built. The design adapted; the decisions held.
+
+**A1 — S2 landed: the fixture planner is DELETED, not replaced.** S2's
+`plan_briefing` (minimax + exposure budgets + log-odds fusion) is now the
+single planner. `shape.planned_from_briefing` adapts `BriefingPlan` →
+`(planned, mode, screen_depth)`; rendition text comes from the row's chain at
+the planned depth. K1 resolved empirically: all 9 paired-world tests pass
+against the REAL planner, byte-identical. `shape.py` itself imports NOTHING
+(stdlib-only, zero dependencies) — the S2 integration lives in `broker.py`.
+
+**A2 — S4 landed: `room`/`keep_secret` return the sealed-speech contract.**
+Uniform wire shape is Seam 3's mandate, so S4's two tools were converted
+(`speak` "Noted." / "Noted. I'll keep that private from the people you
+named.") and S4's tests updated. The declaration log feeds S2's fusion on
+the live path (`_signals_for`: present→DECLARE_PRESENT, owner-absent→ALONE,
+other-absent→DECLARE_ABSENT). The day-card resource also returns the
+contract (F1 count-leak closed on the resource path).
+
+**A3 — Chunking runs over SPOKEN items only.** Absorbed/deferred rows are
+invisible and must not shift chunk boundaries — otherwise a hidden row's
+presence would be measurable in the turn structure (found while writing the
+strict↔empty paired test; fixed before it could ship).
+
+**A4 — Exposure budgets are chunk-aware.** S2's pending exposures are
+committed AFTER speaking, only for items ACTUALLY spoken in the chunk
+(`secret == item_id` attribution). Unchunked items consume no budget yet.
+
+**A5 — `gateway_port.kernel_direct` is the REAL in-process Broker.**
+Better than D10's plan: zero second implementation to drift. The simulator
+host speaks `res["speak"]` verbatim, sentence-split into arbiter-gated
+segments; probe-shaped utterances never reach a data path (fixture regex,
+labeled; the RESPONSE is the guarantee). Audience changes sync the fixture
+sensing channel before every tool call; a new utterance resumes the arbiter
+for new grants (designed mechanism, not autoplay).
+
+**A6 — keep_secret applies via the min-only overlay BEFORE planning.**
+`effective_clearance` is applied per row in `_hotlane_rows`, so a TIGHTEN
+edge drops clearance on the very next brief.
+
+**A7 — S6's ShapePort noted, not chased.** S6 shipped `integration/ports.py`
+with a `FixtureShape` stand-in behind their own port design. `shape.py`'s
+`AssemblyInput`/`PlannedItem`/`planned_from_briefing` is the frozen S3
+interface (this doc); converging the two ports is a parent-level
+integration step. The EN fixture strings in `shape.py` are labeled
+constants; the pack (S6) owns localization.
+
+## Final interface registry (as merged)
+- S1 → S3: `tables_for_world()` is the fixture Disclosure Table compiler;
+  S1's real compiler produces `TableRow`s the broker maps the same way.
+- S2 → S3: `planned_from_briefing(plan, rows_by_id)` — the ONLY adapter.
+- S3 → S4/S5/S6: `assemble(AssemblyInput) -> dict` (the contract),
+  `probe_speak() -> str`, `take_chunk()`, `terminal_assembly()`.
+- S4 → S3: declaration log → `_signals_for` → S2 fusion (live path).
