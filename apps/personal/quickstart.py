@@ -14,8 +14,13 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))  # personal/ package + kernel bootstrap via personal/__init__
-sys.path.insert(0, str(HERE.parent.parent))  # repo root: wincompat
+REPO_ROOT = HERE.parent.parent
+sys.path.insert(0, str(HERE))  # personal/ package: `import personal` resolves here
+# No-install bootstrap: make the `earshot` package (src/earshot) and the frozen
+# kernel (`from kernel import …` in personal/*) importable straight from a
+# clone. `pip install -e .` makes these inserts redundant but harmless.
+sys.path.insert(0, str(REPO_ROOT / "src"))
+sys.path.insert(0, str(REPO_ROOT / "packages" / "kernel"))
 
 from earshot.wincompat import ensure_utf8_stdout  # noqa: E402
 
