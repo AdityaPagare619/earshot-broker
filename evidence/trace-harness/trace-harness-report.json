@@ -1,0 +1,68 @@
+{
+  "pairs": [
+    {
+      "pair": "no_private_vs_one_private",
+      "description": "World B has one private health fact; world A has none. The public trace must be identical.",
+      "verdict": "PASS",
+      "randomness_independence": "ok",
+      "differences": [],
+      "timing_notes": [],
+      "steps_run": 1
+    },
+    {
+      "pair": "prenatal_vs_therapy",
+      "description": "The secret's *content* changes (prenatal vs therapy) with identical shape. Public trace must not distinguish them.",
+      "verdict": "PASS",
+      "randomness_independence": "ok",
+      "differences": [],
+      "timing_notes": [],
+      "steps_run": 2
+    },
+    {
+      "pair": "reordered_private_records",
+      "description": "Same secrets, different record order. Public trace must be order-independent.",
+      "verdict": "PASS",
+      "randomness_independence": "ok",
+      "differences": [],
+      "timing_notes": [],
+      "steps_run": 1
+    },
+    {
+      "pair": "source_error_vs_no_match",
+      "description": "World A has a private fact flagged as a source error; world B has no such fact. The error must not surface.",
+      "verdict": "PASS",
+      "randomness_independence": "ok",
+      "differences": [],
+      "timing_notes": [
+        {
+          "step": 1,
+          "tool": "resolve_day_change",
+          "detail": "<1ms vs <10ms"
+        }
+      ],
+      "steps_run": 2
+    },
+    {
+      "pair": "one_vs_several_private",
+      "description": "World B has three private facts; world A has one. The public trace must not reveal the count.",
+      "verdict": "PASS",
+      "randomness_independence": "ok",
+      "differences": [],
+      "timing_notes": [],
+      "steps_run": 3
+    }
+  ],
+  "adversarial": [
+    {
+      "name": "cross_tenant_reference_replay",
+      "passed": true,
+      "detail": "replay error=(-32001, 'Unavailable'), garbage error=(-32001, 'Unavailable'), identical=True"
+    },
+    {
+      "name": "double_withdraw_no_oracle",
+      "passed": true,
+      "detail": "world A: (None, (-32001, 'Unavailable'), 'ok', 'error'); world B: (None, (-32001, 'Unavailable'), 'ok', 'error')"
+    }
+  ],
+  "mode": "fixture MCP server over Streamable HTTP (http://127.0.0.1:8896/mcp); fixture, not the product server"
+}
