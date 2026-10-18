@@ -83,13 +83,31 @@ def _to_fact(d):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Public-trace privacy harness")
-    ap.add_argument("run", choices=["run"])
+    ap.add_argument("command", choices=["run", "slo"],
+                    help="run: paired-world wire harness; slo: privacy SLO lab")
     ap.add_argument("--selftest", action="store_true",
                     help="drive the kernel in-process (harness self-check)")
     ap.add_argument("--fixture-port", type=int, default=8899)
     ap.add_argument("--out", default="evidence",
                     help="directory for the Markdown + JSON report")
+    ap.add_argument("--seed", type=int, default=7,
+                    help="SLO lab seed (deterministic)")
+    ap.add_argument("--households", type=int, default=4,
+                    help="SLO lab household count")
     args = ap.parse_args(argv)
+
+    if args.command == "slo":
+        from trace_harness.slo import run_slo_lab
+        report = run_slo_lab(seed=args.seed, n_households=args.households,
+                             out_dir=args.out)
+        pts = report["pareto"]["points"]
+        for pname, pt in pts.items():
+            print(f"{pname}: AUC={pt['leakage_auc']:.3f} "
+                  f"utility={pt['owner_utility']:.3f} "
+                  f"friction={pt['friction']:.3f}")
+        print(f"counterfactuals: {report['counterfactuals']['passed']}")
+        print(f"report: {args.out}/slo-report.md")
+        return 0
 
     if args.selftest:
         from kernel import Kernel
