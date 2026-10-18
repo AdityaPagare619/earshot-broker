@@ -24,6 +24,7 @@ import http.server
 import json
 import os
 import secrets
+import signal
 import socketserver
 import sys
 import time
@@ -438,33 +439,66 @@ class ThreadedMCPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     allow_reuse_address = True
 
 
-def run(port: int, world_factory=None) -> None:
-    server = ThreadedMCPServer(("127.0.0.1", port), MCPHandler)
+def run(port: int, host: str = "127.0.0.1", world_factory=None,
+        dev_token_json: str | None = None) -> None:
+    """Blocking MCP gateway loop (CLI entry; tests construct the server directly)."""
+    if dev_token_json is not None:
+        # Dev-only token pinning. Uses auth's existing EARSHOT_DEV_TOKENS
+        # extension point; auth.py itself is untouched.
+        os.environ["EARSHOT_DEV_TOKENS"] = dev_token_json
+    server = ThreadedMCPServer((host, port), MCPHandler)
     server.auth = auth_mod.AuthRegistry()
     server.broker = broker_mod.Broker(
         world_factory=world_factory or fixtures_mod.strict_world)
     server.sessions = {}
     server.latencies = []
     server.rate_windows = {}
-    sys.stderr.write(server.auth.describe_for_operator() + "\n")
     sys.stderr.write(
-        f"EARSHOT MCP gateway on http://127.0.0.1:{port}{MCP_PATH} "
-        f"(MCP {PROTOCOL_VERSION}, dev auth — NOT production)\n")
+        f"EARSHOT MCP gateway listening on http://{host}:{port}{MCP_PATH} "
+        f"protocol={PROTOCOL_VERSION} auth=dev-bearer (dev auth — NOT production)\n")
+    sys.stderr.write(server.auth.describe_for_operator() + "\n")
     sys.stderr.flush()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        sys.stderr.write("EARSHOT MCP gateway: shutting down\n")
+        sys.stderr.flush()
+        server.server_close()
 
 
 def main(argv=None) -> int:
-    ensure_utf8_stdout()
     """Entry point for the `earshot-server` console script."""
+    ensure_utf8_stdout()
     ap = argparse.ArgumentParser(prog="earshot-server",
                                  description="EARSHOT MCP gateway (Streamable HTTP, MCP spec 2025-11-25)")
-    ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--port", type=int, default=8000,
+                    help="TCP port to listen on (default: 8000)")
+    ap.add_argument("--host", default="127.0.0.1",
+                    help=("Bind address (default: 127.0.0.1). Dev-only: a "
+                          "non-loopback bind still faces the localhost-only "
+                          "Origin policy for browser clients."))
+    ap.add_argument("--dev-token", default=None, metavar="JSON",
+                    help=("Dev-only: pin a bearer token, same JSON shape as "
+                          "EARSHOT_DEV_TOKENS, e.g. '{\"demo\": [\"house-a\", "
+                          "\"priya\"]}'. Overrides the env var. "
+                          "Never use in production."))
     args = ap.parse_args(argv)
-    run(args.port)
+    if args.dev_token is not None:
+        try:
+            json.loads(args.dev_token)
+        except ValueError:
+            ap.error("--dev-token must be JSON like '{\"demo\": [\"house-a\", \"priya\"]}'")
+    if sys.platform != "win32":
+        # Graceful SIGTERM on POSIX: surface it as KeyboardInterrupt so the
+        # shutdown path in run() handles it. Installed here (main thread) —
+        # never inside run(): tests run run() on worker threads, where
+        # signal.signal would raise ValueError.
+        def _on_sigterm(signum, frame):
+            raise KeyboardInterrupt
+        signal.signal(signal.SIGTERM, _on_sigterm)
+    run(args.port, host=args.host, dev_token_json=args.dev_token)
     return 0
 
 
