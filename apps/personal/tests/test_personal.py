@@ -1,5 +1,5 @@
-"""J5 personal surface tests — run with: python3 -m unittest test_personal -v
-Run from apps/personal/ so the personal package + kernel resolve.
+"""J5 personal surface tests — run with: python -m pytest apps/personal
+Requires `pip install -e .` (the `earshot` package).
 """
 import json
 import os
@@ -11,11 +11,10 @@ import unittest
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE.parent))
 
-from personal import auth, preview as preview_mod, profile as profile_mod  # noqa: E402
-from personal.fixture_calendar import FixtureCalendar, contract  # noqa: E402
-from personal.inbox import PersonalSurface  # noqa: E402
+from earshot.personal import auth, preview as preview_mod, profile as profile_mod
+from earshot.personal.fixture_calendar import FixtureCalendar, contract
+from earshot.personal.inbox import PersonalSurface
 
 
 def make_surface(directory: str) -> tuple[PersonalSurface, str, dict]:

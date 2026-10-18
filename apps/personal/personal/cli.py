@@ -1,15 +1,20 @@
-"""Personal-surface CLI.
+"""Personal-surface CLI (installed as `earshot-personal`).
 
-    python3 -m personal.cli onboard [--interactive]
-    python3 -m personal.cli inbox
-    python3 -m personal.cli open <request_ref>
-    python3 -m personal.cli preview <request_ref> [--html out.html]
-    python3 -m personal.cli approve <request_ref>
-    python3 -m personal.cli prove <request_ref>
-    python3 -m personal.cli settings [--set busy_times=no]
+    earshot personal onboard [--interactive]
+    earshot personal inbox
+    earshot personal open <request_ref>
+    earshot personal preview <request_ref> [--html out.html]
+    earshot personal approve <request_ref>
+    earshot personal prove <request_ref>
+    earshot personal settings [--set busy_times=no]
+
+The owner's private window into EARSHOT. Every private command requires the
+owner session minted by `earshot personal-quickstart`.
 """
 import argparse
 import sys
+
+from earshot.wincompat import ensure_utf8_stdout
 
 from . import auth, preview as preview_mod, profile as profile_mod, report
 from .inbox import PersonalSurface
@@ -22,7 +27,7 @@ def _surface(directory: str) -> PersonalSurface:
 def _token(surface: PersonalSurface) -> str:
     session = surface.profile.get("session")
     if not session:
-        raise SystemExit("No owner session. Run: python3 quickstart.py")
+        raise SystemExit("No owner session. Run: earshot personal-quickstart")
     return session["token"]
 
 
@@ -36,7 +41,7 @@ def cmd_inbox(args) -> None:
     surface = _surface(args.dir)
     requests = surface.list_requests(_token(surface))
     if not requests:
-        print("Inbox empty. Prepare a day brief first: python3 quickstart.py")
+        print("Inbox empty. Prepare a day brief first: earshot personal-quickstart")
         return
     for r in requests:
         print(f"{r['request_ref'][:16]}…  {r['request_state']} — {r['public_message']}")
@@ -124,22 +129,50 @@ def cmd_prove(args) -> None:
 
 
 def main(argv=None) -> None:
-    parser = argparse.ArgumentParser(prog="personal", description="Earshot personal surface")
+    ensure_utf8_stdout()
+    parser = argparse.ArgumentParser(
+        prog="earshot-personal",
+        description="Earshot personal surface — the owner's private window "
+                    "(onboard, inbox, open, preview, approve, prove, settings)",
+    )
     parser.add_argument("--dir", default=".", help="working directory for profile + server state")
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=True, metavar="<command>")
 
-    p = sub.add_parser("onboard"); p.add_argument("--interactive", action="store_true"); p.set_defaults(fn=cmd_onboard)
-    p = sub.add_parser("inbox"); p.set_defaults(fn=cmd_inbox)
-    p = sub.add_parser("open"); p.add_argument("request_ref"); p.set_defaults(fn=cmd_open)
-    p = sub.add_parser("preview"); p.add_argument("request_ref"); p.add_argument("--html"); p.set_defaults(fn=cmd_preview)
-    p = sub.add_parser("approve"); p.add_argument("request_ref"); p.set_defaults(fn=cmd_approve)
-    p = sub.add_parser("prove"); p.add_argument("request_ref"); p.set_defaults(fn=cmd_prove)
-    p = sub.add_parser("settings"); p.add_argument("--set", metavar="field=yes|no"); p.set_defaults(fn=cmd_settings)
+    p = sub.add_parser("onboard", help="run the 7-step owner onboarding")
+    p.add_argument("--interactive", action="store_true",
+                   help="prompt at every step instead of using safe defaults")
+    p.set_defaults(fn=cmd_onboard)
+    p = sub.add_parser("inbox", help="list sealed requests (receipts only, never content)")
+    p.set_defaults(fn=cmd_inbox)
+    p = sub.add_parser("open", help="show the exact plan + sealed facts (owner only)")
+    p.add_argument("request_ref", help="request receipt or its unique prefix")
+    p.set_defaults(fn=cmd_open)
+    p = sub.add_parser("preview", help="show what each audience would hear")
+    p.add_argument("request_ref", help="request receipt or its unique prefix")
+    p.add_argument("--html", metavar="FILE", help="write the HTML trust report to FILE")
+    p.set_defaults(fn=cmd_preview)
+    p = sub.add_parser("approve", help="approve a plan digest (bound to this plan revision)")
+    p.add_argument("request_ref", help="request receipt or its unique prefix")
+    p.set_defaults(fn=cmd_approve)
+    p = sub.add_parser("prove", help="counterfactual proof: hidden content changes, public projection must not")
+    p.add_argument("request_ref", help="request receipt or its unique prefix")
+    p.set_defaults(fn=cmd_prove)
+    p = sub.add_parser("settings", help="view or change declassification choices")
+    p.add_argument("--set", metavar="field=yes|no", help="e.g. --set busy_times=no")
+    p.set_defaults(fn=cmd_settings)
 
     args = parser.parse_args(argv)
-    args.fn(args)
+    try:
+        args.fn(args)
+    except FileNotFoundError as e:
+        # No profile yet — the one-line nudge, not a traceback.
+        print(f"earshot-personal: {e}", file=sys.stderr)
+        raise SystemExit(2)
+    except ValueError as e:
+        # Profile version mismatch or bad onboarding input.
+        print(f"earshot-personal: {e}", file=sys.stderr)
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
-    sys.path.insert(0, ".")
     main()

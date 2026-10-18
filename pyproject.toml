@@ -37,6 +37,7 @@ Documentation = "https://github.com/AdityaPagare619/earshot-broker#readme"
 earshot-demo = "earshot.demo.five_beats:main"
 earshot-server = "earshot.gateway.mcp.server:main"
 earshot-sim = "earshot.simulator.host:main"
+earshot-personal = "earshot.personal.cli:main"
 earshot = "earshot.cli:main"
 
 [tool.setuptools]
@@ -59,6 +60,7 @@ packages = [
     "earshot.trace_harness",
     "earshot.trace_harness.slo",
     "earshot.demo",
+    "earshot.personal",
 ]
 
 [tool.setuptools.package-dir]
@@ -78,6 +80,7 @@ packages = [
 "earshot.integration" = "integration"
 "earshot.trace_harness" = "packages/trace-harness/trace_harness"
 "earshot.demo" = "demo"
+"earshot.personal" = "apps/personal/personal"
 
 [tool.setuptools.package-data]
 "earshot.packs" = ["**/*.yaml"]
