@@ -233,19 +233,46 @@ class Broker:
     def _world(self) -> FixtureWorld:
         return self._world_factory()
 
+    def _audience_epoch(self) -> tuple:
+        """Version of all belief-affecting state (RR-11).
+
+        The idempotency slot binds this epoch so a replay after the room
+        changed — a `room` declaration, a fixture-audience swap, or a
+        `keep_secret` edge — re-plans against current belief instead of
+        returning stale speech planned for the earlier audience.
+        Conservative: any declaration or edge bumps it for every tenant
+        (safe direction: re-plan more, never less).
+        Residual: wall-clock decay of ALONE signals (10-min half-life) is
+        NOT bound — replays are network retries seconds apart, and binding
+        time would defeat legitimate retry idempotency.
+        """
+        n_decls = len(self.declarations.all())
+        n_edges = sum(len(self.secrecy.all_edges(i))
+                      for i in self.secrecy.item_ids())
+        return (n_decls, n_edges, self._fixture_audience)
+
     def _check_idem(self, tenant: str, owner: str, key: str, params: dict):
-        slot = (tenant, owner, key)
         canon = json.dumps(params, sort_keys=True, default=str)
-        if slot in self._idem:
-            prev_canon, prev_resp = self._idem[slot]
-            if prev_canon != canon:
+        # Param-conflict check spans epochs: reusing a key with different
+        # parameters is a client bug no matter how the room changed.
+        for (t, o, k, _e), (prev_canon, _resp) in self._idem.items():
+            if (t, o, k) == (tenant, owner, key) and prev_canon != canon:
                 raise BrokerError(INVALID_PARAMS,
                                   "conflicting request_key reuse: key already used with different parameters")
-            return dict(prev_resp)
+        slot = (tenant, owner, key, self._audience_epoch())
+        if slot in self._idem:
+            return dict(self._idem[slot][1])
         return None
 
     def _store_idem(self, tenant: str, owner: str, key: str, params: dict, resp: dict):
-        self._idem[(tenant, owner, key)] = (json.dumps(params, sort_keys=True, default=str), dict(resp))
+        canon = json.dumps(params, sort_keys=True, default=str)
+        epoch = self._audience_epoch()
+        # Evict stale epochs for this key: the room moved on, so old speech
+        # must not be replayable (RR-11).
+        for s in [s for s in self._idem
+                  if s[:3] == (tenant, owner, key) and s[3] != epoch]:
+            del self._idem[s]
+        self._idem[(tenant, owner, key, epoch)] = (canon, dict(resp))
 
     def _capsule_facts(self, receipt: str, tenant: str, owner: str) -> tuple:
         try:
