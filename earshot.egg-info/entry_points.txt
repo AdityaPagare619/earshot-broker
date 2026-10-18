@@ -1,5 +1,0 @@
-[console_scripts]
-earshot = earshot.cli:main
-earshot-demo = earshot.demo.five_beats:main
-earshot-server = earshot.gateway.mcp.server:main
-earshot-sim = earshot.simulator.host:main

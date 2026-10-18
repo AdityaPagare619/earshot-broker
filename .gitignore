@@ -1,9 +1,10 @@
-node_modules/
-__pycache__/
-*.pyc
-.venv/
-.env
-.DS_Store
 
 # pytest one-command runs
+*.egg-info/
+*.pyc
+.DS_Store
+.env
 .pytest_cache/
+.venv/
+__pycache__/
+node_modules/
