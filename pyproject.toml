@@ -25,6 +25,9 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = []  # stdlib only — this is a feature, keep it that way
 
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
 [project.urls]
 Homepage = "https://github.com/AdityaPagare619/earshot-broker"
 Documentation = "https://github.com/AdityaPagare619/earshot-broker#readme"
@@ -80,17 +83,21 @@ packages = [
 "earshot.packs" = ["**/*.yaml"]
 
 [tool.pytest.ini_options]
-# One invocation from repo root: `python -m pytest` — no PYTHONPATH hacks.
-# packages/kernel is FROZEN with its own unittest invocation; excluded here.
+# ONE invocation: `python -m pytest` from the repo root. No PYTHONPATH hacks —
+# root conftest.py owns sys.path (see docs/seats/pro-tests/DESIGN.md).
 testpaths = [
-    "packages/slowlane",
-    "packages/hotlane",
-    "packages/secrecy",
-    "packages/trace-harness",
-    "services",
-    "apps/simulator",
-    "integration",
-    "packs",
     "tests",
+    "packages",
+    "services",
+    "apps",
+    "packs",
+    "integration",
     "demo",
 ]
+python_files = ["test_*.py"]
+# --import-mode is CLI-only in pytest (no ini equivalent exists), so it lives in
+# addopts: test modules import under fully-qualified names, so the two
+# test_gate.py / two test_pipeline.py files cannot alias each other in
+# sys.modules (pytest's default prepend mode would silently merge them).
+# Keep collection quiet and deterministic.
+addopts = ["-q", "--tb=short", "--import-mode=importlib"]

@@ -54,5 +54,15 @@ class Reporter:
             'records': self.records,
         }
         path = os.path.join(EVIDENCE_DIR, 'j06-%s-report.json' % self.suite)
+        if not self.records:
+            # Import/collection without execution (e.g. pytest --collect-only)
+            # must never clobber a real evidence file with an empty report.
+            try:
+                with open(path) as f:
+                    existing = json.load(f)
+                if existing.get('records'):
+                    return
+            except (OSError, ValueError):
+                pass
         with open(path, 'w') as f:
             json.dump(payload, f, indent=2, sort_keys=True)

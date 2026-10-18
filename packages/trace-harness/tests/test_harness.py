@@ -32,6 +32,14 @@ class HarnessHttpTests(unittest.TestCase):
     def setUpClass(cls):
         cls.server = fixtureserver.start(PORT)
 
+    @classmethod
+    def tearDownClass(cls):
+        # Release the port: the old per-suite process exited after this class,
+        # but the unified pytest run keeps the process alive — a listening
+        # socket here collides with later suites (e.g. mcp's PORT+2 = 8899).
+        cls.server.shutdown()
+        cls.server.server_close()
+
     def _run_pair(self, pair):
         # World A
         self.server.state.world_facts = {pair.world_a.tenant: _facts(pair.world_a)}
