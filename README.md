@@ -1,57 +1,153 @@
-# EARSHOT — private task broker
+# EARSHOT — private task broker for Alexa+
 
-**"EARSHOT keeps helping when the room stops being private."**
+**EARSHOT keeps helping when the room stops being private.**
 
-A smart speaker broadcasts to a room. EARSHOT is a room-aware **private task
-broker** for Alexa+: instead of filtering how much of a private record Alexa may
-read aloud, it accomplishes the user's task **without giving the room-facing
-assistant the private record at all**.
+---
 
-Old question: *"How much of this private record may Alexa read aloud?"*
-New question: *"Can the assistant accomplish the user's task without giving the
-room-facing assistant the private record at all?"*
+Priya is organizing her afternoon out loud. Her mother walks into the room.
+A normal assistant has two choices: blurt out the private appointment, or go
+dumb and make Priya start over. EARSHOT does neither — the room hears only
+what's safe, the private plan keeps working, and Priya finishes it on her
+phone. Same task, no forced disclosure, no restart.
 
-## Operating principle
+## The idea in one paragraph
 
-1. **Sealed tasks.** Private facts stay inside EARSHOT's processing boundary.
-   The room-facing host receives only explicitly releasable facts plus an
-   opaque, owner-bound request reference — never the underlying records.
-2. **Deterministic security boundary, useful AI inside it.** AI interprets
-   private preferences and proposes plans; deterministic code validates
-   permissions, schedule constraints, dependencies, and external effects.
-   The model never authorizes its own disclosures.
-3. **Two honest deployment profiles.** *Persistent public host:* protected facts
-   never enter that host's context through EARSHOT. *EARSHOT-controlled host:*
-   audience changes invalidate pending disclosure leases and stop future
-   output (stated sensing limits; not an Echo-interruption API).
-4. **Counterfactual privacy.** Change the hidden appointment — or remove it —
-   and the public response must not reveal the difference through text, counts,
-   status, metadata, or notification behavior.
+A smart speaker broadcasts to a room. The old question was *"how much of this
+private record may Alexa read aloud?"* — and any answer to it is a filter that
+can be fooled, because a recommendation can reveal a secret without using any
+of the secret's words. EARSHOT asks the stronger question: **"can the
+assistant accomplish the user's task without giving the room-facing assistant
+the private record at all?"** Private facts stay inside a sealed processing
+boundary; the room-facing assistant receives only explicitly released facts
+plus an opaque, owner-bound reference. The task continues on the owner's
+personal device — not from scratch, from where it left off.
 
-## The four MCP tools (spec 2025-11-25, Streamable HTTP)
+> Data access, task execution, and room disclosure are three different
+> permissions. EARSHOT demonstrates how to separate them without abandoning
+> the task.
 
-`prepare_day_brief` · `resolve_day_change` · `continue_on_personal_device` ·
-`withdraw_request` — see `packages/contracts/API_CONTRACTS.json`.
+**Who it's for:** multi-adult households — partners, roommates, visiting
+family — anywhere a shared speaker serves people with different privacies.
+One household's illustration, not one stereotype's product.
 
-## Status (honest)
+## Why this is not a basic MCP wrapper
 
-This repo starts from a 57-page architecture dossier (`docs/dossier/`) and a
-24-test reference kernel (`packages/kernel/`). It is **not** a completed Alexa+
-integration: no device connection, no production OAuth, no real sensors, no
-certification. Every claim in this repo must trace to an artifact in
-`evidence/`. The old answer-filter prototype lives on separately; this is a
-redesign, not a rename.
+The competition rules name a "basic MCP wrapper" as the obvious line. Here is
+the creative side of it, concretely:
+
+| A basic wrapper does | EARSHOT does |
+|---|---|
+| Passes records through, maybe redacted | **Sealed tasks**: the private record never enters the room host's context — there is nothing to redact because nothing private was sent |
+| Filters words in an answer | **Counterfactual privacy**: change the hidden appointment (or remove it) and the public output must not reveal the difference — through text, counts, status, metadata, or notification behavior |
+| Trusts whoever is in the room | **Lease invalidation**: an audience change invalidates pending disclosure leases; a late-arriving segment from the old room state is rejected by the local arbiter |
+| Lets the model decide what's safe | **Deterministic boundary, useful AI inside it**: AI interprets intent and proposes plans; deterministic code validates permissions, schedule arithmetic, dependencies, and external effects — the model never authorizes its own disclosures |
+| One tool per API endpoint | **Four task-oriented tools** (`prepare_day_brief`, `resolve_day_change`, `continue_on_personal_device`, `withdraw_request`) — audience manipulation, trust changes, and private retrieval are deliberately *not* exposed as room-facing tools |
+
+## How it works
+
+```
+Owner consent + scoped sources
+              ↓
+Private ingestion — provenance + field labels (existence ≠ title ≠ content)
+              ↓
+Sealed task — bounded AI planner + schedule solver (inside the boundary)
+              ↓
+Dependency + action-effect validation (deterministic)
+              ↓
+Release policy + audience evidence + channel constraints
+          ↙                                  ↘
+Approved public projection          Authenticated personal continuation
+                                             ↓
+                                 Approval → execution → reconciliation
+```
+
+Two honest deployment profiles: on a **persistent public host**, protected
+facts never enter that host's context through EARSHOT; on an
+**EARSHOT-controlled host**, audience changes invalidate pending leases and
+stop future output (stated sensing limits — this is not presented as an
+Echo-interruption API).
+
+## The four MCP tools
+
+Spec 2025-11-25, Streamable HTTP. Schemas in
+[`packages/contracts/API_CONTRACTS.json`](packages/contracts/API_CONTRACTS.json).
+
+- **`prepare_day_brief`** — build a day plan from the owner's connected
+  sources; return only explicitly public facts.
+- **`resolve_day_change`** — revise a sealed plan under new constraints
+  without returning the private reasons. Draft only; external changes
+  require owner approval.
+- **`continue_on_personal_device`** — hand the task to the owner's registered
+  personal surface. Accepted means queued, never "delivered" on enqueue.
+- **`withdraw_request`** — withdraw pending work and unreleased output.
+  Cannot unsay emitted speech or undo completed external effects — stated
+  plainly, because revoking access is not erasing knowledge.
+
+## What we don't claim (why you can trust what we do)
+
+- **No universal Alexa interception.** An MCP add-on is called when Alexa
+  routes a request to it — it is not a mandatory layer around built-in
+  announcements, other integrations, or retained history. We protect
+  EARSHOT's own workflows; we do not claim to gag Alexa.
+- **No real device, no production OAuth, no real sensors.** The demo runs on
+  a clearly labeled independent simulator (the competition's gated tooling
+  is unavailable to participants). Synthetic data throughout.
+- **No certification claims.** This is a competition entry, not a certified
+  product.
+- **No inflated evidence.** The community incidents in our research are
+  illustrations, not statistics. Earlier benchmark-style claims from a
+  previous prototype are not reused here — they were not verifiable, so
+  they are not repeated.
+- **No medical or emergency scope.** Day planning only.
+
+## Evidence (every claim, one hop)
+
+- Reference kernel: **24 unit tests, all passing** — labels, sealed tasks,
+  lease invalidation, unknown/stale audiences, cross-user negatives
+  ([`evidence/kernel-tests.txt`](evidence/kernel-tests.txt),
+  [`packages/kernel/`](packages/kernel/))
+- Synthetic scenario trace: public projection unchanged by audience change,
+  controlled pending lease revoked on entry, owner retrieval succeeds,
+  other-person retrieval denied
+  ([`evidence/synthetic-scenario-trace.json`](evidence/synthetic-scenario-trace.json))
+- Real Streamable HTTP MCP server exercised through Inspector: tools/list
+  and tools/call succeeded; handshake negotiated 2025-11-25
+  ([`evidence/VALIDATION_SUMMARY.md`](evidence/VALIDATION_SUMMARY.md))
+- Full architecture: 57-page dossier
+  ([`docs/dossier/EARSHOT_REDESIGN.md`](docs/dossier/EARSHOT_REDESIGN.md),
+  [HTML](docs/dossier/EARSHOT_REDESIGN.html),
+  [PDF](docs/dossier/EARSHOT_REDESIGN.pdf)), implementation blueprint
+  ([`docs/dossier/IMPLEMENTATION_BLUEPRINT.md`](docs/dossier/IMPLEMENTATION_BLUEPRINT.md)),
+  source audit ([`docs/dossier/SOURCE_AUDIT.md`](docs/dossier/SOURCE_AUDIT.md))
+- What was actually checked — and what was not — is stated in full in
+  [`evidence/VALIDATION_SUMMARY.md`](evidence/VALIDATION_SUMMARY.md).
+  No performance, sensor, audio, real-device, AI-model, OAuth, or cloud
+  benchmark was performed. We say so here because the alternative is
+  pretending.
+
+## Support
+
+Questions, troubleshooting, known limitations, and how to reach us:
+[`docs/support.md`](docs/support.md).
 
 ## Layout
 
-- `docs/dossier/` — the architecture dossier (md/html/pdf), blueprint, source audit
-- `packages/kernel/` — reference kernel: labels, sealed tasks, leases (24 tests)
-- `packages/contracts/` — the four proposed MCP tool schemas
+- `docs/dossier/` — architecture dossier, blueprint, source audit
+- `docs/support.md` — FAQ, troubleshooting, contact
+- `packages/kernel/` — reference kernel (labels, sealed tasks, leases)
+- `packages/contracts/` — the four MCP tool schemas
 - `evidence/` — validation summary, test outputs, traces
-- `apps/` `services/` — the competition build (in progress)
+- `apps/` · `services/` — the competition build (in progress across seats)
 
 ## Run the kernel tests
 
 ```bash
 python3 -m unittest discover -s packages/kernel
 ```
+
+Expected: `Ran 24 tests ... OK` (stdlib only, no dependencies).
+
+---
+
+*Built for the Alexa+ track of the Build, Ship, Shape Amazon Developer
+Hackathon. Competition: [Devpost](https://amazonappdev2026.devpost.com/).*
