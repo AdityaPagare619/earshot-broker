@@ -191,5 +191,149 @@ class MutationTests(unittest.TestCase):
         self.assertNotEqual(k1, AD.idempotency_key("reschedule", rec3))
 
 
+
+# ---------------------------------------------------------------- v2: tasks
+from adapters.tasks_adapter import FixtureTasksAdapter  # noqa: E402
+
+TA = FixtureTasksAdapter()
+
+
+def task(**kw):
+    base = {"id": "t1", "title": "Take vitamins", "due": "2026-10-20T08:00:00",
+            "notes": "with breakfast", "status": "needsAction",
+            "list_id": "medication", "repeat": "", "etag": "v1",
+            "timezone": "UTC"}
+    base.update(kw)
+    return base
+
+
+class TasksContractTests(unittest.TestCase):
+    def test_tasks_passes_contract_check(self):
+        contract_check(TA)
+
+    def test_plan_ops_disjoint_from_calendar(self):
+        self.assertTrue(TA.plan_ops().isdisjoint(AD.plan_ops()))
+
+    def test_no_import_of_calendar_adapter(self):
+        import adapters.tasks_adapter as mod
+        import_lines = [l for l in open(mod.__file__).read().splitlines()
+                        if l.strip().startswith(("import ", "from "))]
+        self.assertFalse(any("calendar_adapter" in l for l in import_lines),
+                         "tasks adapter must not import the calendar adapter")
+
+    def test_medication_topic_declared(self):
+        rec = TA.normalize(task())
+        lbl = TA.label(rec)
+        self.assertIn("health", lbl.topics)
+        self.assertIn("tasks", lbl.topics)
+        self.assertEqual(lbl.readers, frozenset({"owner"}))
+
+    def test_grocery_task_no_health_topic(self):
+        rec = TA.normalize(task(list_id="groceries", id="t2"))
+        self.assertNotIn("health", TA.label(rec).topics)
+
+    def test_mutations_have_no_external_recipients(self):
+        for op in ("complete_task", "reschedule_task"):
+            mi = TA.mutation_impact(op)
+            self.assertEqual(mi.recipients, frozenset())
+            self.assertEqual(mi.side_effects, frozenset())
+
+    def test_due_within_minimal_fields(self):
+        recs = [TA.normalize(task()),
+                TA.normalize(task(id="t2", due="2026-10-21T08:00:00")),
+                TA.normalize(task(id="t3", status="completed")),
+                TA.normalize(task(id="t4", due=""))]
+        out = TA.due_within(recs, datetime(2026, 10, 20, tzinfo=UTC),
+                            datetime(2026, 10, 21, tzinfo=UTC))
+        self.assertEqual([i for i, _ in out], ["t1"])
+        blob = json.dumps(out, default=str)
+        self.assertNotIn("vitamins", blob)
+        self.assertNotIn("breakfast", blob)
+
+    def test_repeat_expansion(self):
+        rec = TA.normalize(task(id="t5", repeat=json.dumps(
+            {"freq": "DAILY", "interval": 1, "count": 3})))
+        occs = TA.expand_repeat(rec,
+                                datetime(2026, 10, 20, tzinfo=UTC),
+                                datetime(2026, 10, 30, tzinfo=UTC))
+        self.assertEqual(len(occs), 3)
+
+    def test_unsupported_repeat_flagged(self):
+        rec = TA.normalize(task(id="t6", repeat=json.dumps(
+            {"freq": "MONTHLY", "interval": 1})))
+        occs = TA.expand_repeat(rec,
+                                datetime(2026, 10, 20, tzinfo=UTC),
+                                datetime(2026, 10, 30, tzinfo=UTC))
+        self.assertEqual(len(occs), 1)
+        self.assertIn("repeat_unsupported", occs[0][1])
+
+    def test_facts_private_baseline(self):
+        rec = TA.normalize(task())
+        for fact in TA.facts(rec):
+            self.assertEqual(fact.label.readers, frozenset({"owner"}))
+
+
+class ThirdAdapterTests(unittest.TestCase):
+    """The falsifiability test from the verdict: a third source shape must
+    register against the frozen contract with zero base-code changes."""
+
+    def test_notes_adapter_registers(self):
+        from adapters.contract import SourceAdapter, MutationImpact, Record
+
+        class NotesAdapter(SourceAdapter):
+            provider_id = "fixture-notes-v1"
+            endpoint_allowlist = ()
+            oauth_scopes = ("notes.readonly",)
+            record_schema = {"title": "str", "body": "str", "etag": "str"}
+            subject_kinds = ("owner",)
+            field_labels = {
+                "title": Label(frozenset({"owner"}), frozenset({"notes"})),
+                "body": Label(frozenset({"owner"}), frozenset({"notes"})),
+                "etag": Label(frozenset({"owner"}), frozenset({"notes"})),
+            }
+            supported_transformations = ()
+            mutation_recipients = {}
+            freshness_ttl_s = 3600.0
+            deletion_semantics = "purge"
+
+            def normalize(self, raw):
+                return Record(source=self.provider_id,
+                              external_id=str(raw["id"]),
+                              version=str(raw["etag"]),
+                              fields={k: str(raw[k]) for k in self.record_schema})
+
+            def label(self, record):
+                lbl = self.field_labels["title"]
+                for n in ("body", "etag"):
+                    lbl = lbl.join(self.field_labels[n])
+                return lbl
+
+            def plan_ops(self):
+                return frozenset({"load_notes"})
+
+            def mutation_impact(self, op):
+                raise UnsupportedSourceError(op)
+
+        reg = AdapterRegistry()
+        reg.register(NotesAdapter())  # no base-code change needed
+        self.assertIn("fixture-notes-v1", reg.provider_ids())
+
+
+class KernelIntegrationTests(unittest.TestCase):
+    """Adapters plug into the real kernel: labels gate projections."""
+
+    def test_private_task_fact_withheld_from_public_host(self):
+        from kernel import Kernel
+        from dataclasses import replace
+        k = Kernel()
+        rec = TA.normalize(task())  # medication/health, owner-only readers
+        facts = TA.facts(rec)
+        ctx = __import__("kernel", fromlist=["Context"]).Context(
+            "house-a", "owner", frozenset({"owner"}), 1, 100.0,
+            True, True, False, 1)  # uncontrolled host
+        proj = k.room_projection(facts, ctx, 100.0)
+        self.assertEqual(proj, ())  # nothing crosses to an uncontrolled host
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)
