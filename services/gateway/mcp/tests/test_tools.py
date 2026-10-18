@@ -37,11 +37,19 @@ class ToolTests(unittest.TestCase):
         r = b["result"]["structuredContent"]
         self.assertEqual(r["request_state"], "accepted")
         self.assertTrue(20 <= len(r["request_ref"]) <= 128)
-        self.assertEqual(r["public_facts"],
-                         ["Collect groceries after 6.", "Dinner prep at 7 PM."])
-        # text and structuredContent derive from the same projection
-        import json
-        self.assertEqual(json.loads(b["result"]["content"][0]["text"]), r)
+        # S3 sealed-speech contract: speak verbatim + policy + spoken-depth
+        # fields only; nothing above planned depth in any field.
+        self.assertEqual(r["speak_policy"], "verbatim_no_elaboration")
+        self.assertIn(r["mode"], ("cover", "open"))
+        self.assertIsInstance(r["followups"], list)
+        self.assertTrue(0 <= r["screen_depth"] <= 4)
+        self.assertTrue(r["_meta"]["earshot/plan_id"].startswith("pln_"))
+        self.assertEqual(r["_meta"]["earshot/table_version"], 1)
+        self.assertNotIn("public_facts", r)
+        # the fixed suffix is ALWAYS present, even with nothing withheld
+        self.assertTrue(r["speak"].endswith("The rest of your day is on your phone."))
+        # content[0].text is the speak text VERBATIM (what the room hears)
+        self.assertEqual(b["result"]["content"][0]["text"], r["speak"])
 
     def test_brief_idempotent_same_key(self):
         b1 = self.c.tool("prepare_day_brief", brief_args("brief-idem-00000002"))
@@ -124,8 +132,10 @@ class ToolTests(unittest.TestCase):
             "request_key": "res-strict-key-00012"})
         r = b["result"]["structuredContent"]
         self.assertEqual(r["request_state"], "accepted")
-        # Strict fixture: no time suggestion — window/no-window is secret-dependent.
-        self.assertEqual(r["public_facts"], [])
+        # Strict fixture: generic answer only — window/no-window would be
+        # secret-dependent. Constant speak, sealed-speech contract.
+        self.assertEqual(r["speak"], "No suitable window found in that range.")
+        self.assertEqual(r["speak_policy"], "verbatim_no_elaboration")
 
     def test_resolve_add_block_is_draft_only(self):
         ref = self._mk_ref("res-draft-000000013")
@@ -136,7 +146,7 @@ class ToolTests(unittest.TestCase):
                        "window_end": "2026-10-19T18:00:00+05:30"},
             "request_key": "res-draft-key-000014"})
         r = b["result"]["structuredContent"]
-        self.assertIn("Draft prepared", r["public_facts"][0])
+        self.assertIn("Draft prepared", r["speak"])
 
     def test_resolve_bad_duration(self):
         ref = self._mk_ref("res-baddur-0000015")
@@ -187,8 +197,9 @@ class ToolTests(unittest.TestCase):
         r2 = self.c.tool("continue_on_personal_device", a1)
         self.assertEqual(r1["result"]["structuredContent"]["request_state"], "accepted")
         self.assertEqual(r1["result"], r2["result"])
-        # queued, never delivered: the outbox holds it, no delivery claim made
-        self.assertIn("queued", r1["result"]["structuredContent"]["public_facts"][0].lower())
+        # queued, never delivered: constant speak, no delivery claim made
+        self.assertEqual(r1["result"]["structuredContent"]["speak"],
+                         "Continuing on your personal device.")
 
     # -- withdraw_request -------------------------------------------------------
 
@@ -197,8 +208,8 @@ class ToolTests(unittest.TestCase):
         w = self.c.tool("withdraw_request",
                         {"request_ref": ref, "request_key": "wd-key-0000000026"})
         self.assertEqual(w["result"]["structuredContent"]["request_state"], "accepted")
-        self.assertIn("cannot be retracted",
-                      w["result"]["structuredContent"]["public_facts"][0])
+        self.assertIn("can't be unsent",
+                      w["result"]["structuredContent"]["speak"])
         r = self.c.tool("continue_on_personal_device",
                         {"request_ref": ref, "request_key": "wd-key-0000000027"})
         self.assertEqual(r["error"]["message"], "Unavailable")
@@ -243,8 +254,8 @@ class ToolTests(unittest.TestCase):
                         {"request_ref": ref, "request_key": "c4-wd-key-0000036"})
         r = w["result"]["structuredContent"]
         self.assertEqual(r["request_state"], "accepted")  # never "undone"
-        self.assertIn("reconciling", r["public_facts"][0])
-        self.assertIn("cannot be retracted", r["public_facts"][0])
+        self.assertIn("reconciling", r["speak"])
+        self.assertIn("can't be unsent", r["speak"])
         # The queued continuation can never be acted on afterwards.
         self.assertEqual(broker._outbox[slot]["state"], "withdrawn")
 
@@ -252,9 +263,9 @@ class ToolTests(unittest.TestCase):
         ref = self._mk_ref("c4-plain-000000037")
         w = self.c.tool("withdraw_request",
                         {"request_ref": ref, "request_key": "c4-wd-key-000038"})
-        fact = w["result"]["structuredContent"]["public_facts"][0]
+        fact = w["result"]["structuredContent"]["speak"]
         self.assertNotIn("reconciling", fact)
-        self.assertIn("cannot be retracted", fact)
+        self.assertIn("can't be unsent", fact)
 
     # -- error hygiene ------------------------------------------------------------
 

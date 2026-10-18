@@ -385,8 +385,13 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             self._send(200, rpc_error(req_id, broker_mod.INTERNAL_ERROR, "Internal error"))
             return
         structured = result
+        # S3: the human-readable content block is the speak text VERBATIM —
+        # what the room hears is exactly result["speak"], never a summary.
+        # structuredContent carries the full sealed-speech contract for
+        # machine consumers (policy, followups, screen depth, refs).
+        speak_text = structured.get("speak") or json.dumps(structured)
         payload = {
-            "content": [{"type": "text", "text": json.dumps(structured)}],
+            "content": [{"type": "text", "text": speak_text}],
             "structuredContent": structured,
             "isError": False,
         }

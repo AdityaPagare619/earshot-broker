@@ -1,11 +1,11 @@
 """GatewayPort: one tool-call interface, two honest backends.
 
 - "mcp" (primary): the real MCP client (mcp_client.py) speaking Streamable
-  HTTP to the gateway URL from EARSHOT_GATEWAY_URL. This is the integration
-  surface J3's server plugs into — zero code change when it lands.
-- "kernel_direct" (labeled demo fallback): the reference kernel in-process.
-  Exercises the REAL security boundary (labels, leases, sealed continuations)
-  with no network. Always displayed in the UI; never silently swapped.
+  HTTP to the gateway URL from EARSHOT_GATEWAY_URL.
+- "kernel_direct" (labeled demo fallback): the REAL broker in-process
+  (services/gateway/mcp/broker.py) — the same code as the MCP server,
+  minus the HTTP. Single-sourced seam: there is no second implementation
+  to drift.
 
 Backend selection: EARSHOT_GATEWAY_URL set -> "mcp"; unset -> "kernel_direct".
 A failed MCP backend surfaces as a visible degraded state, never a silent
@@ -17,18 +17,26 @@ import os
 import sys
 import time
 
-# Kernel lives in packages/kernel (imported as top-level `kernel` there).
+# Kernel lives in packages/kernel (imported as top-level `kernel` there);
+# the broker lives in services/gateway/mcp (imports as top-level `broker`,
+# `fixtures`, `shape` there).
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                           "..", ".."))
 for _p in (os.path.join(_REPO_ROOT, "packages", "kernel"),
+           os.path.join(_REPO_ROOT, "services", "gateway", "mcp"),
            os.path.dirname(__file__)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
 from mcp_client import McpClient, McpError  # noqa: E402
-from kernel import Context, Fact, Kernel, Label  # noqa: E402
+from kernel import Kernel  # noqa: E402  (arbiter seal mechanics)
 
 PUBLIC = "*"
+
+# The tool surface, mirrored from packages/contracts/API_CONTRACTS.json.
+TOOLS = ("prepare_day_brief", "resolve_day_change",
+         "continue_on_personal_device", "withdraw_request",
+         "room", "keep_secret")
 
 
 class GatewayPort:
@@ -41,25 +49,26 @@ class GatewayPort:
         self.gateway_url = gateway_url or os.environ.get("EARSHOT_GATEWAY_URL")
         self.backend = "mcp" if self.gateway_url else "kernel_direct"
         self._client: McpClient | None = None
-        self._kernel = Kernel()
+        self._kernel = Kernel()  # arbiter seal mechanics (not the tool path)
+        self._broker = None      # real Broker, built lazily in-process
         self._degraded: str | None = None
-        # Demo fixture facts (labeled; synthetic). In production these come
-        # from the gateway's adapters, never from the simulator.
-        self._fixture_facts = self._build_fixtures()
 
-    # ---- fixtures (synthetic, labeled) -----------------------------------
+    # ---- the in-process broker (kernel_direct) ------------------------------
 
-    def _build_fixtures(self) -> tuple[Fact, ...]:
-        pub = Label(frozenset({PUBLIC}))
-        pri = Label(frozenset({self.owner}), frozenset({"health"}))
-        fam = Label(frozenset({self.owner, "ravi"}), frozenset({"family"}))
-        return (
-            Fact("weather", "Rain is forecast after 6.", pub),
-            Fact("groceries", "Collect groceries after 6.", fam),
-            Fact("appointment", "Prenatal visit at 15:40", pri),
-            Fact("leave_by", "Leave by 15:00 for the appointment",
-                 pri),  # derived: inherits the private label
-        )
+    def _get_broker(self):
+        """The REAL broker — same class the MCP server runs. Lazy so the
+        mcp backend never pays for it."""
+        if self._broker is None:
+            from broker import Broker  # noqa: E402
+            self._broker = Broker()
+        return self._broker
+
+    def set_fixture_audience(self, listeners) -> None:
+        """Fixture sensing channel -> the in-process broker. No-op on the mcp
+        path (the real gateway owns belief there; the demo drives it via the
+        `room` tool instead)."""
+        if self.backend == "kernel_direct":
+            self._get_broker().set_fixture_audience(listeners)
 
     # ---- lifecycle ---------------------------------------------------------
 
@@ -76,9 +85,7 @@ class GatewayPort:
                 return {"backend": "mcp", "url": self.gateway_url,
                         "tools": [], "degraded": self._degraded}
         return {"backend": "kernel_direct", "url": None,
-                "tools": ["prepare_day_brief", "resolve_day_change",
-                          "continue_on_personal_device", "withdraw_request"],
-                "degraded": None}
+                "tools": list(TOOLS), "degraded": None}
 
     @property
     def degraded(self) -> str | None:
@@ -98,20 +105,15 @@ class GatewayPort:
             return result
         return self._call_kernel_direct(name, arguments)
 
-    # ---- kernel_direct: the same 4 tools against the real kernel --------------
+    # ---- kernel_direct: the same 6 tools, in-process -------------------------
 
     def _kernel_direct(self, name: str, arguments: dict) -> dict:
         started = time.time()
-        if name == "prepare_day_brief":
-            out = self._prepare_day_brief(arguments)
-        elif name == "resolve_day_change":
-            out = self._resolve_day_change(arguments)
-        elif name == "continue_on_personal_device":
-            out = self._continue_personal(arguments)
-        elif name == "withdraw_request":
-            out = self._withdraw(arguments)
-        else:
+        broker = self._get_broker()
+        handler = getattr(broker, name, None)
+        if handler is None or name not in TOOLS:
             raise McpError(f"unknown tool: {name}")
+        out = handler(self.tenant, self.owner, arguments)
         out["_round_trip_ms"] = (time.time() - started) * 1000
         out["_backend"] = "kernel_direct"
         return out
@@ -119,70 +121,25 @@ class GatewayPort:
     def _call_kernel_direct(self, name: str, arguments: dict) -> dict:
         return self._kernel_direct(name, arguments)
 
-    def _public_facts(self) -> tuple[str, ...]:
-        return Kernel.public_projection(self._fixture_facts)
-
-    def _prepare_day_brief(self, args: dict) -> dict:
-        """Public projection + sealed continuation; private plan stays private."""
-        request_key = args.get("request_key", "default-key-0000000000")
-        now = time.time()
-        accepted = self._kernel.accept(self.tenant, self.owner, request_key,
-                                       self._fixture_facts, now)
-        public = self._public_facts()
-        # The private plan is computed here (in the gateway, not the room).
-        # Only the public projection crosses to the room-facing host.
-        return {
-            "public_facts": list(public),
-            "request_state": "accepted",
-            "request_ref": accepted["receipt"],
-            "public_message": ("Your day plan is ready. "
-                               "Private details are on your phone."),
-        }
-
-    def _resolve_day_change(self, args: dict) -> dict:
-        """Adapt the sealed plan using private constraints; reveal nothing new."""
-        minutes = int(args.get("minutes", 20))
-        now = time.time()
-        # Private computation: find a slot honoring the private appointment.
-        # The room learns only that a compatible slot was found.
-        return {
-            "public_facts": [f"Found a {minutes}-minute window after 6."],
-            "request_state": "accepted",
-            "request_ref": args.get("request_ref", ""),
-            "public_message": ("I found a slot that works with your private "
-                               "commitments. Review it on your phone."),
-        }
-
-    def _continue_personal(self, args: dict) -> dict:
-        return {
-            "request_state": "accepted",
-            "request_ref": args.get("request_ref", ""),
-            "public_message": "Continuing on your personal device.",
-        }
-
-    def _withdraw(self, args: dict) -> dict:
-        ref = args.get("request_ref", "")
-        if ref:
-            try:
-                self._kernel.revoke(ref, self.tenant, self.owner)
-            except PermissionError:
-                pass  # generic acknowledgement either way (no oracle)
-        return {
-            "request_state": "withdrawn",
-            "public_message": "Stopped. Anything already sent can't be unsent.",
-        }
-
     # ---- personal surface (owner-authenticated; separate session) --------------
 
     def open_personal(self, request_ref: str, authenticated: bool) -> dict:
-        """The phone panel. Requires an authenticated owner session."""
-        try:
-            facts = self._kernel.open_private(request_ref, self.tenant,
-                                              self.owner, authenticated,
-                                              time.time())
-        except PermissionError:
+        """The phone panel. Owner-authenticated; reads the broker's capsule
+        (the same kernel the brief was planned from — never a second copy).
+
+        `authenticated` is the caller's assertion of an owner-authenticated
+        session (the demo's /api/phone gate checks phone_unlocked first).
+        """
+        if not authenticated:
             return {"ok": False, "error": "Unavailable"}
-        return {"ok": True,
-                "facts": [{"key": f.key, "value": f.value,
-                           "readers": sorted(f.label.readers),
-                           "topics": sorted(f.label.topics)} for f in facts]}
+        if self.backend == "mcp":
+            # The real gateway exposes personal facts only over the owner
+            # channel, not MCP: the demo phone panel is a kernel_direct
+            # affordance. Honest label, not a silent gap.
+            return {"ok": False, "error": "personal surface is local-only"}
+        try:
+            facts = self._get_broker().personal_facts(
+                request_ref, self.tenant, self.owner)
+        except Exception:
+            return {"ok": False, "error": "Unavailable"}
+        return {"ok": True, "facts": facts}

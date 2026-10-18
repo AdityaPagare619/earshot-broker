@@ -25,6 +25,12 @@
             "minLength": 16,
             "maxLength": 128,
             "description": "Retry-stable request key. Server binds dedupe to authenticated owner and rejects conflicting reuse."
+          },
+          "continuation_ref": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 128,
+            "description": "Optional. The request_ref of an in-progress chunked brief: returns the next chunk ('next' followup). Re-plans remaining items against fresh belief."
           }
         },
         "required": [
@@ -37,29 +43,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       },
       "annotations": {
@@ -131,29 +188,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       },
       "annotations": {
@@ -192,29 +300,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       },
       "annotations": {
@@ -253,29 +412,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference previously returned to this owner; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       },
       "annotations": {
@@ -314,29 +524,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       }
     },
@@ -369,29 +630,80 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "speak": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "The exact utterance for the room. Render verbatim: never elaborate, summarize, reorder, or append. This is the ONLY room-facing text."
+          },
+          "speak_policy": {
+            "type": "string",
+            "const": "verbatim_no_elaboration",
+            "description": "How the host must render `speak`. The only legal value."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "cover",
+              "open"
+            ],
+            "description": "Room-known mode: 'cover' iff a non-owner listener is in the credible audience. Never a secret."
+          },
+          "followups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "next",
+                "continue_on_personal_device"
+              ]
+            },
+            "description": "Constant followup affordances. 'next' continues a chunked brief."
+          },
+          "screen_depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Minimum planned spoken depth across spoken items (0 when nothing spoken). Never above planned depth."
+          },
           "request_ref": {
             "type": "string",
             "minLength": 20,
             "maxLength": 128,
-            "description": "Opaque EARSHOT request reference; not authorization."
+            "description": "Opaque EARSHOT request reference; not authorization. For briefs, doubles as the continuation ref."
           },
           "request_state": {
             "type": "string",
             "const": "accepted"
           },
-          "public_facts": {
-            "type": "array",
-            "maxItems": 12,
-            "items": {
-              "type": "string",
-              "maxLength": 300
-            }
+          "_meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "earshot/plan_id": {
+                "type": "string",
+                "description": "Opaque, random, secret-independent plan id."
+              },
+              "earshot/table_version": {
+                "type": "integer",
+                "description": "Disclosure-table version. Constant in fixture; never content-derived."
+              }
+            },
+            "required": [
+              "earshot/plan_id",
+              "earshot/table_version"
+            ]
           }
         },
         "required": [
+          "speak",
+          "speak_policy",
+          "mode",
+          "followups",
+          "screen_depth",
           "request_ref",
           "request_state",
-          "public_facts"
+          "_meta"
         ]
       }
     }

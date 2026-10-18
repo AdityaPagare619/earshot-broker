@@ -40,7 +40,10 @@ class RoomToolTests(unittest.TestCase):
     def test_room_happy_path(self):
         r = self.call_room(self.c, "Mom's here", rk(1))
         self.assertEqual(r["request_state"], "accepted")
-        self.assertEqual(r["public_facts"], ["Noted."])
+        # S3: uniform sealed-speech contract — constant speak, never a list.
+        self.assertEqual(r["speak"], "Noted.")
+        self.assertEqual(r["speak_policy"], "verbatim_no_elaboration")
+        self.assertNotIn("public_facts", r)
 
     def test_room_records_declaration_with_trust_class(self):
         n0 = len(self.srv.broker.declarations.all())
@@ -64,7 +67,8 @@ class RoomToolTests(unittest.TestCase):
         # No oracle on parse success: identical response, no state change.
         n0 = len(self.srv.broker.declarations.all())
         r = self.call_room(self.c, "what's the weather", rk(4))
-        self.assertEqual(r["public_facts"], ["Noted."])
+        self.assertEqual(r["speak"], "Noted.")
+        self.assertEqual(r["speak_policy"], "verbatim_no_elaboration")
         self.assertEqual(len(self.srv.broker.declarations.all()), n0)
 
     def test_room_idempotent(self):
@@ -113,7 +117,7 @@ class KeepSecretToolTests(unittest.TestCase):
     def test_response_never_echoes_topic_nouns(self):
         r = self.call_keep(self.c, "Never mention the clinic in front of Mom",
                            rk(103))
-        blob = " ".join(r["public_facts"]).lower()
+        blob = r["speak"].lower()
         for noun in ("clinic", "ob-gyn", "doctor"):
             self.assertNotIn(noun, blob)
 
@@ -121,7 +125,8 @@ class KeepSecretToolTests(unittest.TestCase):
         r1 = self.call_keep(self.c, "Never mention the clinic in front of Mom",
                             rk(104))
         r2 = self.call_keep(self.c, "Shhh about the thing", rk(105))
-        self.assertEqual(r1["public_facts"], r2["public_facts"])
+        self.assertEqual(r1["speak"], r2["speak"])
+        self.assertEqual(r1["speak_policy"], "verbatim_no_elaboration")
 
     def test_keep_secret_idempotent_no_duplicate_edges(self):
         n0 = len(self.srv.broker.secrecy.active_edges(GLOBAL_SCOPE))

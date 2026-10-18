@@ -1,0 +1,68 @@
+# S3 — Constant Shape: measured results (18 Oct 2026, ~18:55 IST)
+# Worktree s03 @ <branch seat/s03>. All measurements from the real stack:
+# S2's minimax planner (packages/hotlane) + S4's secrecy/declarations +
+# the S3 assembler (services/gateway/mcp/shape.py). Kernel untouched.
+
+## Test counts (all green)
+- services/gateway/mcp/tests:      91/91  (incl. 19 new test_constant_shape.py,
+                                            9 rewritten test_paired_world.py)
+- apps/simulator/tests:            35/35  (walkin rescoped honestly; gateway_port
+                                            now drives the real in-process Broker)
+- packages/kernel:                 24/24  (untouched, still green)
+- packages/hotlane (S2):           89/89  (untouched, still green)
+- packages/secrecy (S4):           green  (untouched, still green)
+- packages/slowlane (S1):          green  (untouched, still green)
+- packs/tests (S6):                33/33  (untouched, still green)
+- integration/tests (S6):          14/14  (untouched, still green)
+
+## Crown jewel: wire-level paired-world byte-identity (HTTP, full bodies)
+Fixed audience {priya, mom} (cover), secret-swap prenatal<->therapy:
+  chunk-1..4 + resolve + brief: BYTE-IDENTICAL (modulo opaque ref/plan_id)
+Fixed audience {priya, mom} (cover), strict<->empty (item removed):
+  BYTE-IDENTICAL (chunking runs over SPOKEN items only — absorbed rows
+  cannot shift chunk boundaries)
+Negative control (secret block mislabeled household-public):
+  body DIFFERS and CONTAINS "Prenatal" (suite has teeth: PASS)
+Open-mode utility (owner alone): speaks own appointment at d4
+  (anti-over-redaction: constant shape != constant silence)
+Opaque values shape-pinned: request_ref ^[A-Za-z0-9_-]{32}$,
+  plan_id ^pln_[0-9a-f]{16}$, table_version == 1 (constant by design)
+
+## Broker-level micro-measurement (plan + assemble, strict world)
+- cover {priya,mom}:  byte-identical=True, 0.91ms, mode=cover, speak 86 chars
+- open  {priya}:      byte-identical=True, 0.34ms, mode=open,  speak 122 chars
+- HTTP round trip p99 (gateway suite, N≈200): 10.07ms < 500ms budget — PASS
+
+## Properties pinned by tests (not just asserted in prose)
+1. Fixed suffix ALWAYS appended — even when nothing spoken/withheld
+   (test: suffix present on empty assembly AND on full assembly).
+2. No counts / ordinals / depths / sensitivities / item-ids in ANY field;
+   wrapper introduces no digits (fail-fast _assert_wrapper_clean on every
+   assembly, not just in tests).
+3. Probe vocabulary is ONE argless constant sentence — identical across
+   audiences and across worlds (host never forwards probes to a data path).
+4. Chunked turns: "next" re-plans remaining items against FRESH belief
+   (audience change between turns collapses at the turn boundary);
+   replay is idempotent (no advance, no double exposure commit);
+   withdraw drops chunk state; digest ALWAYS queued silently.
+5. Exposure budgets: pending exposures committed AFTER speaking, only for
+   items ACTUALLY spoken (S2's commit-after-speaking, chunk-aware).
+6. keep_secret TIGHTEN edges apply via the min-only overlay BEFORE planning
+   (clearance drops immediately on the next brief).
+7. every one of the 6 tools returns the sealed-speech contract;
+   content[0].text IS speak verbatim (envelope property asserted per call).
+8. day-card resource returns the contract (F1 count-leak closed on the
+   resource path too).
+
+## Honest limitations (documented, not hidden)
+- The fixture table compiler (shape.tables_for_world) and fixture sensing
+  (broker.set_fixture_audience) are labeled FIXTURE stand-ins for S1's
+  Disclosure Table compiler and the sensing layer. The planner, belief
+  fusion, gate, and assembler are REAL.
+- table_version is the constant 1 BY DESIGN in fixture (content-derived
+  versions would be a metadata leak); S1's real compiler must use a
+  monotonic epoch counter, never a content hash.
+- The day-card resource re-plans but does not commit exposures (read-only
+  view; speech acts own the budget — S2's lane).
+- Probe DETECTION in the simulator host is fixture regex (labeled); the
+  probe RESPONSE (the guarantee) is the constant.

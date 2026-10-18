@@ -206,8 +206,11 @@ class ProtocolTests(unittest.TestCase):
         import json as _j
         card = _j.loads(br["result"]["contents"][0]["text"])
         self.assertEqual(card["request_ref"], ref)
-        self.assertEqual(card["public_facts"],
-                         ["Collect groceries after 6.", "Dinner prep at 7 PM."])
+        # S3: the card is the sealed-speech contract — no public_facts list,
+        # no counts, fixed suffix always appended.
+        self.assertEqual(card["speak_policy"], "verbatim_no_elaboration")
+        self.assertNotIn("public_facts", card)
+        self.assertTrue(card["speak"].endswith("The rest of your day is on your phone."))
         blob = _j.dumps(card)
         for token in ("Prenatal", "Therapy", "Clinic", "930"):
             self.assertNotIn(token, blob)
