@@ -36,7 +36,50 @@ python -m trace_harness run --out evidence/
 
 # 3. Unit tests (harness + fixture server + negative control)
 python tests/test_harness.py
+
+# 4. SLO lab: privacy as a measurable SLO (adversarial listener,
+#    existence-AUC, Pareto over 4 baselines, counterfactual suites)
+PYTHONPATH=. python -m trace_harness slo --out evidence/slo --seed 7
+python -m unittest discover -s tests -p "test_slo.py"
 ```
+
+## The SLO lab (`trace_harness/slo/`)
+
+The paired-world harness tests the *server's* wire invariance. The SLO lab tests
+the *disclosure policy algebra* — the layer the architecture's headline claims
+live on ("the room can't learn what it can't tell apart"). A correct server can
+serve a leaky policy; the two layers must be falsifiable independently.
+
+- **Synthetic households**: 4–6 people with roles, 30 days × 2 episodes,
+  EN/HI/Hinglish fixture strings, seeded secrets with ground-truth
+  non-audiences. Secret days, public items, audiences, and belief noise are
+  seeded independently — determinism is total (`seed` reproduces bit-for-bit).
+- **Four baseline policies** as pure functions over identical episodes:
+  `native` (says everything), `keyword` (deny-list redaction — deliberately
+  leaky), `v1_lattice` (FULL/ABSTRACT/EXISTENCE/SILENT with the EXISTENCE
+  tell), `sealed_speech` (constant shape: fixed suffix always appended in
+  cover mode, phone digest always sent silently, no counts).
+- **Adversarial listener**: keyword-based, fixture vocabulary, hears ONLY what
+  was spoken in each listener's presence. Explicitly a **lower bound** on
+  adversary strength — anything it catches, a stronger adversary catches too.
+  Two tasks: existence classification (secret-day vs clean-day) and secret-topic
+  inference vs base rate.
+- **Existence AUC** (Mann-Whitney, stdlib): sealed 0.497 · v1 0.875 ·
+  keyword 0.921 · native 0.928 (seed 7, 200 triples each).
+- **Pareto** (leakage vs owner utility) emitted as JSON + SVG + Markdown.
+- **Counterfactual suites**: content_swap (prenatal→therapy), remove_item,
+  add_guest, replay_alone — public-view invariance (text, segments, phone_sent,
+  mode). sealed passes 4/4; v1 and keyword pass only content_swap (the tell is
+  content-independent but leaks existence); native fails all four.
+- **Negative controls**: a deliberately broken seal (withholding removed) is
+  caught by the AUC meter (AUC >> 0.5); the language-blindness test proves
+  disclosure decisions are invariant under string token-substitution.
+- **Belief model** (fixture): conservative presence estimation — detections may
+  add phantoms, never miss. Uncertainty widens the credible set (unknown
+  pseudo-person, clearance 0); the measured cost is cover-mode friction when
+  actually alone (sealed: 0.060), not silent leaks.
+
+See `evidence/slo/slo-report.md` (generated, committed) for the measured numbers.
 
 ## Pointing it at your server
 

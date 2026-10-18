@@ -1,0 +1,5 @@
+# Household Pack manifest — base (language-independent core).
+name: base
+version: 1
+inherits: null
+description: Language-independent core — topic taxonomy, role defaults, fallback templates.

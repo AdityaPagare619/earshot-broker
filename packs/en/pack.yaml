@@ -1,0 +1,5 @@
+# Household Pack manifest — English.
+name: en
+version: 1
+inherits: base
+description: English lexicon for the leak verifier + English rendition templates.

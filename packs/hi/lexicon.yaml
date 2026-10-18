@@ -1,0 +1,84 @@
+# Hindi leak-verifier lexicon — Devanagari AND Hinglish (romanized) forms.
+# The verifier normalizes (NFKC, lowercase) and transliterates Devanagari to
+# Latin deterministically, so "क्लाउडनाइन", "cloudnine" and "klaudnain" all
+# match the same alias set. Both scripts are first-class citizens here.
+lexicon:
+  health.reproductive:
+    terms:
+      - प्रेगनेंसी
+      - ओबी-जीवाईएन
+      - ob-gyn
+      - गर्भवती
+      - गर्भ
+      - pregnancy
+      - pregnant
+      - garbh
+      - garbhavati
+    aliases:
+      प्रेगनेंसी:
+        - pregnesi
+        - preganancy
+  health.general:
+    terms:
+      - दवा
+      - इलाज
+      - थेरेपी
+      - therapy
+      - davai
+      - ilaaj
+  finance:
+    terms:
+      - कर्ज़
+      - उधार
+      - लोन
+      - किश्त
+      - karz
+      - udhaar
+      - loan
+    aliases:
+      कर्ज़:
+        - karja
+  gift:
+    terms:
+      - तोहफ़ा
+      - इंस्टैक्स
+      - उपहार
+      - सरप्राइज़
+      - tohfa
+      - surprise
+      - gift
+    aliases:
+      तोहफ़ा:
+        - tohpha
+        - tofa
+  work:
+    terms:
+      - इंटरव्यू
+      - स्टैंडअप
+      - मीटिंग
+      - नौकरी
+      - इस्तीफ़ा
+      - interview
+      - naukri
+    aliases:
+      इंटरव्यू:
+        - intarvyu
+  relationship:
+    terms:
+      - तलाक़
+      - शादी
+      - talaq
+      - shaadi
+  legal:
+    terms:
+      - वकील
+      - कोर्ट
+      - मुकदमा
+      - vakil
+      - court
+  kids:
+    terms:
+      - रिपोर्ट कार्ड
+      - स्कूल
+      - report card
+      - school

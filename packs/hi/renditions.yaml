@@ -1,0 +1,30 @@
+# Hindi renditions — Devanagari. Each depth a strict information subset
+# of the one above, exactly like the English pack. Same placeholders,
+# same contract, different strings. The pipeline code cannot tell which
+# language pack produced the text it is assembling.
+renditions:
+  event:
+    d4: "{time} बजे {title} ({location})"
+    d3: "{time} बजे डॉक्टर की अपॉइंटमेंट"
+    d2: "{time} बजे एक अपॉइंटमेंट"
+    d1: "आज {daypart} कैलेंडर में कुछ है"
+  reminder:
+    d4: "याद रखें: {title}"
+    d3: "{category} की याद"
+    d2: "{daypart} एक याद रखने वाली बात है"
+    d1: "{daypart} कुछ याद रखना है"
+  delivery:
+    d4: "{sender} से {items} का पार्सल {daypart} आएगा"
+    d3: "{daypart} एक पार्सल आएगा"
+    d2: "{daypart} एक डिलीवरी है"
+    d1: "{daypart} कुछ आने वाला है"
+  note:
+    d4: "नोट: {title}"
+    d3: "{category} के बारे में एक नोट"
+    d2: "{daypart} एक नोट है"
+    d1: "{daypart} कुछ नोट किया है"
+  message_summary:
+    d4: "{title}"
+    d3: "{category} अपडेट"
+    d2: "{daypart} एक अपडेट है"
+    d1: "{daypart} कुछ देखना बाकी है"

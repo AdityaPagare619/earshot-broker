@@ -1,0 +1,23 @@
+# Topic taxonomy. Sensitivity 0..1 drives the credible-set threshold
+# eps(s) = 0.5 - 0.45*s : the more a topic matters, the less evidence is needed
+# to assume an unwanted listener.
+topics:
+  health:
+    sensitivity: 0.9
+    children:
+      reproductive:
+        sensitivity: 0.95
+      general:
+        sensitivity: 0.7
+  finance:
+    sensitivity: 0.85
+  gift:
+    sensitivity: 0.8
+  work:
+    sensitivity: 0.6
+  relationship:
+    sensitivity: 0.75
+  legal:
+    sensitivity: 0.9
+  kids:
+    sensitivity: 0.5

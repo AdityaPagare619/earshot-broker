@@ -1,0 +1,26 @@
+{
+  "native": {
+    "leakage_auc": 0.9278,
+    "auc_triples": 200,
+    "inference_rate": 0.5455,
+    "inference_base_rate": 0.25
+  },
+  "keyword": {
+    "leakage_auc": 0.9214,
+    "auc_triples": 200,
+    "inference_rate": 0.2727,
+    "inference_base_rate": 0.25
+  },
+  "v1_lattice": {
+    "leakage_auc": 0.8746,
+    "auc_triples": 200,
+    "inference_rate": 0.2727,
+    "inference_base_rate": 0.25
+  },
+  "sealed_speech": {
+    "leakage_auc": 0.4971,
+    "auc_triples": 200,
+    "inference_rate": 0.2727,
+    "inference_base_rate": 0.25
+  }
+}
