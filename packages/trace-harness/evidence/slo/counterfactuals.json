@@ -1,0 +1,107 @@
+{
+  "suites": [
+    "content_swap",
+    "remove_item",
+    "add_guest",
+    "replay_alone"
+  ],
+  "passed": "6/16",
+  "results": [
+    {
+      "suite": "content_swap",
+      "policy": "native",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. Prenatal checkup at Cloudnine with Dr. Mehta, 3:40 pm', 'segments': 4, 'phone_sent': False, 'mode': 'full'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. Job interview with Zepto, Friday 11 am, third round', 'segments': 4, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "content_swap",
+      "policy": "keyword",
+      "passed": true,
+      "detail": "identical public view"
+    },
+    {
+      "suite": "content_swap",
+      "policy": "v1_lattice",
+      "passed": true,
+      "detail": "identical public view"
+    },
+    {
+      "suite": "content_swap",
+      "policy": "sealed_speech",
+      "passed": true,
+      "detail": "identical public view"
+    },
+    {
+      "suite": "remove_item",
+      "policy": "native",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. Prenatal checkup at Cloudnine with Dr. Mehta, 3:40 pm', 'segments': 4, 'phone_sent': False, 'mode': 'full'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "remove_item",
+      "policy": "keyword",
+      "passed": false,
+      "detail": "A={'voice_text': \"Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. I can't share details about that.\", 'segments': 4, 'phone_sent': False, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "remove_item",
+      "policy": "v1_lattice",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. One private item, sent to your phone.', 'segments': 4, 'phone_sent': True, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "remove_item",
+      "policy": "sealed_speech",
+      "passed": true,
+      "detail": "identical public view"
+    },
+    {
+      "suite": "add_guest",
+      "policy": "native",
+      "passed": false,
+      "detail": "A={'voice_text': \"Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. Instax camera ordered for Maya's birthday, arrives Thursday\", 'segments': 4, 'phone_sent': False, 'mode': 'full'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "add_guest",
+      "policy": "keyword",
+      "passed": false,
+      "detail": "A={'voice_text': \"Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. I can't share details about that.\", 'segments': 4, 'phone_sent': False, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "add_guest",
+      "policy": "v1_lattice",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. One private item, sent to your phone.', 'segments': 4, 'phone_sent': True, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "add_guest",
+      "policy": "sealed_speech",
+      "passed": true,
+      "detail": "identical public view"
+    },
+    {
+      "suite": "replay_alone",
+      "policy": "native",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. Credit card bill overdue: Rs 18,400, pay before Friday', 'segments': 4, 'phone_sent': False, 'mode': 'full'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "replay_alone",
+      "policy": "keyword",
+      "passed": false,
+      "detail": "A={'voice_text': \"Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. I can't share details about that.\", 'segments': 4, 'phone_sent': False, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "replay_alone",
+      "policy": "v1_lattice",
+      "passed": false,
+      "detail": "A={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning. One private item, sent to your phone.', 'segments': 4, 'phone_sent': True, 'mode': 'cover'} B={'voice_text': 'Rain is forecast this evening. Markets closed flat today. Team standup at ten in the morning.', 'segments': 3, 'phone_sent': False, 'mode': 'full'}"
+    },
+    {
+      "suite": "replay_alone",
+      "policy": "sealed_speech",
+      "passed": true,
+      "detail": "identical public view"
+    }
+  ]
+}

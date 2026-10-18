@@ -1,0 +1,45 @@
+{
+  "seed": 7,
+  "n_households": 4,
+  "days_per_household": 30,
+  "episodes_per_household": 60,
+  "listener": "keyword fixture (LOWER BOUND on adversary strength)",
+  "points": {
+    "native": {
+      "leakage_auc": 0.9278,
+      "auc_triples": 200,
+      "inference_rate": 0.5455,
+      "inference_base_rate": 0.25,
+      "inference_n": 11,
+      "owner_utility": 1.0,
+      "friction": 0.0
+    },
+    "keyword": {
+      "leakage_auc": 0.9214,
+      "auc_triples": 200,
+      "inference_rate": 0.2727,
+      "inference_base_rate": 0.25,
+      "inference_n": 11,
+      "owner_utility": 0.9541,
+      "friction": 0.2502
+    },
+    "v1_lattice": {
+      "leakage_auc": 0.8746,
+      "auc_triples": 200,
+      "inference_rate": 0.2727,
+      "inference_base_rate": 0.25,
+      "inference_n": 11,
+      "owner_utility": 1.0,
+      "friction": 0.0
+    },
+    "sealed_speech": {
+      "leakage_auc": 0.4971,
+      "auc_triples": 200,
+      "inference_rate": 0.2727,
+      "inference_base_rate": 0.25,
+      "inference_n": 11,
+      "owner_utility": 1.0,
+      "friction": 0.06
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" font-family="Inter,Segoe UI,sans-serif">
+<rect width="640" height="420" fill="#11141c" rx="12"/>
+<text x="320.0" y="24" text-anchor="middle" fill="#eef1f8" font-size="15" font-weight="700">Privacy Pareto: leakage vs owner utility (seed 7)</text>
+<line x1="117.36842105263156" y1="40" x2="117.36842105263156" y2="360" stroke="#6b7390" stroke-dasharray="5,4"/>
+<text x="123.36842105263156" y="54" fill="#6b7390" font-size="11">chance (AUC 0.5)</text>
+<line x1="70" y1="40" x2="70" y2="360" stroke="#232a3d"/>
+<line x1="70" y1="360" x2="610" y2="360" stroke="#232a3d"/>
+<text x="117.36842105263156" y="378" text-anchor="middle" fill="#6b7390" font-size="11">0.5</text>
+<text x="212.1052631578947" y="378" text-anchor="middle" fill="#6b7390" font-size="11">0.6</text>
+<text x="306.8421052631578" y="378" text-anchor="middle" fill="#6b7390" font-size="11">0.7</text>
+<text x="401.57894736842104" y="378" text-anchor="middle" fill="#6b7390" font-size="11">0.8</text>
+<text x="496.31578947368416" y="378" text-anchor="middle" fill="#6b7390" font-size="11">0.9</text>
+<text x="591.0526315789474" y="378" text-anchor="middle" fill="#6b7390" font-size="11">1.0</text>
+<text x="62" y="364.0" text-anchor="end" fill="#6b7390" font-size="11">0.00</text>
+<text x="62" y="287.8095238095238" text-anchor="end" fill="#6b7390" font-size="11">0.25</text>
+<text x="62" y="211.61904761904762" text-anchor="end" fill="#6b7390" font-size="11">0.50</text>
+<text x="62" y="135.42857142857142" text-anchor="end" fill="#6b7390" font-size="11">0.75</text>
+<text x="62" y="59.23809523809524" text-anchor="end" fill="#6b7390" font-size="11">1.00</text>
+<text x="320.0" y="408" text-anchor="middle" fill="#9aa3b8" font-size="12">leakage: existence AUC (lower is better)</text>
+<text x="18" y="210.0" text-anchor="middle" fill="#9aa3b8" font-size="12" transform="rotate(-90 18 210.0)">owner utility (higher is better)</text>
+<circle cx="522.7" cy="55.2" r="9" fill="#f4738a" fill-opacity="0.85" stroke="#0b0d12" stroke-width="2"/>
+<text x="536.7" y="59.2" fill="#f4738a" font-size="12" font-weight="600">native (says everything) (0.93, 1.00)</text>
+<circle cx="516.6" cy="69.2" r="9" fill="#e8b34b" fill-opacity="0.85" stroke="#0b0d12" stroke-width="2"/>
+<text x="530.6" y="73.2" fill="#e8b34b" font-size="12" font-weight="600">keyword filter (0.92, 0.95)</text>
+<circle cx="472.3" cy="55.2" r="9" fill="#9a8cff" fill-opacity="0.85" stroke="#0b0d12" stroke-width="2"/>
+<text x="486.3" y="59.2" fill="#9a8cff" font-size="12" font-weight="600">v1 4-level lattice (0.87, 1.00)</text>
+<circle cx="114.6" cy="55.2" r="9" fill="#5fd08a" fill-opacity="0.85" stroke="#0b0d12" stroke-width="2"/>
+<text x="128.6" y="59.2" fill="#5fd08a" font-size="12" font-weight="600">sealed speech (0.50, 1.00)</text>
+</svg>
